@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.2
+    rev: v0.4.3
     hooks:
       - id: ruff
         name: ruff lint
@@ -8,15 +8,7 @@ repos:
           - --fix
       - id: ruff-format
         name: ruff format
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: "v1.3.0"
-  #   hooks:
-  #     - id: mypy
-  #       additional_dependencies: [pydantic]  # Make sure pydantic is included here
-  #       args: ["--ignore-missing-imports"]
-  #       exclude: ^(tests|docs)/
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1
     hooks:
       - id: gitlint
-

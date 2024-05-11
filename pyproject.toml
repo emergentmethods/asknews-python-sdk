@@ -6,7 +6,7 @@ authors = ["Emergent Methods <contact@emergentmethods.ai>"]
 packages = [{ include = "asknews_sdk" }]
 license = "MIT"
 readme = "README.md"
-repository = "https://gitlab.com/emergentmethods/asknews/python-sdk"
+repository = "https://github.com/emergentmethods/asknews-python-sdk"
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0"
@@ -18,17 +18,16 @@ asgiref = "^3.7.2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.2.0"
-ruff = "^0.4.2"
+ruff = "^0.4.3"
 pytest = "^7.3.1"
 pytest-asyncio = "^0.21.0"
-mkdocs = "^1.4.3"
-mkdocs-material = "^9.1.15"
 coverage = "^7.2.7"
 pre-commit = "^3.3.2"
+gitlint = "^0.19.1"
+commitizen = "^3.25.0"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "C", "B"]
-exclude = ["docs/*", "tests/*"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 15
