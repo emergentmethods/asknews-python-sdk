@@ -1,0 +1,13 @@
+version: "3"
+vars:
+  PACKAGE_SRC_DIR: asknews_sdk
+tasks:
+  # Lint
+  lint:
+    cmds:
+      - poetry run ruff check {{.PACKAGE_SRC_DIR}}
+      - poetry run ruff format --check {{.PACKAGE_SRC_DIR}}
+  # Build
+  build:
+    cmds:
+      - poetry build --format wheel
