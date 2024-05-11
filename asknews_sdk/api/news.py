@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Union
 from uuid import UUID
 
 from asknews_sdk.api.base import BaseAPI
@@ -12,7 +12,7 @@ class NewsAPI(BaseAPI):
     https://docs.asknews.app/en/reference#tag--news
     """
 
-    def get_article(self, article_id: str | UUID):
+    def get_article(self, article_id: Union[str, UUID]):
         response = self.client.request(
             method="GET",
             endpoint="/v1/news/{article_id}",
@@ -174,7 +174,7 @@ class AsyncNewsAPI(BaseAPI):
     https://docs.asknews.app/en/reference#tag--news
     """
 
-    async def get_article(self, article_id: str | UUID):
+    async def get_article(self, article_id: Union[str, UUID]):
         response = await self.client.request(
             method="GET",
             endpoint="/v1/news/{article_id}",
