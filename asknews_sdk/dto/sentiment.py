@@ -10,7 +10,7 @@ from asknews_sdk.dto.base import BaseSchema
 
 class FinanceResponseTimeSeriesData(BaseModel):
     datetime: Annotated[AwareDatetime, Field(title="Datetime")]
-    value: Annotated[int, Field(title="Value")]
+    value: Annotated[int | float, Field(title="Value")]
 
 
 class FinanceResponseTimeSeries(BaseModel):

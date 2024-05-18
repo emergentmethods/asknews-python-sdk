@@ -86,8 +86,8 @@ class NewsAPI(BaseAPI):
             is a string that can be any phrase, keyword, question, or paragraph that
             will be used for semantic search on the news. 'kw' means Keyword, which can
             also be any keyword(s), phrase, or paragraph, however the search is a direct
-            keyword search on the database.
-        :type method: Literal["nl", "kw"]
+            keyword search on the database. 'both' uses a hybrid approach.
+        :type method: Literal["nl", "kw", "both"]
         :param similarity_score_threshold: Similarity score threshold, defaults to 0.5
         :type similarity_score_threshold: float
         :param offset: Offset for pagination
@@ -190,7 +190,7 @@ class AsyncNewsAPI(BaseAPI):
         end_timestamp: Optional[int] = None,
         return_type: Literal["string", "dicts", "both"] = "dicts",
         historical: bool = False,
-        method: Literal["nl", "kw"] = "nl",
+        method: Literal["nl", "kw", "both"] = "nl",
         similarity_score_threshold: float = 0.5,
         offset: int = 0,
         categories: Optional[

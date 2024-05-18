@@ -60,6 +60,7 @@ class StoriesAPI(BaseAPI):
         reddit: int = 0,
         method: Literal["nl", "kw", "both"] = "kw",
         obj_type: Optional[List[Literal["story", "story_update"]]] = None,
+        provocative: Literal["unknown", "low", "medium", "high", "all"] = "all",
     ) -> StoriesResponse:
         """
         Get the news stories.
@@ -117,6 +118,7 @@ class StoriesAPI(BaseAPI):
                 "max_updates": max_updates,
                 "max_articles": max_articles,
                 "uuids": uuids,
+                "provocative": provocative,
             },
             accept=[(StoriesResponse.__content_type__, 1.0)],
         )
