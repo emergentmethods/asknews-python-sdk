@@ -98,14 +98,14 @@ class StoryResponseUpdate(BaseModel):
     confidence: Annotated[Optional[float], Field(0.0, title="Confidence")]
     provocative: Annotated[
         str, Field(title="A measure of how provocative this story update is.")
-    ]
+    ] = "low"
     reporting_voice: Annotated[
         str,
         Field(
             title="An overview of the reporting voice for the articles "
             "comprising this story update."
         ),
-    ]
+    ] = "Unknown"
 
 
 class StoryResponse(BaseSchema):

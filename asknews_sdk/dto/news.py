@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 
 from pydantic import AwareDatetime, BaseModel, Field, RootModel
 from typing_extensions import Annotated
+from datetime import datetime
 
 from asknews_sdk.dto.base import Article, BaseSchema
 
@@ -21,7 +22,7 @@ class SearchResponse(BaseSchema):
 
 
 class SourceReportItem(BaseModel):
-    bson_date: Annotated[AwareDatetime, Field(title="Bson Date")]
+    bson_date: Annotated[datetime, Field(title="Bson Date")]
     n_bucket: Annotated[int, Field(title="N Bucket")]
     n_selected: Annotated[int, Field(title="N Selected")]
     bucket_counts: Annotated[Dict[str, int], Field(title="Bucket Counts")]

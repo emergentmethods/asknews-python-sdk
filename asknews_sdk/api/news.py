@@ -327,7 +327,8 @@ class AsyncNewsAPI(BaseAPI):
         :rtype: SourceReportResponse
         """
         response = await self.client.request(
-            endpoint="/v1/stories/sources",
+            method="GET",
+            endpoint="/v1/sources",
             query={
                 "n_points": n_points,
                 "start_timestamp": start_timestamp,
