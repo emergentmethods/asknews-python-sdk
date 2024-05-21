@@ -68,9 +68,7 @@ class Article(BaseModel):
     provocative: Annotated[
         str, Field(title="A measure of how provocative this story update is.")
     ]
-    reporting_voice: Annotated[
-        str, Field(title="The reporting voice of the article.")
-    ]
+    reporting_voice: Annotated[str, Field(title="The reporting voice of the article.")]
 
 
 class PingResponse(BaseSchema):

@@ -104,7 +104,7 @@ class StoryResponseUpdate(BaseModel):
         Field(
             title="An overview of the reporting voice for the articles "
             "comprising this story update."
-        )
+        ),
     ]
 
 
