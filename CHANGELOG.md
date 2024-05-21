@@ -1,3 +1,9 @@
+## 0.6.4 (2024-05-21)
+
+### Fix
+
+- allow filtering on reporting voice and domain_url
+
 ## 0.6.3 (2024-05-18)
 
 ### Fix
