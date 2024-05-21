@@ -65,7 +65,9 @@ class Article(BaseModel):
     sentiment: Annotated[int, Field(title="Sentiment")]
     medoid_distance: Annotated[Optional[float], Field(title="Medoid Distance")] = None
     markdown_citation: Annotated[Optional[str], Field("", title="Markdown Citation")]
-    provocative: Annotated[str, Field(title="A measure of how provocative this story update is.")]
+    provocative: Annotated[
+        str, Field(title="A measure of how provocative this story update is.")
+    ]
     reporting_voice: Annotated[
         str, Field(title="The reporting voice of the article.")
     ]
