@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from pydantic import AwareDatetime, BaseModel, Field, RootModel
+from pydantic import BaseModel, Field, RootModel
 from typing_extensions import Annotated
 from datetime import datetime
 
