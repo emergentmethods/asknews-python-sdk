@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field, RootModel
 from typing_extensions import Annotated
-from datetime import datetime
 
 from asknews_sdk.dto.base import Article, BaseSchema
 
