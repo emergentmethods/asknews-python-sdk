@@ -96,6 +96,13 @@ class StoryResponseUpdate(BaseModel):
     countries: Annotated[Dict[str, int], Field(title="Countries")]
     markdown_citations: Annotated[List[str], Field(title="Markdown Citations")]
     confidence: Annotated[Optional[float], Field(0.0, title="Confidence")]
+    provocative: Annotated[str, Field(title="A measure of how provocative this story update is.")]
+    reporting_voice: Annotated[
+        str,
+        Field(
+            title="An overview of the reporting voice for the articles comprising this story update."
+        )
+    ]
 
 
 class StoryResponse(BaseSchema):

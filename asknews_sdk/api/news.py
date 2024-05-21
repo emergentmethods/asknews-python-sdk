@@ -28,7 +28,7 @@ class NewsAPI(BaseAPI):
         end_timestamp: Optional[int] = None,
         return_type: Literal["string", "dicts", "both"] = "dicts",
         historical: bool = False,
-        method: Literal["nl", "kw"] = "nl",
+        method: Literal["nl", "kw", "both"] = "nl",
         similarity_score_threshold: float = 0.5,
         offset: int = 0,
         categories: Optional[
@@ -54,6 +54,9 @@ class NewsAPI(BaseAPI):
         ] = None,
         doc_start_delimiter: str = "<doc>",
         doc_end_delimiter: str = "</doc>",
+        provocative: Optional[str] = "all",
+        reporting_voice: Optional[str] = "all",
+        domain_url: Optional[str] = None,
     ) -> SearchResponse:
         """
         Search for news articles given a query.
@@ -121,6 +124,9 @@ class NewsAPI(BaseAPI):
                 "similarity_score_threshold": similarity_score_threshold,
                 "doc_start_delimiter": doc_start_delimiter,
                 "doc_end_delimiter": doc_end_delimiter,
+                "provocative": provocative,
+                "reporting_voice": reporting_voice,
+                "domain_url": domain_url,
             },
             accept=[(SearchResponse.__content_type__, 1.0)],
         )
@@ -216,6 +222,9 @@ class AsyncNewsAPI(BaseAPI):
         ] = None,
         doc_start_delimiter: str = "<doc>",
         doc_end_delimiter: str = "</doc>",
+        provocative: Optional[str] = "all",
+        reporting_voice: Optional[str] = "all",
+        domain_url: Optional[str] = None,
     ) -> SearchResponse:
         """
         Search for news articles given a query.
@@ -283,6 +292,9 @@ class AsyncNewsAPI(BaseAPI):
                 "similarity_score_threshold": similarity_score_threshold,
                 "doc_start_delimiter": doc_start_delimiter,
                 "doc_end_delimiter": doc_end_delimiter,
+                "provocative": provocative,
+                "reporting_voice": reporting_voice,
+                "domain_url": domain_url,
             },
             accept=[(SearchResponse.__content_type__, 1.0)],
         )
