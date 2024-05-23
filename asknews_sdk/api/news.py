@@ -57,6 +57,7 @@ class NewsAPI(BaseAPI):
         provocative: Optional[str] = "all",
         reporting_voice: Optional[str] = "all",
         domain_url: Optional[str] = None,
+        page_rank: Optional[int] = None,
     ) -> SearchResponse:
         """
         Search for news articles given a query.
@@ -127,6 +128,7 @@ class NewsAPI(BaseAPI):
                 "provocative": provocative,
                 "reporting_voice": reporting_voice,
                 "domain_url": domain_url,
+                "page_rank": page_rank,
             },
             accept=[(SearchResponse.__content_type__, 1.0)],
         )
@@ -225,6 +227,7 @@ class AsyncNewsAPI(BaseAPI):
         provocative: Optional[str] = "all",
         reporting_voice: Optional[str] = "all",
         domain_url: Optional[str] = None,
+        page_rank: Optional[int] = None,
     ) -> SearchResponse:
         """
         Search for news articles given a query.
@@ -295,6 +298,7 @@ class AsyncNewsAPI(BaseAPI):
                 "provocative": provocative,
                 "reporting_voice": reporting_voice,
                 "domain_url": domain_url,
+                "page_rank": page_rank,
             },
             accept=[(SearchResponse.__content_type__, 1.0)],
         )

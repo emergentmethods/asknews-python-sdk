@@ -61,6 +61,7 @@ class StoriesAPI(BaseAPI):
         method: Literal["nl", "kw", "both"] = "kw",
         obj_type: Optional[List[Literal["story", "story_update"]]] = None,
         provocative: Literal["unknown", "low", "medium", "high", "all"] = "all",
+        citation_method: Literal["brackets", "urls", "none"] = "brackets",
     ) -> StoriesResponse:
         """
         Get the news stories.
@@ -119,6 +120,7 @@ class StoriesAPI(BaseAPI):
                 "max_articles": max_articles,
                 "uuids": uuids,
                 "provocative": provocative,
+                "citation_method": citation_method,
             },
             accept=[(StoriesResponse.__content_type__, 1.0)],
         )
@@ -132,6 +134,7 @@ class StoriesAPI(BaseAPI):
         max_updates: int = 11,
         max_articles: int = 5,
         reddit: int = 0,
+        citation_method: Literal["brackets", "urls", "none"] = "brackets",
     ) -> StoryResponse:
         """
         Get a single news story given the ID.
@@ -159,6 +162,7 @@ class StoriesAPI(BaseAPI):
                 "max_updates": max_updates,
                 "max_articles": max_articles,
                 "reddit": reddit,
+                "citation_method": citation_method,
             },
             params={"story_id": story_id},
             accept=[(StoryResponse.__content_type__, 1.0)],
@@ -222,6 +226,7 @@ class AsyncStoriesAPI(BaseAPI):
         method: Literal["nl", "kw", "both"] = "kw",
         obj_type: Optional[List[Literal["story", "story_update"]]] = None,
         provocative: Literal["unknown", "low", "medium", "high", "all"] = "all",
+        citation_method: Literal["brackets", "urls", "none"] = "brackets",
     ) -> StoriesResponse:
         """
         Get the news stories.
@@ -280,6 +285,7 @@ class AsyncStoriesAPI(BaseAPI):
                 "max_articles": max_articles,
                 "uuids": uuids,
                 "provocative": provocative,
+                "citation_method": citation_method,
             },
             accept=[(StoriesResponse.__content_type__, 1.0)],
         )
@@ -293,6 +299,8 @@ class AsyncStoriesAPI(BaseAPI):
         max_updates: int = 11,
         max_articles: int = 5,
         reddit: int = 0,
+        citation_method: Literal["brackets", "urls", "none"] = "brackets",
+        condense_auxillary_updates: bool = False,
     ) -> StoryResponse:
         """
         Get a single news story given the ID.
@@ -320,6 +328,8 @@ class AsyncStoriesAPI(BaseAPI):
                 "max_updates": max_updates,
                 "max_articles": max_articles,
                 "reddit": reddit,
+                "citation_method": citation_method,
+                "condense_auxillary_updates": condense_auxillary_updates,
             },
             params={"story_id": story_id},
             accept=[(StoryResponse.__content_type__, 1.0)],

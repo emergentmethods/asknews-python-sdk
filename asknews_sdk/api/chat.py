@@ -131,7 +131,7 @@ class AsyncChatAPI(BaseAPI):
         messages: List[Dict[str, str]],
         model: Literal[
             "gpt-3.5-turbo-16k",
-            "gpt-4-turbo-2024-04-09",
+            "gpt-4-1106-preview",
             "open-mixtral-8x7b",
             "meta-llama/Meta-Llama-3-70B-Instruct",
         ] = "gpt-3.5-turbo-16k",

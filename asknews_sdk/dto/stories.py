@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import AnyUrl, AwareDatetime, BaseModel, Field
@@ -63,6 +63,11 @@ class IntraClusterStatistics(BaseModel):
     ]
 
 
+class GraphRelationships(BaseModel):
+    nodes: list[dict[Literal["id", "type"], str]]
+    edges: list[dict[Literal["from", "to", "label"], str]]
+
+
 class StoryResponseUpdate(BaseModel):
     uuid: Annotated[UUID, Field(title="Uuid")]
     cluster_articles: Annotated[List[Article], Field(title="Cluster Articles")]
@@ -106,6 +111,10 @@ class StoryResponseUpdate(BaseModel):
             "comprising this story update."
         ),
     ] = "Unknown"
+    relationships: Annotated[
+        GraphRelationships, Field(title="Relationships mapped out between entities.")
+    ]
+    mermaid: Annotated[str, Field(title="Mermaid syntax for the relationships graph.")]
 
 
 class StoryResponse(BaseSchema):
