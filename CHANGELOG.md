@@ -1,3 +1,14 @@
+## 0.6.8 (2024-05-23)
+
+### Fix
+
+- README
+- ruff
+- ruff
+- add relationships to the StoryResponse model
+- use gpt4-1106 preview for now
+- improve filtering
+
 ## 0.6.7 (2024-05-21)
 
 ### Fix
