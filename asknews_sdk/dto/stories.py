@@ -67,6 +67,7 @@ class GraphRelationships(BaseModel):
     nodes: list[dict[Literal["id", "type"], str]]
     edges: list[dict[Literal["from", "to", "label"], str]]
 
+
 class StoryResponseUpdate(BaseModel):
     uuid: Annotated[UUID, Field(title="Uuid")]
     cluster_articles: Annotated[List[Article], Field(title="Cluster Articles")]
@@ -114,6 +115,7 @@ class StoryResponseUpdate(BaseModel):
         GraphRelationships, Field(title="Relationships mapped out between entities.")
     ]
     mermaid: Annotated[str, Field(title="Mermaid syntax for the relationships graph.")]
+
 
 class StoryResponse(BaseSchema):
     uuid: Annotated[UUID, Field(title="Uuid")]
