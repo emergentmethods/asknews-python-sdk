@@ -26,11 +26,17 @@ pre-commit = "^3.3.2"
 gitlint = "^0.19.1"
 commitizen = "^3.25.0"
 
+[tool.ruff]
+line-length = 100
+
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "C", "B"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 15
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
 
 [tool.mypy]
 plugins = "pydantic.mypy"

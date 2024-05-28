@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Optional, Set
+from typing import Optional, Set, Type, Union
 
-from asgiref.typing import ASGIApplication
+from httpx import AsyncClient, Client
 
 from asknews_sdk.api import (
     AnalyticsAPI,
@@ -14,7 +14,7 @@ from asknews_sdk.api import (
     NewsAPI,
     StoriesAPI,
 )
-from asknews_sdk.client import APIClient, AsyncAPIClient
+from asknews_sdk.client import CLIENT_DEFAULT, APIClient, AsyncAPIClient
 from asknews_sdk.dto.base import PingResponse
 from asknews_sdk.security import (
     AsyncTokenLoadHook,
@@ -22,6 +22,8 @@ from asknews_sdk.security import (
     TokenLoadHook,
     TokenSaveHook,
 )
+from asknews_sdk.types import RequestAuth
+
 
 DEFAULT_API_BASE_URL = "https://api.asknews.app"
 DEFAULT_TOKEN_URL = "https://auth.asknews.app/oauth2/token"
@@ -54,12 +56,18 @@ class AskNewsSDK:
     :type retries: int
     :param timeout: The timeout for requests.
     :type timeout: Optional[float]
+    :param follow_redirects: Whether or not to follow redirects.
+    :type follow_redirects: bool
+    :param client: The HTTP client to use.
+    :type client: Union[Type[Client], Client]
+    :param kwargs: Additional keyword arguments to pass to the HTTP client.
+    :type kwargs: Any
     """
 
     def __init__(
         self,
-        client_id: str,
-        client_secret: str,
+        client_id: Optional[str] = None,
+        client_secret: Optional[str] = None,
         scopes: Optional[Set[str]] = None,
         base_url: str = DEFAULT_API_BASE_URL,
         token_url: str = DEFAULT_TOKEN_URL,
@@ -67,9 +75,12 @@ class AskNewsSDK:
         retries: int = 3,
         timeout: Optional[float] = None,
         follow_redirects: bool = True,
-        _mock_server: Optional[Callable[..., Any]] = None,
+        client: Union[Type[Client], Client] = Client,
+        auth: Optional[RequestAuth] = CLIENT_DEFAULT,
+        *,
         _token_load_hook: Optional[TokenLoadHook] = None,
         _token_save_hook: Optional[TokenSaveHook] = None,
+        **kwargs,
     ) -> None:
         self.client = APIClient(
             client_id=client_id,
@@ -81,9 +92,11 @@ class AskNewsSDK:
             retries=retries,
             timeout=timeout,
             follow_redirects=follow_redirects,
-            _mock_server=_mock_server,
+            client=client,
+            auth=auth,
             _token_load_hook=_token_load_hook,
             _token_save_hook=_token_save_hook,
+            **kwargs,
         )
 
         self.analytics = AnalyticsAPI(self.client)
@@ -141,12 +154,18 @@ class AsyncAskNewsSDK:
     :type retries: int
     :param timeout: The timeout for requests.
     :type timeout: Optional[float]
+    :param follow_redirects: Whether or not to follow redirects.
+    :type follow_redirects: bool
+    :param client: The HTTP client to use.
+    :type client: Union[Type[AsyncClient], AsyncClient]
+    :param kwargs: Additional keyword arguments to pass to the HTTP client.
+    :type kwargs: Any
     """
 
     def __init__(
         self,
-        client_id: str,
-        client_secret: str,
+        client_id: Optional[str] = None,
+        client_secret: Optional[str] = None,
         scopes: Optional[Set[str]] = None,
         base_url: str = DEFAULT_API_BASE_URL,
         token_url: str = DEFAULT_TOKEN_URL,
@@ -154,9 +173,12 @@ class AsyncAskNewsSDK:
         retries: int = 3,
         timeout: Optional[float] = None,
         follow_redirects: bool = True,
-        _mock_server: Optional[ASGIApplication] = None,
+        client: Union[Type[AsyncClient], AsyncClient] = AsyncClient,
+        auth: Optional[RequestAuth] = CLIENT_DEFAULT,
+        *,
         _token_load_hook: Optional[AsyncTokenLoadHook] = None,
         _token_save_hook: Optional[AsyncTokenSaveHook] = None,
+        **kwargs
     ) -> None:
         self.client = AsyncAPIClient(
             client_id=client_id,
@@ -168,9 +190,11 @@ class AsyncAskNewsSDK:
             retries=retries,
             timeout=timeout,
             follow_redirects=follow_redirects,
-            _mock_server=_mock_server,
+            client=client,
+            auth=auth,
             _token_load_hook=_token_load_hook,
             _token_save_hook=_token_save_hook,
+            **kwargs,
         )
 
         self.analytics = AsyncAnalyticsAPI(self.client)

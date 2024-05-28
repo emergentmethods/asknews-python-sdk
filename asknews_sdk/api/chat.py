@@ -64,7 +64,7 @@ class ChatAPI(BaseAPI):
                 (CreateChatCompletionResponseStream.__content_type__, 1.0),
             ],
             stream=stream,
-            stream_type="lines",  # type: ignore
+            stream_type="lines",
         )
 
         if stream:
@@ -95,7 +95,7 @@ class ChatAPI(BaseAPI):
         """
         response = self.client.request(
             method="GET",
-            endpoint="/v1/openai/chat/models",
+            endpoint="/v1/openai/models",
             accept=[(ListModelResponse.__content_type__, 1.0)],
         )
         return ListModelResponse.model_validate(response.content)
@@ -232,7 +232,7 @@ class AsyncChatAPI(BaseAPI):
         """
         response = await self.client.request(
             method="GET",
-            endpoint="/v1/openai/chat/models",
+            endpoint="/v1/openai/models",
             accept=[(ListModelResponse.__content_type__, 1.0)],
         )
         return ListModelResponse.model_validate(response.content)
