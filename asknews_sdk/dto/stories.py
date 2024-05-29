@@ -46,18 +46,10 @@ class RedditComment(BaseModel):
 
 
 class IntraClusterStatistics(BaseModel):
-    cluster_articles_pct: Annotated[
-        Optional[float], Field(0.0, title="Cluster Articles Pct")
-    ]
-    cluster_countries_pct: Annotated[
-        Optional[float], Field(0.0, title="Cluster Countries Pct")
-    ]
-    cluster_domains_pct: Annotated[
-        Optional[float], Field(0.0, title="Cluster Domains Pct")
-    ]
-    cluster_languages_pct: Annotated[
-        Optional[float], Field(0.0, title="Cluster Languages Pct")
-    ]
+    cluster_articles_pct: Annotated[Optional[float], Field(0.0, title="Cluster Articles Pct")]
+    cluster_countries_pct: Annotated[Optional[float], Field(0.0, title="Cluster Countries Pct")]
+    cluster_domains_pct: Annotated[Optional[float], Field(0.0, title="Cluster Domains Pct")]
+    cluster_languages_pct: Annotated[Optional[float], Field(0.0, title="Cluster Languages Pct")]
     cluster_probabilities: Annotated[
         Optional[Dict[str, Union[int, float]]], Field({}, title="Cluster Probabilities")
     ]
@@ -134,9 +126,7 @@ class StoryResponse(BaseSchema):
     n_updates: Annotated[int, Field(title="N Updates")]
     people: Annotated[List[str], Field(title="People")]
     reddit_sentiment: Annotated[List[int], Field(title="Reddit Sentiment")]
-    reddit_sentiment_timestamps: Annotated[
-        List[int], Field(title="Reddit Sentiment Timestamps")
-    ]
+    reddit_sentiment_timestamps: Annotated[List[int], Field(title="Reddit Sentiment Timestamps")]
     rolling_sentiment: Annotated[List[float], Field(title="Rolling Sentiment")]
     sentiment: Annotated[List[int], Field(title="Sentiment")]
     sentiment_timestamps: Annotated[List[int], Field(title="Sentiment Timestamps")]

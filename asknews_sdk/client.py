@@ -65,15 +65,11 @@ class APIRequest:
             params=self.params,
         )
         self.headers = headers or {}
-        self.content_type = self.headers.pop(
-            "Content-Type", determine_content_type(body)
-        )
+        self.content_type = self.headers.pop("Content-Type", determine_content_type(body))
         self.body = serialize(body) if body and not isinstance(body, bytes) else None
         self.accept = accept or [
             (
-                self.content_type
-                if "json" in self.content_type
-                else "application/json",
+                self.content_type if "json" in self.content_type else "application/json",
                 1.0,
             )
         ]
@@ -99,7 +95,7 @@ class APIResponse:
         self.headers = headers
         self.body = body
         self.stream = stream
-        self.content_type = headers.get("Content-Type", "application/json")
+        self.content_type = headers.get("content-type", "application/json")
         self.content = self.deserialize_body() if not self.stream else self.body
 
     def deserialize_body(self) -> Any:
@@ -134,7 +130,7 @@ class BaseAPIClient:
         *,
         _token_save_hook: Optional[Union[TokenSaveHook, AsyncTokenSaveHook]] = None,
         _token_load_hook: Optional[Union[TokenLoadHook, AsyncTokenLoadHook]] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         self.client_id = client_id
         self.client_secret = client_secret
@@ -168,7 +164,7 @@ class BaseAPIClient:
                 auth=self._client_auth,
                 follow_redirects=self.follow_redirects,
                 headers={"User-Agent": user_agent},
-                **kwargs
+                **kwargs,
             )
         else:
             self._client = client
@@ -215,7 +211,7 @@ class APIClient(BaseAPIClient):
         *,
         _token_save_hook: Optional[TokenSaveHook] = None,
         _token_load_hook: Optional[TokenLoadHook] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         super().__init__(
             client_id=client_id,
@@ -232,7 +228,7 @@ class APIClient(BaseAPIClient):
             auth=auth,
             _token_save_hook=_token_save_hook,
             _token_load_hook=_token_load_hook,
-            **kwargs
+            **kwargs,
         )
 
     def close(self) -> None:
@@ -371,7 +367,7 @@ class AsyncAPIClient(BaseAPIClient):
         *,
         _token_save_hook: Optional[AsyncTokenSaveHook] = None,
         _token_load_hook: Optional[AsyncTokenLoadHook] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         super().__init__(
             client_id=client_id,
@@ -388,7 +384,7 @@ class AsyncAPIClient(BaseAPIClient):
             auth=auth,
             _token_save_hook=_token_save_hook,
             _token_load_hook=_token_load_hook,
-            **kwargs
+            **kwargs,
         )
 
     async def close(self) -> None:

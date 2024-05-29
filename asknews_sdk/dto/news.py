@@ -14,9 +14,7 @@ class SearchResponseDictItem(Article):
 
 
 class SearchResponse(BaseSchema):
-    as_dicts: Annotated[
-        Optional[List[SearchResponseDictItem]], Field(None, title="As Dicts")
-    ]
+    as_dicts: Annotated[Optional[List[SearchResponseDictItem]], Field(None, title="As Dicts")]
     as_string: Annotated[Optional[str], Field(None, title="As String")]
     offset: Annotated[Optional[int], Field(None, title="Offset")]
 

@@ -23,6 +23,7 @@ from typing_extensions import TypedDict
 
 class SecurityWarning(Warning): ...
 
+
 def encode_client_secret_basic(client_id: str, client_secret: str) -> str:
     text = f"{quote(client_id)}:{quote(client_secret)}"
     auth = base64.b64encode(text.encode()).decode()
@@ -114,10 +115,12 @@ class OAuth2ClientCredentials(Auth):
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Authorization": encode_client_secret_basic(self.client_id, self.client_secret),
             },
-            content=urlencode({
-                "grant_type": "client_credentials",
-                "scope": self.scope,
-            }),
+            content=urlencode(
+                {
+                    "grant_type": "client_credentials",
+                    "scope": self.scope,
+                }
+            ),
         )
 
     def inject_headers(self, request: Request) -> Request:
@@ -143,10 +146,7 @@ class OAuth2ClientCredentials(Auth):
 
         yield self.inject_headers(request)
 
-        if (
-            self._token_save_hook
-            and inspect.isfunction(self._token_save_hook)
-        ):
+        if self._token_save_hook and inspect.isfunction(self._token_save_hook):
             with self._token_lock:
                 self._token_save_hook(self.token.token_info)
 
@@ -169,10 +169,7 @@ class OAuth2ClientCredentials(Auth):
 
         yield self.inject_headers(request)
 
-        if (
-            self._token_save_hook
-            and inspect.iscoroutinefunction(self._token_save_hook)
-        ):
+        if self._token_save_hook and inspect.iscoroutinefunction(self._token_save_hook):
             async with self._atoken_lock:
                 await self._token_save_hook(self.token.token_info)
 
@@ -202,8 +199,7 @@ def _save_token_disk(
     file_path: Union[Path, str], client_id: str, client_secret: str
 ) -> TokenSaveHook:
     warnings.warn(
-        "Saving access tokens to disk is dangerous and should be avoided. "
-        "Use at your own risk.",
+        "Saving access tokens to disk is dangerous and should be avoided. " "Use at your own risk.",
         SecurityWarning,
         stacklevel=2,
     )
@@ -222,9 +218,7 @@ def _save_token_disk(
     return _save_token
 
 
-def _load_token_disk(
-    file_path: Path, client_id: str, client_secret: str
-) -> TokenLoadHook:
+def _load_token_disk(file_path: Path, client_id: str, client_secret: str) -> TokenLoadHook:
     if not isinstance(file_path, Path):
         file_path = Path(file_path)
 
@@ -247,8 +241,7 @@ def _save_token_disk_async(
     file_path: Union[Path, AsyncPath, str], client_id: str, client_secret: str
 ) -> AsyncTokenSaveHook:
     warnings.warn(
-        "Saving access tokens to disk is dangerous and should be avoided. "
-        "Use at your own risk.",
+        "Saving access tokens to disk is dangerous and should be avoided. " "Use at your own risk.",
         SecurityWarning,
         stacklevel=2,
     )

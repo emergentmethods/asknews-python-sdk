@@ -26,9 +26,7 @@ class ChatAPI(BaseAPI):
             "mixtral-8x7b-32768",
         ] = "gpt-3.5-turbo-16k",
         stream: bool = False,
-    ) -> Union[
-        CreateChatCompletionResponse, Iterator[CreateChatCompletionResponseStream]
-    ]:
+    ) -> Union[CreateChatCompletionResponse, Iterator[CreateChatCompletionResponseStream]]:
         """
         Get chat completions for a given user message.
 
@@ -76,9 +74,7 @@ class ChatAPI(BaseAPI):
 
                     if chunk.startswith("data:"):
                         json_data = chunk.replace("data: ", "").strip()
-                        yield CreateChatCompletionResponseStream.model_validate_json(
-                            json_data
-                        )
+                        yield CreateChatCompletionResponseStream.model_validate_json(json_data)
 
             return _stream()
         else:
@@ -100,9 +96,7 @@ class ChatAPI(BaseAPI):
         )
         return ListModelResponse.model_validate(response.content)
 
-    def get_headline_questions(
-        self, queries: Optional[List[str]] = None
-    ) -> Dict[str, List[str]]:
+    def get_headline_questions(self, queries: Optional[List[str]] = None) -> Dict[str, List[str]]:
         """
         Get headline questions for a given query.
 
@@ -136,9 +130,7 @@ class AsyncChatAPI(BaseAPI):
             "meta-llama/Meta-Llama-3-70B-Instruct",
         ] = "gpt-3.5-turbo-16k",
         stream: bool = False,
-        inline_citations: Literal[
-            "markdown_link", "numbered", "none"
-        ] = "markdown_link",
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
         asknews_watermark: bool = True,
         journalist_mode: bool = True,
@@ -150,9 +142,7 @@ class AsyncChatAPI(BaseAPI):
         presence_penalty: float = 0,
         frequency_penalty: float = 0,
         user: Optional[str] = None,
-    ) -> Union[
-        CreateChatCompletionResponse, AsyncIterator[CreateChatCompletionResponseStream]
-    ]:
+    ) -> Union[CreateChatCompletionResponse, AsyncIterator[CreateChatCompletionResponseStream]]:
         """
         Get chat completions for a given user message.
 
@@ -213,9 +203,7 @@ class AsyncChatAPI(BaseAPI):
 
                     if chunk.startswith("data:"):
                         json_data = chunk.replace("data: ", "").strip()
-                        yield CreateChatCompletionResponseStream.model_validate_json(
-                            json_data
-                        )
+                        yield CreateChatCompletionResponseStream.model_validate_json(json_data)
 
             return _stream()
         else:

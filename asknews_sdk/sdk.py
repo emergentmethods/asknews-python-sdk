@@ -178,7 +178,7 @@ class AsyncAskNewsSDK:
         *,
         _token_load_hook: Optional[AsyncTokenLoadHook] = None,
         _token_save_hook: Optional[AsyncTokenSaveHook] = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         self.client = AsyncAPIClient(
             client_id=client_id,
