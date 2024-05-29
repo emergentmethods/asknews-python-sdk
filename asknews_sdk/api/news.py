@@ -2,7 +2,7 @@ from typing import List, Literal, Optional, Union
 from uuid import UUID
 
 from asknews_sdk.api.base import BaseAPI
-from asknews_sdk.dto.news import Article, SearchResponse, SourceReportResponse
+from asknews_sdk.dto.news import ArticleResponse, SearchResponse, SourceReportResponse
 
 
 class NewsAPI(BaseAPI):
@@ -12,13 +12,24 @@ class NewsAPI(BaseAPI):
     https://docs.asknews.app/en/reference#tag--news
     """
 
-    def get_article(self, article_id: Union[str, UUID]):
+    def get_article(self, article_id: Union[str, UUID]) -> ArticleResponse:
+        """
+        Get a news article by its UUID.
+
+        https://docs.asknews.app/en/reference#get-/v1/news/-article_id-
+
+        :param article_id: The UUID of the article.
+        :type article_id: Union[str, UUID]
+        :return: The article response.
+        :rtype: ArticleResponse
+        """
         response = self.client.request(
             method="GET",
             endpoint="/v1/news/{article_id}",
             params={"article_id": article_id},
+            accept=[(ArticleResponse.__content_type__, 1.0)],
         )
-        return Article.model_validate(response.content)
+        return ArticleResponse.model_validate(response.content)
 
     def search_news(
         self,
@@ -183,12 +194,23 @@ class AsyncNewsAPI(BaseAPI):
     """
 
     async def get_article(self, article_id: Union[str, UUID]):
+        """
+        Get a news article by its UUID.
+
+        https://docs.asknews.app/en/reference#get-/v1/news/-article_id-
+
+        :param article_id: The UUID of the article.
+        :type article_id: Union[str, UUID]
+        :return: The article response.
+        :rtype: ArticleResponse
+        """
         response = await self.client.request(
             method="GET",
             endpoint="/v1/news/{article_id}",
             params={"article_id": article_id},
+            accept=[(ArticleResponse.__content_type__, 1.0)],
         )
-        return Article.model_validate(response.content)
+        return ArticleResponse.model_validate(response.content)
 
     async def search_news(
         self,

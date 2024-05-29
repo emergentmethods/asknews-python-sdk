@@ -31,3 +31,7 @@ class SourceReportItem(BaseModel):
 
 class SourceReportResponse(BaseSchema, RootModel[List[SourceReportItem]]):
     root: Annotated[List[SourceReportItem], Field(title="SourceReportResponse")]
+
+
+class ArticleResponse(BaseSchema, Article):
+    ...
