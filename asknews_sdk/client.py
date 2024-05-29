@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import (
     Any,
+    Coroutine,
     Dict,
     List,
     Optional,
@@ -12,7 +13,8 @@ from typing import (
 
 from httpx import AsyncClient, Client, HTTPStatusError, Request, Response
 
-from asknews_sdk.errors import raise_from_json
+from asknews_sdk.errors import raise_from_response
+from asknews_sdk.response import APIResponse
 from asknews_sdk.security import (
     AsyncTokenLoadHook,
     AsyncTokenSaveHook,
@@ -20,94 +22,19 @@ from asknews_sdk.security import (
     TokenLoadHook,
     TokenSaveHook,
 )
-from asknews_sdk.types import RequestAuth, StreamType
+from asknews_sdk.types import CLIENT_DEFAULT, RequestAuth, Sentinel, StreamType
 from asknews_sdk.utils import (
     build_accept_header,
     build_url,
-    deserialize,
     determine_content_type,
     serialize,
 )
 from asknews_sdk.version import __version__
 
 
-CLIENT_DEFAULT = object()
-
 USER_AGENT = f"asknews-sdk-python/{__version__}"
 
 
-class APIResponse:
-    """
-    API Response object returned by the APIClient.
-    """
-    def __init__(
-        self,
-        request: Request,
-        status_code: int,
-        headers: Dict,
-        body: bytes,
-        stream: bool = False,
-    ) -> None:
-        self.request = request
-        self.status_code = status_code
-        self.headers = headers
-        self.body = body
-        self.stream = stream
-        self.content_type = headers.get("content-type", "application/json")
-        self.content = self._deserialize_body() if not self.stream else self.body
-
-    def _deserialize_body(self) -> Any:
-        if self.content_type == "application/octet-stream":
-            return self.body
-        elif self.content_type == "application/json":
-            return deserialize(self.body)
-        elif self.content_type == "text/plain":
-            return self.body.decode("utf-8")
-        else:
-            return self.body
-
-    @classmethod
-    def from_httpx_response(
-        cls,
-        response: Response,
-        stream: bool = False,
-        stream_type: StreamType = "bytes",
-        sync: bool = True,
-    ) -> APIResponse:
-        """
-        Create an APIResponse object from an HTTPX Response object.
-
-        :param response: HTTPX Response object
-        :type response: Response
-        :param stream: Stream response content
-        :type stream: bool
-        :param stream_type: Stream type
-        :type stream_type: StreamType
-        :param sync: Synchronous or asynchronous
-        :type sync: bool
-        :return: APIResponse object
-        :rtype: APIResponse
-        """
-        if stream:
-            match stream_type:
-                case "bytes":
-                    response_body = response.iter_bytes() if sync else response.aiter_bytes()
-                case "lines":
-                    response_body = response.iter_lines() if sync else response.aiter_lines()
-                case "raw":
-                    response_body = response.iter_raw() if sync else response.aiter_raw()
-                case _:
-                    raise ValueError(f"Invalid stream type: {stream_type}")
-        else:
-            response_body = response.content
-
-        return cls(
-            request=response.request,
-            status_code=response.status_code,
-            headers=dict(response.headers.items()),
-            body=response_body,
-            stream=stream,
-        )
 
 class BaseAPIClient:
     def __init__(
@@ -126,7 +53,7 @@ class BaseAPIClient:
             Union[Type[AsyncClient], AsyncClient],
         ],
         user_agent: str,
-        auth: Optional[RequestAuth],
+        auth: Optional[RequestAuth | Sentinel],
         *,
         _token_save_hook: Optional[Union[TokenSaveHook, AsyncTokenSaveHook]] = None,
         _token_load_hook: Optional[Union[TokenLoadHook, AsyncTokenLoadHook]] = None,
@@ -145,6 +72,10 @@ class BaseAPIClient:
 
         if auth:
             if auth is CLIENT_DEFAULT:
+                assert client_id and client_secret, (
+                    "client_id and client_secret are required for client credentials"
+                )
+
                 self._client_auth = OAuth2ClientCredentials(
                     client_id=self.client_id,
                     client_secret=self.client_secret,
@@ -237,7 +168,7 @@ class APIClient(BaseAPIClient):
         follow_redirects: bool = True,
         client: Union[Type[Client], Client] = Client,
         user_agent: str = USER_AGENT,
-        auth: Optional[RequestAuth] = CLIENT_DEFAULT,
+        auth: Optional[RequestAuth | Sentinel] = CLIENT_DEFAULT,
         *,
         _token_save_hook: Optional[TokenSaveHook] = None,
         _token_load_hook: Optional[TokenLoadHook] = None,
@@ -312,7 +243,7 @@ class APIClient(BaseAPIClient):
         :return: APIResponse object
         :rtype: APIResponse
         """
-        response = self._client.send(
+        response: Response = self._client.send(
             self.build_api_request(
                 method=method,
                 endpoint=endpoint,
@@ -326,7 +257,13 @@ class APIClient(BaseAPIClient):
         try:
             response.raise_for_status()
         except HTTPStatusError as e:
-            raise_from_json(e.response.json())
+            raise_from_response(
+                APIResponse.from_httpx_response(
+                    response=e.response,
+                    stream=False,
+                    sync=True,
+                )
+            )
 
         return APIResponse.from_httpx_response(
             response=response,
@@ -373,7 +310,7 @@ class AsyncAPIClient(BaseAPIClient):
         follow_redirects: bool = True,
         client: Union[Type[AsyncClient], AsyncClient] = AsyncClient,
         user_agent: str = USER_AGENT,
-        auth: Optional[RequestAuth] = CLIENT_DEFAULT,
+        auth: Optional[RequestAuth | Sentinel] = CLIENT_DEFAULT,
         *,
         _token_save_hook: Optional[AsyncTokenSaveHook] = None,
         _token_load_hook: Optional[AsyncTokenLoadHook] = None,
@@ -448,7 +385,7 @@ class AsyncAPIClient(BaseAPIClient):
         :return: APIResponse object
         :rtype: APIResponse
         """
-        response = await self._client.send(
+        response: Response = await self._client.send(
             self.build_api_request(
                 method=method,
                 endpoint=endpoint,
@@ -463,7 +400,13 @@ class AsyncAPIClient(BaseAPIClient):
         try:
             response.raise_for_status()
         except HTTPStatusError as e:
-            raise_from_json(e.response.json())
+            raise_from_response(
+                APIResponse.from_httpx_response(
+                    response=e.response,
+                    stream=False,
+                    sync=False,
+                )
+            )
 
         return APIResponse.from_httpx_response(
             response=response,

@@ -14,7 +14,7 @@ from asknews_sdk.api import (
     NewsAPI,
     StoriesAPI,
 )
-from asknews_sdk.client import CLIENT_DEFAULT, APIClient, AsyncAPIClient
+from asknews_sdk.client import APIClient, AsyncAPIClient
 from asknews_sdk.dto.base import PingResponse
 from asknews_sdk.security import (
     AsyncTokenLoadHook,
@@ -22,7 +22,7 @@ from asknews_sdk.security import (
     TokenLoadHook,
     TokenSaveHook,
 )
-from asknews_sdk.types import RequestAuth
+from asknews_sdk.types import CLIENT_DEFAULT, RequestAuth, Sentinel
 
 
 DEFAULT_API_BASE_URL = "https://api.asknews.app"
@@ -76,7 +76,7 @@ class AskNewsSDK:
         timeout: Optional[float] = None,
         follow_redirects: bool = True,
         client: Union[Type[Client], Client] = Client,
-        auth: Optional[RequestAuth] = CLIENT_DEFAULT,
+        auth: Optional[RequestAuth | Sentinel] = CLIENT_DEFAULT,
         *,
         _token_load_hook: Optional[TokenLoadHook] = None,
         _token_save_hook: Optional[TokenSaveHook] = None,
@@ -174,7 +174,7 @@ class AsyncAskNewsSDK:
         timeout: Optional[float] = None,
         follow_redirects: bool = True,
         client: Union[Type[AsyncClient], AsyncClient] = AsyncClient,
-        auth: Optional[RequestAuth] = CLIENT_DEFAULT,
+        auth: Optional[RequestAuth | Sentinel] = CLIENT_DEFAULT,
         *,
         _token_load_hook: Optional[AsyncTokenLoadHook] = None,
         _token_save_hook: Optional[AsyncTokenSaveHook] = None,
@@ -202,7 +202,7 @@ class AsyncAskNewsSDK:
         self.news = AsyncNewsAPI(self.client)
         self.chat = AsyncChatAPI(self.client)
 
-    async def __aenter__(self) -> AskNewsSDK:
+    async def __aenter__(self) -> AsyncAskNewsSDK:
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:

@@ -266,7 +266,7 @@ def _load_token_disk_async(
     if not isinstance(file_path, AsyncPath):
         file_path = AsyncPath(file_path)
 
-    async def _load_token() -> OAuthToken:
+    async def _load_token() -> TokenInfo:
         if not await file_path.exists():
             return {}
 
