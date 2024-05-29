@@ -10,7 +10,7 @@ from typing import (
     Union,
 )
 
-from httpx import AsyncClient, Client, HTTPStatusError
+from httpx import AsyncClient, Client, HTTPStatusError, Request, Response
 
 from asknews_sdk.errors import raise_from_json
 from asknews_sdk.security import (
@@ -36,55 +36,13 @@ CLIENT_DEFAULT = object()
 USER_AGENT = f"asknews-sdk-python/{__version__}"
 
 
-class APIRequest:
-    """
-    API Request object used by the APIClient.
-    """
-
-    def __init__(
-        self,
-        base_url: str,
-        method: str,
-        endpoint: str,
-        body: Optional[Any] = None,
-        query: Optional[Dict] = None,
-        headers: Optional[Dict] = None,
-        params: Optional[Dict] = None,
-        accept: Optional[List[tuple[str, float]]] = None,
-    ) -> None:
-        self.base_url = base_url
-        self.method = method
-        self.endpoint = endpoint
-        self.query = query
-        self.params = params
-        self.accept = accept
-        self.url = build_url(
-            base_url=self.base_url,
-            endpoint=self.endpoint,
-            query=self.query,
-            params=self.params,
-        )
-        self.headers = headers or {}
-        self.content_type = self.headers.pop("Content-Type", determine_content_type(body))
-        self.body = serialize(body) if body and not isinstance(body, bytes) else None
-        self.accept = accept or [
-            (
-                self.content_type if "json" in self.content_type else "application/json",
-                1.0,
-            )
-        ]
-        self.headers["Content-Type"] = self.content_type
-        self.headers["Accept"] = build_accept_header(self.accept)
-
-
 class APIResponse:
     """
     API Response object returned by the APIClient.
     """
-
     def __init__(
         self,
-        request: APIRequest,
+        request: Request,
         status_code: int,
         headers: Dict,
         body: bytes,
@@ -96,9 +54,9 @@ class APIResponse:
         self.body = body
         self.stream = stream
         self.content_type = headers.get("content-type", "application/json")
-        self.content = self.deserialize_body() if not self.stream else self.body
+        self.content = self._deserialize_body() if not self.stream else self.body
 
-    def deserialize_body(self) -> Any:
+    def _deserialize_body(self) -> Any:
         if self.content_type == "application/octet-stream":
             return self.body
         elif self.content_type == "application/json":
@@ -108,6 +66,48 @@ class APIResponse:
         else:
             return self.body
 
+    @classmethod
+    def from_httpx_response(
+        cls,
+        response: Response,
+        stream: bool = False,
+        stream_type: StreamType = "bytes",
+        sync: bool = True,
+    ) -> APIResponse:
+        """
+        Create an APIResponse object from an HTTPX Response object.
+
+        :param response: HTTPX Response object
+        :type response: Response
+        :param stream: Stream response content
+        :type stream: bool
+        :param stream_type: Stream type
+        :type stream_type: StreamType
+        :param sync: Synchronous or asynchronous
+        :type sync: bool
+        :return: APIResponse object
+        :rtype: APIResponse
+        """
+        if stream:
+            match stream_type:
+                case "bytes":
+                    response_body = response.iter_bytes() if sync else response.aiter_bytes()
+                case "lines":
+                    response_body = response.iter_lines() if sync else response.aiter_lines()
+                case "raw":
+                    response_body = response.iter_raw() if sync else response.aiter_raw()
+                case _:
+                    raise ValueError(f"Invalid stream type: {stream_type}")
+        else:
+            response_body = response.content
+
+        return cls(
+            request=response.request,
+            status_code=response.status_code,
+            headers=dict(response.headers.items()),
+            body=response_body,
+            stream=stream,
+        )
 
 class BaseAPIClient:
     def __init__(
@@ -168,6 +168,36 @@ class BaseAPIClient:
             )
         else:
             self._client = client
+
+    def build_api_request(
+        self,
+        method: str,
+        endpoint: str,
+        body: Optional[Any] = None,
+        query: Optional[Dict] = None,
+        headers: Optional[Dict] = None,
+        params: Optional[Dict] = None,
+        accept: Optional[List[tuple[str, float]]] = None,
+    ) -> Request:
+        headers = headers or {}
+        content_type = headers.pop("content-type", determine_content_type(body)) if body else None
+
+        if content_type:
+            headers["content-type"] = content_type
+
+        headers["accept"] = build_accept_header(accept or [("application/json", 1.0)])
+
+        return Request(
+            method=method,
+            url=build_url(
+                base_url=self.base_url,
+                endpoint=endpoint,
+                query=query,
+                params=params,
+            ),
+            content=serialize(body) if body and not isinstance(body, bytes) else body,
+            headers=headers,
+        )
 
 
 class APIClient(BaseAPIClient):
@@ -282,47 +312,27 @@ class APIClient(BaseAPIClient):
         :return: APIResponse object
         :rtype: APIResponse
         """
-        request = APIRequest(
-            base_url=self.base_url,
-            method=method,
-            endpoint=endpoint,
-            body=body,
-            query=query,
-            headers=headers,
-            params=params,
-            accept=accept,
-        )
-
-        response = self._client.request(
-            method=request.method,
-            url=request.url,
-            content=request.body,
-            headers=request.headers,
+        response = self._client.send(
+            self.build_api_request(
+                method=method,
+                endpoint=endpoint,
+                body=body,
+                query=query,
+                headers=headers,
+                params=params,
+                accept=accept,
+            )
         )
         try:
             response.raise_for_status()
         except HTTPStatusError as e:
             raise_from_json(e.response.json())
 
-        if stream:
-            match stream_type:
-                case "bytes":
-                    response_body = response.iter_bytes()
-                case "lines":
-                    response_body = response.iter_lines()
-                case "raw":
-                    response_body = response.iter_raw()
-                case _:
-                    raise ValueError(f"Invalid stream type: {stream_type}")
-        else:
-            response_body = response.content
-
-        return APIResponse(
-            request=request,
-            status_code=response.status_code,
-            headers=dict(response.headers.items()),
-            body=response_body,
+        return APIResponse.from_httpx_response(
+            response=response,
             stream=stream,
+            stream_type=stream_type,
+            sync=True,
         )
 
 
@@ -438,45 +448,26 @@ class AsyncAPIClient(BaseAPIClient):
         :return: APIResponse object
         :rtype: APIResponse
         """
-        request = APIRequest(
-            base_url=self.base_url,
-            method=method,
-            endpoint=endpoint,
-            body=body,
-            query=query,
-            headers=headers,
-            params=params,
-            accept=accept,
+        response = await self._client.send(
+            self.build_api_request(
+                method=method,
+                endpoint=endpoint,
+                body=body,
+                query=query,
+                headers=headers,
+                params=params,
+                accept=accept,
+            )
         )
 
-        response = await self._client.request(
-            method=request.method,
-            url=request.url,
-            content=request.body,
-            headers=request.headers,
-        )
         try:
             response.raise_for_status()
         except HTTPStatusError as e:
             raise_from_json(e.response.json())
 
-        if stream:
-            match stream_type:
-                case "bytes":
-                    response_body = response.aiter_bytes()
-                case "lines":
-                    response_body = response.aiter_lines()
-                case "raw":
-                    response_body = response.aiter_raw()
-                case _:
-                    raise ValueError(f"Invalid stream type: {stream_type}")
-        else:
-            response_body = response.content
-
-        return APIResponse(
-            request=request,
-            status_code=response.status_code,
-            headers=dict(response.headers.items()),
-            body=response_body,
+        return APIResponse.from_httpx_response(
+            response=response,
             stream=stream,
+            stream_type=stream_type,
+            sync=False,
         )
