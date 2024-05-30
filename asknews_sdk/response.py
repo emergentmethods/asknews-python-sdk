@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, AsyncIterator, Dict, Iterator, Union
 
 from httpx import Request, Response
 
-from asknews_sdk.types import StreamType
-from asknews_sdk.utils import deserialize
+from asknews_sdk.types import ServerSentEvent, StreamType
+from asknews_sdk.utils import deserialize, is_async_iterator, is_iterator
 
 
 class APIResponse:
@@ -80,3 +80,83 @@ class APIResponse:
             body=response_body,
             stream=stream,
         )
+
+
+class EventSource:
+    """
+    EventSource object for streaming Server-Sent Events.
+    """
+    def __init__(
+        self,
+        iterator: Union[Iterator[bytes], AsyncIterator[bytes]],
+        encoding: str = "utf-8"
+    ) -> None:
+        self.iterator = iterator
+        self.encoding = encoding
+        self.current_event = ServerSentEvent()
+
+    def __iter__(self) -> Iterator[ServerSentEvent]:
+        assert is_iterator(self.iterator), "Iterator must be an synchronous iterator"
+
+        for line in self.iterator:
+            if isinstance(line, bytes):
+                line = line.decode(self.encoding)
+
+            if line := line.strip():
+                self.parse_line(line)
+            elif self.current_event.data:
+                yield self.current_event
+                self.current_event = ServerSentEvent()
+
+    async def __aiter__(self) -> AsyncIterator[ServerSentEvent]:
+        assert is_async_iterator(self.iterator), "Iterator must be an asynchronous iterator"
+
+        async for line in self.iterator:
+            if isinstance(line, bytes):
+                line = line.decode(self.encoding)
+
+            if line := line.strip():
+                self.parse_line(line)
+            elif self.current_event.data:
+                yield self.current_event
+                self.current_event = ServerSentEvent()
+
+    def parse_line(self, line: str) -> None:
+        if line.startswith(":"):
+            return
+
+        key, _, value = line.partition(":")
+
+        if value.startswith(" "):
+            value = value[1:]
+
+        key, value = key.strip(), value.strip()
+
+        match key:
+            case "event":
+                self.current_event.event = value
+            case "data":
+                self.current_event.data.append(value)
+            case "id":
+                self.current_event.id = value
+            case "retry":
+                try:
+                    self.current_event.retry = int(value)
+                except ValueError:
+                    pass
+            case _:
+                pass
+
+    @classmethod
+    def from_api_response(cls, response: APIResponse) -> EventSource:
+        """
+        Create an EventSource object from an APIResponse object.
+
+        :param response: APIResponse object
+        :type response: APIResponse
+        :return: EventSource object
+        :rtype: EventSource
+        """
+        assert response.content_type == "text/event-stream", \
+            "Response content type must be text/event-stream"
+        return cls(response.content)

@@ -1,9 +1,12 @@
 from collections.abc import Iterable
-from typing import Any, List, Optional, Tuple
+from typing import Any, AsyncIterator, Iterator, List, Optional, Tuple
 from urllib.parse import urlencode, urljoin
 
 import orjson
+from typing_extensions import TypeGuard, TypeVar
 
+
+T = TypeVar("T")
 
 def serialize(data: Any) -> bytes:
     return orjson.dumps(data)
@@ -54,3 +57,11 @@ def determine_content_type(body: Any) -> str:
         return "application/json"
     else:
         return "text/plain"
+
+
+def is_async_iterator(obj: AsyncIterator[T]) -> TypeGuard[AsyncIterator[T]]:
+    return hasattr(obj, "__aiter__")
+
+
+def is_iterator(obj: Iterator[T]) -> TypeGuard[Iterator[T]]:
+    return hasattr(obj, "__iter__")
