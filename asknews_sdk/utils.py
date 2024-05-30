@@ -59,6 +59,14 @@ def determine_content_type(body: Any) -> str:
         return "text/plain"
 
 
+def parse_content_type(content_type: str):
+    parts = [part.strip() for part in content_type.split(';')]
+    mime_type = parts[0]
+    params = dict(part.split('=', 1) for part in parts[1:] if '=' in part)
+    params = {k: v.strip(' "') for k, v in params.items()}
+    return mime_type, params
+
+
 def is_async_iterator(obj: AsyncIterator[T]) -> TypeGuard[AsyncIterator[T]]:
     return hasattr(obj, "__aiter__")
 

@@ -5,7 +5,7 @@ from typing import Any, AsyncIterator, Dict, Iterator, Union
 from httpx import Request, Response
 
 from asknews_sdk.types import ServerSentEvent, StreamType
-from asknews_sdk.utils import deserialize, is_async_iterator, is_iterator
+from asknews_sdk.utils import deserialize, is_async_iterator, is_iterator, parse_content_type
 
 
 class APIResponse:
@@ -25,7 +25,9 @@ class APIResponse:
         self.headers = headers
         self.body = body
         self.stream = stream
-        self.content_type = headers.get("content-type", "application/json")
+        self.content_type, *_ = parse_content_type(
+            headers.get("content-type", "application/json")
+        )
         self.content = self._deserialize_body() if not self.stream else self.body
 
     def _deserialize_body(self) -> Any:
@@ -158,5 +160,8 @@ class EventSource:
         :rtype: EventSource
         """
         assert response.content_type == "text/event-stream", \
-            "Response content type must be text/event-stream"
+            (
+                "Response content type must be text/event-stream, "
+                f"got: {response.content_type}"
+            )
         return cls(response.content)
