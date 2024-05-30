@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Literal, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, RootModel
 from typing_extensions import Annotated
 
 from asknews_sdk.dto.base import BaseSchema
@@ -107,3 +107,7 @@ class ListModelResponse(BaseSchema):
 
     object: Annotated[Optional[str], Field("list", title="Object")]
     data: Annotated[List[ModelItem], Field(title="Data")]
+
+
+class HeadlineQuestionsResponse(BaseSchema, RootModel[Dict[str, List[str]]]):
+    ...

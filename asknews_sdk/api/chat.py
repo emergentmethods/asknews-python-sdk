@@ -5,6 +5,7 @@ from asknews_sdk.dto.chat import (
     CreateChatCompletionRequest,
     CreateChatCompletionResponse,
     CreateChatCompletionResponseStream,
+    HeadlineQuestionsResponse,
     ListModelResponse,
 )
 from asknews_sdk.response import EventSource
@@ -106,7 +107,9 @@ class ChatAPI(BaseAPI):
         )
         return ListModelResponse.model_validate(response.content)
 
-    def get_headline_questions(self, queries: Optional[List[str]] = None) -> Dict[str, List[str]]:
+    def get_headline_questions(
+        self, queries: Optional[List[str]] = None
+    ) -> HeadlineQuestionsResponse:
         """
         Get headline questions for a given query.
 
@@ -115,14 +118,14 @@ class ChatAPI(BaseAPI):
         :param queries: List of queries to get headline questions for
         :type queries: Optional[List[str]]
         :return: Headline questions
-        :rtype: Dict[str, List[str]]
+        :rtype: HeadlineQuestionsResponse
         """
         response = self.client.request(
             method="GET",
             endpoint="/v1/chat/questions",
             query={"queries": queries}
         )
-        return response.content
+        return HeadlineQuestionsResponse.model_validate(response.content)
 
 
 class AsyncChatAPI(BaseAPI):
@@ -224,7 +227,7 @@ class AsyncChatAPI(BaseAPI):
 
     async def get_headline_questions(
         self, queries: Optional[List[str]] = None
-    ) -> Dict[str, List[str]]:
+    ) -> HeadlineQuestionsResponse:
         """
         Get headline questions for a given query.
 
@@ -233,11 +236,11 @@ class AsyncChatAPI(BaseAPI):
         :param queries: List of queries to get headline questions for
         :type queries: Optional[List[str]]
         :return: Headline questions
-        :rtype: Dict[str, List[str]]
+        :rtype: HeadlineQuestionsResponse
         """
         response = await self.client.request(
             method="GET",
             endpoint="/v1/chat/questions",
             query={"queries": queries}
         )
-        return response.content
+        return HeadlineQuestionsResponse.model_validate(response.content)
