@@ -251,7 +251,8 @@ class APIClient(BaseAPIClient):
                 headers=headers,
                 params=params,
                 accept=accept,
-            )
+            ),
+            stream=stream,
         )
         try:
             response.raise_for_status()
@@ -393,7 +394,8 @@ class AsyncAPIClient(BaseAPIClient):
                 headers=headers,
                 params=params,
                 accept=accept,
-            )
+            ),
+            stream=stream,
         )
 
         try:
