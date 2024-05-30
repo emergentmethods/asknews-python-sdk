@@ -32,6 +32,8 @@ class ChatAPI(BaseAPI):
         append_references: bool = True,
         asknews_watermark: bool = True,
         journalist_mode: bool = True,
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> Union[CreateChatCompletionResponse, Iterator[CreateChatCompletionResponseStream]]:
         """
         Get chat completions for a given user message.
@@ -53,6 +55,10 @@ class ChatAPI(BaseAPI):
         :type append_references: bool
         :param asknews_watermark: Whether to add AskNews watermark, defaults to True
         :type asknews_watermark: bool
+        :param journalist_mode: Whether to enable journalist mode, defaults to True
+        :type journalist_mode: bool
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: Chat completions
         :rtype: Union[
             CreateChatCompletionResponse, Iterator[CreateChatCompletionResponseStream]
@@ -71,6 +77,7 @@ class ChatAPI(BaseAPI):
                 journalist_mode=journalist_mode,
             ).model_dump(mode="json"),
             headers={
+                **(http_headers or {}),
                 "Content-Type": CreateChatCompletionRequest.__content_type__,
             },
             accept=[
@@ -91,24 +98,30 @@ class ChatAPI(BaseAPI):
         else:
             return CreateChatCompletionResponse.model_validate(response.content)
 
-    def list_chat_models(self) -> ListModelResponse:
+    def list_chat_models(self, *, http_headers: Optional[Dict] = None) -> ListModelResponse:
         """
         List available chat models.
 
         https://docs.asknews.app/en/reference#get-/v1/openai/models
 
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: List of available chat models
         :rtype: ListModelResponse
         """
         response = self.client.request(
             method="GET",
             endpoint="/v1/openai/models",
+            headers=http_headers,
             accept=[(ListModelResponse.__content_type__, 1.0)],
         )
         return ListModelResponse.model_validate(response.content)
 
     def get_headline_questions(
-        self, queries: Optional[List[str]] = None
+        self,
+        queries: Optional[List[str]] = None,
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> HeadlineQuestionsResponse:
         """
         Get headline questions for a given query.
@@ -117,12 +130,15 @@ class ChatAPI(BaseAPI):
 
         :param queries: List of queries to get headline questions for
         :type queries: Optional[List[str]]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: Headline questions
         :rtype: HeadlineQuestionsResponse
         """
         response = self.client.request(
             method="GET",
             endpoint="/v1/chat/questions",
+            headers=http_headers,
             query={"queries": queries}
         )
         return HeadlineQuestionsResponse.model_validate(response.content)
@@ -149,6 +165,8 @@ class AsyncChatAPI(BaseAPI):
         append_references: bool = True,
         asknews_watermark: bool = True,
         journalist_mode: bool = True,
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> Union[CreateChatCompletionResponse, AsyncIterator[CreateChatCompletionResponseStream]]:
         """
         Get chat completions for a given user message.
@@ -170,6 +188,10 @@ class AsyncChatAPI(BaseAPI):
         :type append_references: bool
         :param asknews_watermark: Whether to add AskNews watermark, defaults to True
         :type asknews_watermark: bool
+        :param journalist_mode: Whether to enable journalist mode, defaults to True
+        :type journalist_mode: bool
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: Chat completions
         :rtype: Union[
             CreateChatCompletionResponse,
@@ -190,6 +212,7 @@ class AsyncChatAPI(BaseAPI):
             ).model_dump(mode="json"),
             headers={
                 "Content-Type": CreateChatCompletionRequest.__content_type__,
+                **(http_headers or {}),
             },
             accept=[
                 (CreateChatCompletionResponse.__content_type__, 1.0),
@@ -209,24 +232,30 @@ class AsyncChatAPI(BaseAPI):
         else:
             return CreateChatCompletionResponse.model_validate(response.content)
 
-    async def list_chat_models(self) -> ListModelResponse:
+    async def list_chat_models(self, *, http_headers: Optional[Dict] = None) -> ListModelResponse:
         """
         List available chat models.
 
         https://docs.asknews.app/en/reference#get-/v1/openai/models
 
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: List of available chat models
         :rtype: ListModelResponse
         """
         response = await self.client.request(
             method="GET",
             endpoint="/v1/openai/models",
+            headers=http_headers,
             accept=[(ListModelResponse.__content_type__, 1.0)],
         )
         return ListModelResponse.model_validate(response.content)
 
     async def get_headline_questions(
-        self, queries: Optional[List[str]] = None
+        self,
+        queries: Optional[List[str]] = None,
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> HeadlineQuestionsResponse:
         """
         Get headline questions for a given query.
@@ -235,12 +264,15 @@ class AsyncChatAPI(BaseAPI):
 
         :param queries: List of queries to get headline questions for
         :type queries: Optional[List[str]]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: Headline questions
         :rtype: HeadlineQuestionsResponse
         """
         response = await self.client.request(
             method="GET",
             endpoint="/v1/chat/questions",
+            headers=http_headers,
             query={"queries": queries}
         )
         return HeadlineQuestionsResponse.model_validate(response.content)

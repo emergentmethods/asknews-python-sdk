@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from asknews_sdk.api.base import BaseAPI
@@ -12,7 +12,12 @@ class NewsAPI(BaseAPI):
     https://docs.asknews.app/en/reference#tag--news
     """
 
-    def get_article(self, article_id: Union[str, UUID]) -> ArticleResponse:
+    def get_article(
+        self,
+        article_id: Union[str, UUID],
+        *,
+        http_headers: Optional[Dict] = None
+    ) -> ArticleResponse:
         """
         Get a news article by its UUID.
 
@@ -20,6 +25,8 @@ class NewsAPI(BaseAPI):
 
         :param article_id: The UUID of the article.
         :type article_id: Union[str, UUID]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: The article response.
         :rtype: ArticleResponse
         """
@@ -27,6 +34,7 @@ class NewsAPI(BaseAPI):
             method="GET",
             endpoint="/v1/news/{article_id}",
             params={"article_id": article_id},
+            headers=http_headers,
             accept=[(ArticleResponse.__content_type__, 1.0)],
         )
         return ArticleResponse.model_validate(response.content)
@@ -69,6 +77,8 @@ class NewsAPI(BaseAPI):
         reporting_voice: Optional[str] = "all",
         domain_url: Optional[str] = None,
         page_rank: Optional[int] = None,
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
         """
         Search for news articles given a query.
@@ -119,6 +129,18 @@ class NewsAPI(BaseAPI):
         :type doc_start_delimiter: str
         :param doc_end_delimiter: Document end delimiter, defaults to "</doc>"
         :type doc_end_delimiter: str
+        :param provocative: Provocative, defaults to "all"
+        :type provocative: Optional[str]
+        :param reporting_voice: Reporting voice, defaults to "all"
+        :type reporting_voice: Optional[str]
+        :param domain_url: Domain URL, defaults to None
+        :type domain_url: Optional[str]
+        :param page_rank: Page rank, defaults to None
+        :type page_rank: Optional[int]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The search response.
+        :rtype: SearchResponse
         """
         response = self.client.request(
             method="GET",
@@ -141,6 +163,7 @@ class NewsAPI(BaseAPI):
                 "domain_url": domain_url,
                 "page_rank": page_rank,
             },
+            headers=http_headers,
             accept=[(SearchResponse.__content_type__, 1.0)],
         )
         return SearchResponse.model_validate(response.content)
@@ -152,6 +175,8 @@ class NewsAPI(BaseAPI):
         end_timestamp: Optional[int] = None,
         metric: str = "countries_diversity",
         sampling: str = "1h",
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> SourceReportResponse:
         """
         Get the sources report.
@@ -168,6 +193,8 @@ class NewsAPI(BaseAPI):
         :type metric: str
         :param sampling: The sampling.
         :type sampling: str
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: The source report response.
         :rtype: SourceReportResponse
         """
@@ -181,6 +208,7 @@ class NewsAPI(BaseAPI):
                 "metric": metric,
                 "sampling": sampling,
             },
+            headers=http_headers,
             accept=[(SourceReportResponse.__content_type__, 1.0)],
         )
         return SourceReportResponse.model_validate(response.content)
@@ -193,7 +221,12 @@ class AsyncNewsAPI(BaseAPI):
     https://docs.asknews.app/en/reference#tag--news
     """
 
-    async def get_article(self, article_id: Union[str, UUID]):
+    async def get_article(
+        self,
+        article_id: Union[str, UUID],
+        *,
+        http_headers: Optional[Dict] = None
+    ):
         """
         Get a news article by its UUID.
 
@@ -201,6 +234,8 @@ class AsyncNewsAPI(BaseAPI):
 
         :param article_id: The UUID of the article.
         :type article_id: Union[str, UUID]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: The article response.
         :rtype: ArticleResponse
         """
@@ -208,6 +243,7 @@ class AsyncNewsAPI(BaseAPI):
             method="GET",
             endpoint="/v1/news/{article_id}",
             params={"article_id": article_id},
+            headers=http_headers,
             accept=[(ArticleResponse.__content_type__, 1.0)],
         )
         return ArticleResponse.model_validate(response.content)
@@ -250,6 +286,8 @@ class AsyncNewsAPI(BaseAPI):
         reporting_voice: Optional[str] = "all",
         domain_url: Optional[str] = None,
         page_rank: Optional[int] = None,
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
         """
         Search for news articles given a query.
@@ -300,6 +338,18 @@ class AsyncNewsAPI(BaseAPI):
         :type doc_start_delimiter: str
         :param doc_end_delimiter: Document end delimiter, defaults to "</doc>"
         :type doc_end_delimiter: str
+        :param provocative: Provocative, defaults to "all"
+        :type provocative: Optional[str]
+        :param reporting_voice: Reporting voice, defaults to "all"
+        :type reporting_voice: Optional[str]
+        :param domain_url: Domain URL, defaults to None
+        :type domain_url: Optional[str]
+        :param page_rank: Page rank, defaults to None
+        :type page_rank: Optional[int]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The search response.
+        :rtype: SearchResponse
         """
         response = await self.client.request(
             method="GET",
@@ -322,6 +372,7 @@ class AsyncNewsAPI(BaseAPI):
                 "domain_url": domain_url,
                 "page_rank": page_rank,
             },
+            headers=http_headers,
             accept=[(SearchResponse.__content_type__, 1.0)],
         )
         return SearchResponse.model_validate(response.content)
@@ -333,6 +384,8 @@ class AsyncNewsAPI(BaseAPI):
         end_timestamp: Optional[int] = None,
         metric: str = "countries_diversity",
         sampling: str = "1h",
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> SourceReportResponse:
         """
         Get the sources report.
@@ -349,6 +402,8 @@ class AsyncNewsAPI(BaseAPI):
         :type metric: str
         :param sampling: The sampling.
         :type sampling: str
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: The source report response.
         :rtype: SourceReportResponse
         """
@@ -362,6 +417,7 @@ class AsyncNewsAPI(BaseAPI):
                 "metric": metric,
                 "sampling": sampling,
             },
+            headers=http_headers,
             accept=[(SourceReportResponse.__content_type__, 1.0)],
         )
         return SourceReportResponse.model_validate(response.content)

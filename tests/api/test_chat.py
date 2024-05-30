@@ -48,7 +48,12 @@ def test_sync_chat_api_get_chat_completions(sync_chat_api: ChatAPI, response_moc
         content=mock_response.model_dump_json()
     )
 
-    response = sync_chat_api.get_chat_completions(messages=[{"role": "user", "content": "Hello"}])
+    response = sync_chat_api.get_chat_completions(
+        messages=[{"role": "user", "content": "Hello"}],
+        http_headers={
+            "custom-header": "custom-value",
+        }
+    )
 
     assert isinstance(response, CreateChatCompletionResponse)
     assert response.__content_type__ == mock_response.__content_type__
@@ -63,6 +68,7 @@ def test_sync_chat_api_get_chat_completions(sync_chat_api: ChatAPI, response_moc
             (CreateChatCompletionResponseStream.__content_type__, 1.0),
         ]
     )
+    assert mocked_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert mocked_route.calls.last.response.status_code == 200
 
 
@@ -82,7 +88,11 @@ def test_sync_chat_api_get_chat_completions_stream(
     )
 
     response = sync_chat_api.get_chat_completions(
-        messages=[{"role": "user", "content": "Hello"}], stream=True
+        messages=[{"role": "user", "content": "Hello"}],
+        stream=True,
+        http_headers={
+            "custom-header": "custom-value",
+        }
     )
 
     assert isgenerator(response)
@@ -101,6 +111,7 @@ def test_sync_chat_api_get_chat_completions_stream(
             (CreateChatCompletionResponseStream.__content_type__, 1.0),
         ]
     )
+    assert mocked_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert mocked_route.calls.last.response.status_code == 200
 
 
@@ -114,7 +125,10 @@ async def test_async_chat_api_get_chat_completions(
     )
 
     response = await async_chat_api.get_chat_completions(
-        messages=[{"role": "user", "content": "Hello"}]
+        messages=[{"role": "user", "content": "Hello"}],
+        http_headers={
+            "custom-header": "custom-value",
+        }
     )
 
     assert isinstance(response, CreateChatCompletionResponse)
@@ -130,6 +144,7 @@ async def test_async_chat_api_get_chat_completions(
             (CreateChatCompletionResponseStream.__content_type__, 1.0),
         ]
     )
+    assert mocked_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert mocked_route.calls.last.response.status_code == 200
 
 
@@ -149,7 +164,11 @@ async def test_async_chat_api_get_chat_completions_stream(
     )
 
     response = await async_chat_api.get_chat_completions(
-        messages=[{"role": "user", "content": "Hello"}], stream=True
+        messages=[{"role": "user", "content": "Hello"}],
+        stream=True,
+        http_headers={
+            "custom-header": "custom-value",
+        }
     )
 
     assert isasyncgen(response)
@@ -168,6 +187,7 @@ async def test_async_chat_api_get_chat_completions_stream(
             (CreateChatCompletionResponseStream.__content_type__, 1.0),
         ]
     )
+    assert mocked_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert mocked_route.calls.last.response.status_code == 200
 
 
@@ -178,7 +198,11 @@ def test_sync_chat_api_list_chat_models(sync_chat_api: ChatAPI, response_mock: M
         content=mock_response.model_dump_json()
     )
 
-    response = sync_chat_api.list_chat_models()
+    response = sync_chat_api.list_chat_models(
+        http_headers={
+            "custom-header": "custom-value",
+        }
+    )
 
     assert isinstance(response, ListModelResponse)
     assert response.__content_type__ == mock_response.__content_type__
@@ -188,6 +212,7 @@ def test_sync_chat_api_list_chat_models(sync_chat_api: ChatAPI, response_mock: M
     assert mocked_route.calls.last.request.url.path == "/v1/openai/models"
     assert mocked_route.calls.last.request.method == "GET"
     assert mocked_route.calls.last.request.headers["accept"] == ListModelResponse.__content_type__
+    assert mocked_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert mocked_route.calls.last.response.status_code == 200
 
 
@@ -200,7 +225,11 @@ async def test_async_chat_api_list_chat_models(
         content=mock_response.model_dump_json()
     )
 
-    response = await async_chat_api.list_chat_models()
+    response = await async_chat_api.list_chat_models(
+        http_headers={
+            "custom-header": "custom-value",
+        }
+    )
 
     assert isinstance(response, ListModelResponse)
     assert response.__content_type__ == mock_response.__content_type__
@@ -210,6 +239,7 @@ async def test_async_chat_api_list_chat_models(
     assert mocked_route.calls.last.request.url.path == "/v1/openai/models"
     assert mocked_route.calls.last.request.method == "GET"
     assert mocked_route.calls.last.request.headers["accept"] == ListModelResponse.__content_type__
+    assert mocked_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert mocked_route.calls.last.response.status_code == 200
 
 
@@ -220,7 +250,11 @@ def test_sync_chat_api_get_headline_questions(sync_chat_api: ChatAPI, response_m
         content=mock_response.model_dump_json()
     )
 
-    response = sync_chat_api.get_headline_questions()
+    response = sync_chat_api.get_headline_questions(
+        http_headers={
+            "custom-header": "custom-value",
+        }
+    )
 
     assert isinstance(response, HeadlineQuestionsResponse)
     assert response.__content_type__ == mock_response.__content_type__
@@ -229,7 +263,8 @@ def test_sync_chat_api_get_headline_questions(sync_chat_api: ChatAPI, response_m
     assert mocked_route.called
     assert mocked_route.calls.last.request.url.path == "/v1/chat/questions"
     assert mocked_route.calls.last.request.method == "GET"
-    assert mocked_route.calls.last.request.headers["accept"] == "application/json"
+    assert mocked_route.calls.last.request.headers["accept"] == HeadlineQuestionsResponse.__content_type__
+    assert mocked_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert mocked_route.calls.last.response.status_code == 200
 
 
@@ -242,7 +277,11 @@ async def test_async_chat_api_get_headline_questions(
         content=mock_response.model_dump_json()
     )
 
-    response = await async_chat_api.get_headline_questions()
+    response = await async_chat_api.get_headline_questions(
+        http_headers={
+            "custom-header": "custom-value",
+        }
+    )
 
     assert isinstance(response, HeadlineQuestionsResponse)
     assert response.__content_type__ == mock_response.__content_type__
@@ -251,5 +290,6 @@ async def test_async_chat_api_get_headline_questions(
     assert mocked_route.called
     assert mocked_route.calls.last.request.url.path == "/v1/chat/questions"
     assert mocked_route.calls.last.request.method == "GET"
-    assert mocked_route.calls.last.request.headers["accept"] == "application/json"
+    assert mocked_route.calls.last.request.headers["accept"] == HeadlineQuestionsResponse.__content_type__
+    assert mocked_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert mocked_route.calls.last.response.status_code == 200

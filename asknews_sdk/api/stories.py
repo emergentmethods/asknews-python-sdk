@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from asknews_sdk.api.base import BaseAPI
@@ -62,6 +62,8 @@ class StoriesAPI(BaseAPI):
         obj_type: Optional[List[Literal["story", "story_update"]]] = None,
         provocative: Literal["unknown", "low", "medium", "high", "all"] = "all",
         citation_method: Literal["brackets", "urls", "none"] = "brackets",
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> StoriesResponse:
         """
         Get the news stories.
@@ -96,6 +98,12 @@ class StoriesAPI(BaseAPI):
         :type method: str
         :param obj_type: The object type to filter on.
         :type obj_type: List[str]
+        :param provocative: The provocative level.
+        :type provocative: str
+        :param citation_method: The citation method.
+        :type citation_method: str
+        :param http_headers: The HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: The stories response.
         :rtype: StoriesResponse
         """
@@ -122,6 +130,7 @@ class StoriesAPI(BaseAPI):
                 "provocative": provocative,
                 "citation_method": citation_method,
             },
+            headers=http_headers,
             accept=[(StoriesResponse.__content_type__, 1.0)],
         )
 
@@ -136,6 +145,8 @@ class StoriesAPI(BaseAPI):
         reddit: int = 0,
         citation_method: Literal["brackets", "urls", "none"] = "brackets",
         condense_auxillary_updates: bool = False,
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> StoryResponse:
         """
         Get a single news story given the ID.
@@ -156,6 +167,8 @@ class StoriesAPI(BaseAPI):
         :type citation_method: Literal["brackets", "urls", "none"]
         :param condense_auxillary_updates: Whether to condense auxillary updates.
         :type condense_auxillary_updates: bool
+        :param http_headers: The HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: The story response.
         :rtype: StoryResponse
         """
@@ -171,6 +184,7 @@ class StoriesAPI(BaseAPI):
                 "condense_auxillary_updates": condense_auxillary_updates,
             },
             params={"story_id": story_id},
+            headers=http_headers,
             accept=[(StoryResponse.__content_type__, 1.0)],
         )
         return StoryResponse.model_validate(response.content)
@@ -233,6 +247,8 @@ class AsyncStoriesAPI(BaseAPI):
         obj_type: Optional[List[Literal["story", "story_update"]]] = None,
         provocative: Literal["unknown", "low", "medium", "high", "all"] = "all",
         citation_method: Literal["brackets", "urls", "none"] = "brackets",
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> StoriesResponse:
         """
         Get the news stories.
@@ -267,6 +283,12 @@ class AsyncStoriesAPI(BaseAPI):
         :type method: str
         :param obj_type: The object type to filter on.
         :type obj_type: List[str]
+        :param provocative: The provocative level.
+        :type provocative: str
+        :param citation_method: The citation method.
+        :type citation_method: str
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: The stories response.
         :rtype: StoriesResponse
         """
@@ -293,6 +315,7 @@ class AsyncStoriesAPI(BaseAPI):
                 "provocative": provocative,
                 "citation_method": citation_method,
             },
+            headers=http_headers,
             accept=[(StoriesResponse.__content_type__, 1.0)],
         )
 
@@ -307,6 +330,8 @@ class AsyncStoriesAPI(BaseAPI):
         reddit: int = 0,
         citation_method: Literal["brackets", "urls", "none"] = "brackets",
         condense_auxillary_updates: bool = False,
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> StoryResponse:
         """
         Get a single news story given the ID.
@@ -323,6 +348,12 @@ class AsyncStoriesAPI(BaseAPI):
         :type max_articles: int
         :param reddit: Amount of reddit threads to include per update.
         :type reddit: int
+        :param citation_method: The citation method.
+        :type citation_method: Literal["brackets", "urls", "none"]
+        :param condense_auxillary_updates: Whether to condense auxillary updates.
+        :type condense_auxillary_updates: bool
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: The story response.
         :rtype: StoryResponse
         """
@@ -338,6 +369,7 @@ class AsyncStoriesAPI(BaseAPI):
                 "condense_auxillary_updates": condense_auxillary_updates,
             },
             params={"story_id": story_id},
+            headers=http_headers,
             accept=[(StoryResponse.__content_type__, 1.0)],
         )
         return StoryResponse.model_validate(response.content)

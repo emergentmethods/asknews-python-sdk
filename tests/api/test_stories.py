@@ -36,7 +36,12 @@ def test_sync_stories_api_get_story(sync_stories_api: StoriesAPI, response_mock:
         content=mock_response.model_dump_json()
     )
 
-    response = sync_stories_api.get_story(story_id)
+    response = sync_stories_api.get_story(
+        story_id,
+        http_headers={
+            "custom-header": "custom-value",
+        }
+    )
 
     assert isinstance(response, StoryResponse)
     assert response.__content_type__ == mock_response.__content_type__
@@ -46,6 +51,7 @@ def test_sync_stories_api_get_story(sync_stories_api: StoriesAPI, response_mock:
     assert mocked_route.calls.last.request.url.path == f"/v1/stories/{story_id}"
     assert mocked_route.calls.last.request.method == "GET"
     assert mocked_route.calls.last.request.headers["accept"] == StoryResponse.__content_type__
+    assert mocked_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert parse_qs(mocked_route.calls.last.request.url.query.decode()) == {
         "expand_updates": ["True"],
         "max_updates": ["11"],
@@ -67,7 +73,12 @@ async def test_async_stories_api_get_story(
         content=mock_response.model_dump_json()
     )
 
-    response = await async_stories_api.get_story(story_id)
+    response = await async_stories_api.get_story(
+        story_id,
+        http_headers={
+            "custom-header": "custom-value",
+        }
+    )
 
     assert isinstance(response, StoryResponse)
     assert response.__content_type__ == mock_response.__content_type__
@@ -77,6 +88,7 @@ async def test_async_stories_api_get_story(
     assert mocked_route.calls.last.request.url.path == f"/v1/stories/{story_id}"
     assert mocked_route.calls.last.request.method == "GET"
     assert mocked_route.calls.last.request.headers["accept"] == StoryResponse.__content_type__
+    assert mocked_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert parse_qs(mocked_route.calls.last.request.url.query.decode()) == {
         "expand_updates": ["True"],
         "max_updates": ["11"],
@@ -94,7 +106,12 @@ def test_sync_stories_api_search_stories(sync_stories_api: StoriesAPI, response_
 
     mocked_route = response_mock.get("/v1/stories").respond(content=mock_response.model_dump_json())
 
-    response = sync_stories_api.search_stories(query=query)
+    response = sync_stories_api.search_stories(
+        query,
+        http_headers={
+            "custom-header": "custom-value",
+        }
+    )
 
     assert isinstance(response, StoriesResponse)
     assert response.__content_type__ == mock_response.__content_type__
@@ -104,6 +121,7 @@ def test_sync_stories_api_search_stories(sync_stories_api: StoriesAPI, response_
     assert mocked_route.calls.last.request.url.path == "/v1/stories"
     assert mocked_route.calls.last.request.method == "GET"
     assert mocked_route.calls.last.request.headers["accept"] == StoriesResponse.__content_type__
+    assert mocked_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert parse_qs(mocked_route.calls.last.request.url.query.decode()) == {
         "query": [query],
         "limit": ["50"],
@@ -127,7 +145,12 @@ async def test_async_stories_api_search_stories(
 
     mocked_route = response_mock.get("/v1/stories").respond(content=mock_response.model_dump_json())
 
-    response = await async_stories_api.search_stories(query=query)
+    response = await async_stories_api.search_stories(
+        query,
+        http_headers={
+            "custom-header": "custom-value",
+        }
+    )
 
     assert isinstance(response, StoriesResponse)
     assert response.__content_type__ == mock_response.__content_type__
@@ -137,6 +160,7 @@ async def test_async_stories_api_search_stories(
     assert mocked_route.calls.last.request.url.path == "/v1/stories"
     assert mocked_route.calls.last.request.method == "GET"
     assert mocked_route.calls.last.request.headers["accept"] == StoriesResponse.__content_type__
+    assert mocked_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert parse_qs(mocked_route.calls.last.request.url.query.decode()) == {
         "query": [query],
         "limit": ["50"],
