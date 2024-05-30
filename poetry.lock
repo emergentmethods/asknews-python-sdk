@@ -470,6 +470,20 @@ files = [
 test = ["pytest (>=6)"]
 
 [[package]]
+name = "faker"
+version = "25.3.0"
+description = "Faker is a Python package that generates fake data for you."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "Faker-25.3.0-py3-none-any.whl", hash = "sha256:0158d47e955b6ec22134c0a74ebb7ed34fe600896208bafbf1008db831b17f04"},
+    {file = "Faker-25.3.0.tar.gz", hash = "sha256:bcbe31eee5ef4bbf87ce36c4eba53c01e2a1d912fde2a4d3528b430d2beb784f"},
+]
+
+[package.dependencies]
+python-dateutil = ">=2.4"
+
+[[package]]
 name = "filelock"
 version = "3.13.3"
 description = "A platform independent file lock."
@@ -895,6 +909,30 @@ files = [
 [package.extras]
 dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
+
+[[package]]
+name = "polyfactory"
+version = "2.16.0"
+description = "Mock data generation factories"
+optional = false
+python-versions = "<4.0,>=3.8"
+files = [
+    {file = "polyfactory-2.16.0-py3-none-any.whl", hash = "sha256:168d8e50b77e91e35e691e8b3eedac43d7e423a6857fa26d473def96d53f0ecf"},
+    {file = "polyfactory-2.16.0.tar.gz", hash = "sha256:03d8c706b70c4782ac8e637d0f6ab52760a7d11b712da5936a95a8f7022b2688"},
+]
+
+[package.dependencies]
+faker = "*"
+typing-extensions = ">=4.6.0"
+
+[package.extras]
+attrs = ["attrs (>=22.2.0)"]
+beanie = ["beanie", "pydantic[email]"]
+full = ["attrs", "beanie", "msgspec", "odmantic", "pydantic", "sqlalchemy"]
+msgspec = ["msgspec"]
+odmantic = ["odmantic (<1.0.0)", "pydantic[email]"]
+pydantic = ["pydantic[email]"]
+sqlalchemy = ["sqlalchemy (>=1.4.29)"]
 
 [[package]]
 name = "pre-commit"
@@ -1361,4 +1399,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<4.0"
-content-hash = "215403b185f466ed369651efdb8cf0e72fcf8e8f12f603b18edcb8aa0f7b7341"
+content-hash = "8ae228e95722777b2805f2b7bbac447fc095d14a428cae5c4b7fe55df466845a"

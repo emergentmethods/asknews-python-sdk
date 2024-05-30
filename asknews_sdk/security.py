@@ -146,7 +146,11 @@ class OAuth2ClientCredentials(Auth):
 
         yield self.inject_headers(request)
 
-        if self._token_save_hook and inspect.isfunction(self._token_save_hook):
+        if (
+            self._token_save_hook
+            and inspect.isfunction(self._token_save_hook)
+            and not inspect.iscoroutinefunction(self._token_save_hook)
+        ):
             with self._token_lock:
                 self._token_save_hook(self.token.token_info)
 

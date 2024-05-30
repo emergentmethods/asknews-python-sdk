@@ -26,9 +26,11 @@ pre-commit = "^3.3.2"
 gitlint = "^0.19.1"
 commitizen = "^3.25.0"
 respx = "^0.21.1"
+polyfactory = "^2.16.0"
 
 [tool.ruff]
 line-length = 100
+exclude = ["tests"]
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "C", "B"]

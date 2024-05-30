@@ -135,6 +135,7 @@ class StoriesAPI(BaseAPI):
         max_articles: int = 5,
         reddit: int = 0,
         citation_method: Literal["brackets", "urls", "none"] = "brackets",
+        condense_auxillary_updates: bool = False,
     ) -> StoryResponse:
         """
         Get a single news story given the ID.
@@ -151,6 +152,10 @@ class StoriesAPI(BaseAPI):
         :type max_articles: int
         :param reddit: Amount of reddit threads to include per update.
         :type reddit: int
+        :param citation_method: The citation method.
+        :type citation_method: Literal["brackets", "urls", "none"]
+        :param condense_auxillary_updates: Whether to condense auxillary updates.
+        :type condense_auxillary_updates: bool
         :return: The story response.
         :rtype: StoryResponse
         """
@@ -163,6 +168,7 @@ class StoriesAPI(BaseAPI):
                 "max_articles": max_articles,
                 "reddit": reddit,
                 "citation_method": citation_method,
+                "condense_auxillary_updates": condense_auxillary_updates,
             },
             params={"story_id": story_id},
             accept=[(StoryResponse.__content_type__, 1.0)],
