@@ -64,7 +64,7 @@ class IntraClusterStatistics(BaseModel):
 
 
 class GraphRelationships(BaseModel):
-    nodes: list[dict[Literal["id", "type"], str]]
+    nodes: list[dict[Literal["id", "type", "detailed_type"], str]]
     edges: list[dict[Literal["from", "to", "label"], str]]
 
 
