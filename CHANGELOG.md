@@ -1,3 +1,9 @@
+## 0.6.9 (2024-05-31)
+
+### Fix
+
+- update the graph relationships
+
 ## 0.6.8 (2024-05-23)
 
 ### Fix
