@@ -1,3 +1,9 @@
+## 0.6.10 (2024-06-02)
+
+### Fix
+
+- default to fastest return_type 'string'
+
 ## 0.6.9 (2024-05-31)
 
 ### Fix
