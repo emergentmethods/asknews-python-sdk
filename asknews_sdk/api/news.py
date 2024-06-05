@@ -13,10 +13,7 @@ class NewsAPI(BaseAPI):
     """
 
     def get_article(
-        self,
-        article_id: Union[str, UUID],
-        *,
-        http_headers: Optional[Dict] = None
+        self, article_id: Union[str, UUID], *, http_headers: Optional[Dict] = None
     ) -> ArticleResponse:
         """
         Get a news article by its UUID.
@@ -45,7 +42,7 @@ class NewsAPI(BaseAPI):
         n_articles: int = 10,
         start_timestamp: Optional[int] = None,
         end_timestamp: Optional[int] = None,
-        return_type: Literal["string", "dicts", "both"] = "dicts",
+        return_type: Literal["string", "dicts", "both"] = "string",
         historical: bool = False,
         method: Literal["nl", "kw", "both"] = "nl",
         similarity_score_threshold: float = 0.5,
@@ -222,10 +219,7 @@ class AsyncNewsAPI(BaseAPI):
     """
 
     async def get_article(
-        self,
-        article_id: Union[str, UUID],
-        *,
-        http_headers: Optional[Dict] = None
+        self, article_id: Union[str, UUID], *, http_headers: Optional[Dict] = None
     ):
         """
         Get a news article by its UUID.
@@ -254,7 +248,7 @@ class AsyncNewsAPI(BaseAPI):
         n_articles: int = 10,
         start_timestamp: Optional[int] = None,
         end_timestamp: Optional[int] = None,
-        return_type: Literal["string", "dicts", "both"] = "dicts",
+        return_type: Literal["string", "dicts", "both"] = "string",
         historical: bool = False,
         method: Literal["nl", "kw", "both"] = "nl",
         similarity_score_threshold: float = 0.5,

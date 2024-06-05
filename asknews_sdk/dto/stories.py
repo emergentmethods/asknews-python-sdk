@@ -56,7 +56,7 @@ class IntraClusterStatistics(BaseModel):
 
 
 class GraphRelationships(BaseModel):
-    nodes: list[dict[Literal["id", "type"], str]]
+    nodes: list[dict[Literal["id", "type", "detailed_type"], str]]
     edges: list[dict[Literal["from", "to", "label"], str]]
 
 
@@ -125,7 +125,7 @@ class StoryResponse(BaseSchema):
     n_articles: Annotated[List[int], Field(title="N Articles")]
     n_updates: Annotated[int, Field(title="N Updates")]
     people: Annotated[List[str], Field(title="People")]
-    reddit_sentiment: Annotated[List[int], Field(title="Reddit Sentiment")]
+    reddit_sentiment: Annotated[List[int | float], Field(title="Reddit Sentiment")]
     reddit_sentiment_timestamps: Annotated[List[int], Field(title="Reddit Sentiment Timestamps")]
     rolling_sentiment: Annotated[List[float], Field(title="Rolling Sentiment")]
     sentiment: Annotated[List[int], Field(title="Sentiment")]
