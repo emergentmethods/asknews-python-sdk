@@ -1,3 +1,9 @@
+## 0.7.2 (2024-06-05)
+
+### Fix
+
+- ensure user is passed for async too
+
 ## 0.7.1 (2024-06-05)
 
 ### Fix
