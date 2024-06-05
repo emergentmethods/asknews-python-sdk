@@ -1,3 +1,21 @@
+## 0.7.0 (2024-06-05)
+
+### Feat
+
+- Allow passing additional http headers in API methods, fix many docstrings, and update unit tests
+- Add unit tests and small fixes to security
+- Refactor auth handling to be more streamlined and reduce dependencies
+
+### Fix
+
+- Add concrete return type for chat headline questions method
+- Fix response streaming in client
+- Fix content type handling in APIResponse
+- Improve get_chat_completions stream handling and fix parameters
+- Improve error handling with attached response and fix some typing issues
+- Refactor base client and remove API request object to simplify
+- Fix get article method in NewsAPI and switch to ArticleResponse object
+
 ## 0.6.11 (2024-06-05)
 
 ### Fix
