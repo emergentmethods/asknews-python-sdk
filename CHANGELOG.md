@@ -1,3 +1,9 @@
+## 0.6.11 (2024-06-05)
+
+### Fix
+
+- allow floats for sentiment
+
 ## 0.6.10 (2024-06-02)
 
 ### Fix
