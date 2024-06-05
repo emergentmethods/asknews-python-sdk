@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal, Optional, Union
+from typing import Dict, Literal, Optional, Union
 
 from asknews_sdk.api.base import BaseAPI
 from asknews_sdk.dto.sentiment import FinanceResponse
@@ -44,6 +44,8 @@ class AnalyticsAPI(BaseAPI):
         ] = "news_positive",
         date_from: Optional[Union[datetime, str]] = None,
         date_to: Optional[Union[datetime, str]] = None,
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> FinanceResponse:
         """
         Get the timeseries sentiment for an asset.
@@ -58,6 +60,8 @@ class AnalyticsAPI(BaseAPI):
         :type date_from: Optional[Union[str, datetime]]
         :param date_to: The end date in ISO format.
         :type date_to: Optional[Union[str, datetime]]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: The sentiment response.
         :rtype: FinanceResponse
         """
@@ -75,6 +79,7 @@ class AnalyticsAPI(BaseAPI):
                 "date_from": date_from,
                 "date_to": date_to,
             },
+            headers=http_headers,
             accept=[(FinanceResponse.__content_type__, 1.0)],
         )
         return FinanceResponse.model_validate(response.content)
@@ -119,6 +124,8 @@ class AsyncAnalyticsAPI(BaseAPI):
         ] = "news_positive",
         date_from: Optional[Union[datetime, str]] = None,
         date_to: Optional[Union[datetime, str]] = None,
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> FinanceResponse:
         """
         Get the timeseries sentiment for an asset.
@@ -133,6 +140,8 @@ class AsyncAnalyticsAPI(BaseAPI):
         :type date_from: Optional[Union[str, datetime]]
         :param date_to: The end date in ISO format.
         :type date_to: Optional[Union[str, datetime]]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
         :return: The sentiment response.
         :rtype: FinanceResponse
         """
@@ -150,6 +159,7 @@ class AsyncAnalyticsAPI(BaseAPI):
                 "date_from": date_from,
                 "date_to": date_to,
             },
+            headers=http_headers,
             accept=[(FinanceResponse.__content_type__, 1.0)],
         )
         return FinanceResponse.model_validate(response.content)

@@ -118,4 +118,7 @@ dmypy.json
 *.code-workspace
 
 # Test scripts
-test*.py
+_test*.py
+
+# Ruff
+.ruff_cache/

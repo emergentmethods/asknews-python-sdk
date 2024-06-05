@@ -14,9 +14,7 @@ class FinanceResponseTimeSeriesData(BaseModel):
 
 
 class FinanceResponseTimeSeries(BaseModel):
-    timeseries: Annotated[
-        List[FinanceResponseTimeSeriesData], Field(title="Timeseriesdata")
-    ]
+    timeseries: Annotated[List[FinanceResponseTimeSeriesData], Field(title="Timeseriesdata")]
 
 
 class FinanceResponse(BaseSchema):

@@ -1,12 +1,31 @@
 version: "3"
+
+silent: true
+
 vars:
   PACKAGE_SRC_DIR: asknews_sdk
+
 tasks:
+  # Unit tests
+  test:
+    cmds:
+      - coverage run -m pytest --junitxml=report.xml
+      - coverage report
+      - coverage xml
+      - coverage html -d coverage-report
+
   # Lint
   lint:
     cmds:
-      - poetry run ruff check {{.PACKAGE_SRC_DIR}}
-      - poetry run ruff format --check {{.PACKAGE_SRC_DIR}}
+      - |
+        if [ -n "{{.SRC_DIR}}" ]; then
+          export SRC_DIR="{{.SRC_DIR}}"
+        else
+          export SRC_DIR="{{.PACKAGE_SRC_DIR}}"
+        fi
+      - poetry run ruff check $SRC_DIR {{.CLI_ARGS}}
+      - poetry run ruff format $SRC_DIR {{.CLI_ARGS}}
+
   # Build
   build:
     cmds:

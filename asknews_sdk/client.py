@@ -1,134 +1,62 @@
 from __future__ import annotations
 
-import asyncio
-import threading
-from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Set, Union
+from typing import (
+    Any,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Type,
+    Union,
+)
 
-from asgiref.typing import ASGIApplication
-from authlib.integrations.httpx_client import AsyncOAuth2Client, OAuth2Client
-from httpx import AsyncClient, Client, HTTPStatusError
+from httpx import AsyncClient, Client, HTTPStatusError, Request, Response
 
-from asknews_sdk.errors import raise_from_json
+from asknews_sdk.errors import raise_from_response
+from asknews_sdk.response import APIResponse
 from asknews_sdk.security import (
     AsyncTokenLoadHook,
     AsyncTokenSaveHook,
-    InjectToken,
-    OAuthToken,
+    OAuth2ClientCredentials,
     TokenLoadHook,
     TokenSaveHook,
 )
+from asknews_sdk.types import CLIENT_DEFAULT, RequestAuth, Sentinel, StreamType
 from asknews_sdk.utils import (
     build_accept_header,
     build_url,
-    deserialize,
     determine_content_type,
     serialize,
 )
 from asknews_sdk.version import __version__
 
+
 USER_AGENT = f"asknews-sdk-python/{__version__}"
 
-
-class StreamType(str, Enum):
-    bytes = "bytes"
-    lines = "lines"
-    raw = "raw"
-
-
-class APIRequest:
-    """
-    API Request object used by the APIClient.
-    """
-
-    def __init__(
-        self,
-        base_url: str,
-        method: str,
-        endpoint: str,
-        body: Optional[Any] = None,
-        query: Optional[Dict] = None,
-        headers: Optional[Dict] = None,
-        params: Optional[Dict] = None,
-        accept: Optional[List[tuple[str, float]]] = None,
-    ) -> None:
-        self.base_url = base_url
-        self.method = method
-        self.endpoint = endpoint
-        self.query = query
-        self.params = params
-        self.accept = accept
-        self.url = build_url(
-            base_url=self.base_url,
-            endpoint=self.endpoint,
-            query=self.query,
-            params=self.params,
-        )
-        self.headers = headers or {}
-        self.content_type = self.headers.pop(
-            "Content-Type", determine_content_type(body)
-        )
-        self.body = serialize(body) if body and not isinstance(body, bytes) else None
-        self.accept = accept or [
-            (
-                self.content_type
-                if "json" in self.content_type
-                else "application/json",
-                1.0,
-            )
-        ]
-        self.headers["Content-Type"] = self.content_type
-        self.headers["Accept"] = build_accept_header(self.accept)
-
-
-class APIResponse:
-    """
-    API Response object returned by the APIClient.
-    """
-
-    def __init__(
-        self,
-        request: APIRequest,
-        status_code: int,
-        headers: Dict,
-        body: bytes,
-        stream: bool = False,
-    ) -> None:
-        self.request = request
-        self.status_code = status_code
-        self.headers = headers
-        self.body = body
-        self.stream = stream
-        self.content_type = headers.get("Content-Type", "application/json")
-        self.content = self.deserialize_body() if not self.stream else self.body
-
-    def deserialize_body(self) -> Any:
-        if self.content_type == "application/octet-stream":
-            return self.body
-        elif self.content_type == "application/json":
-            return deserialize(self.body)
-        elif self.content_type == "text/plain":
-            return self.body.decode("utf-8")
-        else:
-            return self.body
 
 
 class BaseAPIClient:
     def __init__(
         self,
-        client_id: str,
-        client_secret: str,
+        client_id: Optional[str],
+        client_secret: Optional[str],
         scopes: Optional[Set[str]],
         base_url: str,
         token_url: str,
-        verify_ssl: bool = True,
-        retries: int = 3,
-        timeout: Optional[float] = None,
-        follow_redirects: bool = True,
+        verify_ssl: bool,
+        retries: int,
+        timeout: Optional[float],
+        follow_redirects: bool,
+        client: Union[
+            Union[Type[Client], Client],
+            Union[Type[AsyncClient], AsyncClient],
+        ],
+        user_agent: str,
+        auth: Optional[RequestAuth | Sentinel],
         *,
-        _mock_server: Optional[Union[ASGIApplication, Callable[..., Any]]] = None,
         _token_save_hook: Optional[Union[TokenSaveHook, AsyncTokenSaveHook]] = None,
         _token_load_hook: Optional[Union[TokenLoadHook, AsyncTokenLoadHook]] = None,
+        **kwargs,
     ) -> None:
         self.client_id = client_id
         self.client_secret = client_secret
@@ -139,41 +67,67 @@ class BaseAPIClient:
         self.retries = retries
         self.timeout = timeout
         self.follow_redirects = follow_redirects
+        self._client_auth = None
 
-        self._mock_server = _mock_server
-        self._token_save_hook = _token_save_hook
-        self._token_load_hook = _token_load_hook
+        if auth:
+            if auth is CLIENT_DEFAULT:
+                assert client_id and client_secret, (
+                    "client_id and client_secret are required for client credentials"
+                )
 
-        self._token = OAuthToken()
+                self._client_auth = OAuth2ClientCredentials(
+                    client_id=self.client_id,
+                    client_secret=self.client_secret,
+                    token_url=self.token_url,
+                    scopes=self.scopes,
+                    _token_load_hook=_token_load_hook,
+                    _token_save_hook=_token_save_hook,
+                )
+            else:
+                self._client_auth = auth
 
-    def _get_oauth_client(
-        self, client: Union[OAuth2Client, AsyncOAuth2Client]
-    ) -> Union[OAuth2Client, AsyncOAuth2Client]:
-        return client(
-            client_id=self.client_id,
-            client_secret=self.client_secret,
-            scope=" ".join(self.scopes) if self.scopes else None,
-            token_endpoint_auth_method="client_secret_basic",
-            token_type="Bearer",
+        if isinstance(client, type):
+            self._client = client(
+                base_url=self.base_url,
+                verify=self.verify_ssl,
+                timeout=self.timeout,
+                auth=self._client_auth,
+                follow_redirects=self.follow_redirects,
+                headers={"User-Agent": user_agent},
+                **kwargs,
+            )
+        else:
+            self._client = client
+
+    def build_api_request(
+        self,
+        method: str,
+        endpoint: str,
+        body: Optional[Any] = None,
+        query: Optional[Dict] = None,
+        headers: Optional[Dict] = None,
+        params: Optional[Dict] = None,
+        accept: Optional[List[tuple[str, float]]] = None,
+    ) -> Request:
+        headers = headers or {}
+        content_type = headers.pop("content-type", determine_content_type(body)) if body else None
+
+        if content_type:
+            headers["content-type"] = content_type
+
+        headers["accept"] = build_accept_header(accept or [("application/json", 1.0)])
+
+        return Request(
+            method=method,
+            url=build_url(
+                base_url=self.base_url,
+                endpoint=endpoint,
+                query=query,
+                params=params,
+            ),
+            content=serialize(body) if body and not isinstance(body, bytes) else body,
+            headers=headers,
         )
-
-    def _get_http_client(
-        self, client: Union[Client, AsyncClient]
-    ) -> Union[Client, AsyncClient]:
-        return client(
-            base_url=self.base_url,
-            verify=self.verify_ssl,
-            timeout=self.timeout,
-            auth=InjectToken(self._token),
-            follow_redirects=self.follow_redirects,
-            headers={"User-Agent": USER_AGENT},
-        )
-
-    def _reset_token(self) -> None:
-        """
-        Reset the current token.
-        """
-        self._token.reset_token()
 
 
 class APIClient(BaseAPIClient):
@@ -202,8 +156,8 @@ class APIClient(BaseAPIClient):
 
     def __init__(
         self,
-        client_id: str,
-        client_secret: str,
+        client_id: Optional[str],
+        client_secret: Optional[str],
         scopes: Optional[Set[str]],
         base_url: str,
         token_url: str,
@@ -211,10 +165,13 @@ class APIClient(BaseAPIClient):
         retries: int = 3,
         timeout: Optional[float] = None,
         follow_redirects: bool = True,
+        client: Union[Type[Client], Client] = Client,
+        user_agent: str = USER_AGENT,
+        auth: Optional[RequestAuth | Sentinel] = CLIENT_DEFAULT,
         *,
-        _mock_server: Optional[Callable[..., Any]] = None,
         _token_save_hook: Optional[TokenSaveHook] = None,
         _token_load_hook: Optional[TokenLoadHook] = None,
+        **kwargs,
     ) -> None:
         super().__init__(
             client_id=client_id,
@@ -226,14 +183,13 @@ class APIClient(BaseAPIClient):
             retries=retries,
             timeout=timeout,
             follow_redirects=follow_redirects,
-            _mock_server=_mock_server,
+            client=client,
+            user_agent=user_agent,
+            auth=auth,
             _token_save_hook=_token_save_hook,
             _token_load_hook=_token_load_hook,
+            **kwargs,
         )
-
-        self._oauth_client = self._get_oauth_client(OAuth2Client)
-        self._client = self._get_http_client(Client)
-        self._token_lock = threading.Lock()
 
     def close(self) -> None:
         """
@@ -242,9 +198,6 @@ class APIClient(BaseAPIClient):
         self._client.close()
 
     def __enter__(self) -> APIClient:
-        if self._token_load_hook:
-            self._token.set_token(self._token_load_hook())
-
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:
@@ -252,31 +205,6 @@ class APIClient(BaseAPIClient):
 
         if exc:
             raise exc
-
-    def _get_token(self) -> None:
-        self._token.set_token(
-            self._oauth_client.fetch_token(
-                self.token_url,
-                grant_type="client_credentials",
-            )
-        )
-
-        if self._token_save_hook:
-            self._token_save_hook(self._token.token_info)
-
-    def _ensure_valid_token(self, force: bool = False) -> None:
-        """
-        Ensure a valid access token is available.
-
-        :param force: Force the token to be refreshed
-        :type force: bool
-        """
-        with self._token_lock:
-            if force:
-                self._reset_token()
-
-            if self._token.is_expired:
-                self._get_token()
 
     def request(
         self,
@@ -288,7 +216,7 @@ class APIClient(BaseAPIClient):
         params: Optional[Dict] = None,
         accept: Optional[List[tuple[str, float]]] = None,
         stream: bool = False,
-        stream_type: StreamType = StreamType.bytes,
+        stream_type: StreamType = "bytes",
     ) -> APIResponse:
         """
         Send an HTTP request.
@@ -314,48 +242,34 @@ class APIClient(BaseAPIClient):
         :return: APIResponse object
         :rtype: APIResponse
         """
-        # TODO: Add logic for getting a new token if
-        # a 401 is returned from the API up to one time
-        self._ensure_valid_token()
-
-        request = APIRequest(
-            base_url=self.base_url,
-            method=method,
-            endpoint=endpoint,
-            body=body,
-            query=query,
-            headers=headers,
-            params=params,
-            accept=accept,
-        )
-
-        response = self._client.request(
-            method=request.method,
-            url=request.url,
-            content=request.body,
-            headers=request.headers,
+        response: Response = self._client.send(
+            self.build_api_request(
+                method=method,
+                endpoint=endpoint,
+                body=body,
+                query=query,
+                headers=headers,
+                params=params,
+                accept=accept,
+            ),
+            stream=stream,
         )
         try:
             response.raise_for_status()
         except HTTPStatusError as e:
-            raise_from_json(e.response.json())
+            raise_from_response(
+                APIResponse.from_httpx_response(
+                    response=e.response,
+                    stream=False,
+                    sync=True,
+                )
+            )
 
-        if stream:
-            if stream_type == StreamType.bytes:
-                response_body = response.aiter_bytes()
-            elif stream_type == StreamType.lines:
-                response_body = response.aiter_lines()
-            elif stream_type == StreamType.raw:
-                response_body = response.aiter_raw()
-        else:
-            response_body = response.content
-
-        return APIResponse(
-            request=request,
-            status_code=response.status_code,
-            headers=dict(response.headers.items()),
-            body=response_body,
+        return APIResponse.from_httpx_response(
+            response=response,
             stream=stream,
+            stream_type=stream_type,
+            sync=True,
         )
 
 
@@ -385,8 +299,8 @@ class AsyncAPIClient(BaseAPIClient):
 
     def __init__(
         self,
-        client_id: str,
-        client_secret: str,
+        client_id: Optional[str],
+        client_secret: Optional[str],
         scopes: Optional[Set[str]],
         base_url: str,
         token_url: str,
@@ -394,10 +308,13 @@ class AsyncAPIClient(BaseAPIClient):
         retries: int = 3,
         timeout: Optional[float] = None,
         follow_redirects: bool = True,
+        client: Union[Type[AsyncClient], AsyncClient] = AsyncClient,
+        user_agent: str = USER_AGENT,
+        auth: Optional[RequestAuth | Sentinel] = CLIENT_DEFAULT,
         *,
-        _mock_server: Optional[ASGIApplication] = None,
         _token_save_hook: Optional[AsyncTokenSaveHook] = None,
         _token_load_hook: Optional[AsyncTokenLoadHook] = None,
+        **kwargs,
     ) -> None:
         super().__init__(
             client_id=client_id,
@@ -409,14 +326,13 @@ class AsyncAPIClient(BaseAPIClient):
             retries=retries,
             timeout=timeout,
             follow_redirects=follow_redirects,
-            _mock_server=_mock_server,
+            client=client,
+            user_agent=user_agent,
+            auth=auth,
             _token_save_hook=_token_save_hook,
             _token_load_hook=_token_load_hook,
+            **kwargs,
         )
-
-        self._oauth_client = self._get_oauth_client(AsyncOAuth2Client)
-        self._client = self._get_http_client(AsyncClient)
-        self._token_lock = asyncio.Lock()
 
     async def close(self) -> None:
         """
@@ -425,9 +341,6 @@ class AsyncAPIClient(BaseAPIClient):
         await self._client.aclose()
 
     async def __aenter__(self) -> AsyncAPIClient:
-        if self._token_load_hook:
-            self._token.set_token(await self._token_load_hook())
-
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
@@ -435,31 +348,6 @@ class AsyncAPIClient(BaseAPIClient):
 
         if exc:
             raise exc
-
-    async def _get_token(self) -> None:
-        self._token.set_token(
-            await self._oauth_client.fetch_token(
-                self.token_url,
-                grant_type="client_credentials",
-            )
-        )
-
-        if self._token_save_hook:
-            await self._token_save_hook(self._token.token_info)
-
-    async def _ensure_valid_token(self, force: bool = False) -> None:
-        """
-        Ensure a valid access token is available.
-
-        :param force: Force the token to be refreshed
-        :type force: bool
-        """
-        async with self._token_lock:
-            if force:
-                self._reset_token()
-
-            if self._token.is_expired:
-                await self._get_token()
 
     async def request(
         self,
@@ -471,7 +359,7 @@ class AsyncAPIClient(BaseAPIClient):
         params: Optional[Dict] = None,
         accept: Optional[List[tuple[str, float]]] = None,
         stream: bool = False,
-        stream_type: StreamType = StreamType.bytes,
+        stream_type: StreamType = "bytes",
     ) -> APIResponse:
         """
         Send an HTTP request.
@@ -497,46 +385,33 @@ class AsyncAPIClient(BaseAPIClient):
         :return: APIResponse object
         :rtype: APIResponse
         """
-        # TODO: Add logic for getting a new token if
-        # a 401 is returned from the API up to one time
-        await self._ensure_valid_token()
-
-        request = APIRequest(
-            base_url=self.base_url,
-            method=method,
-            endpoint=endpoint,
-            body=body,
-            query=query,
-            headers=headers,
-            params=params,
-            accept=accept,
+        response: Response = await self._client.send(
+            self.build_api_request(
+                method=method,
+                endpoint=endpoint,
+                body=body,
+                query=query,
+                headers=headers,
+                params=params,
+                accept=accept,
+            ),
+            stream=stream,
         )
 
-        response = await self._client.request(
-            method=request.method,
-            url=request.url,
-            content=request.body,
-            headers=request.headers,
-        )
         try:
             response.raise_for_status()
         except HTTPStatusError as e:
-            raise_from_json(e.response.json())
+            raise_from_response(
+                APIResponse.from_httpx_response(
+                    response=e.response,
+                    stream=False,
+                    sync=False,
+                )
+            )
 
-        if stream:
-            if stream_type == StreamType.bytes:
-                response_body = response.aiter_bytes()
-            elif stream_type == StreamType.lines:
-                response_body = response.aiter_lines()
-            elif stream_type == StreamType.raw:
-                response_body = response.aiter_raw()
-        else:
-            response_body = response.content
-
-        return APIResponse(
-            request=request,
-            status_code=response.status_code,
-            headers=dict(response.headers.items()),
-            body=response_body,
+        return APIResponse.from_httpx_response(
+            response=response,
             stream=stream,
+            stream_type=stream_type,
+            sync=False,
         )
