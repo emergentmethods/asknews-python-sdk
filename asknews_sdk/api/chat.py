@@ -21,6 +21,7 @@ class ChatAPI(BaseAPI):
     def get_chat_completions(
         self,
         messages: List[Dict[str, str]],
+        user=None,
         model: Literal[
             "gpt-3.5-turbo-16k",
             "gpt-4-1106-preview",
@@ -75,6 +76,7 @@ class ChatAPI(BaseAPI):
                 append_references=append_references,
                 asknews_watermark=asknews_watermark,
                 journalist_mode=journalist_mode,
+                user=user,
             ).model_dump(mode="json"),
             headers={
                 **(http_headers or {}),
@@ -89,11 +91,13 @@ class ChatAPI(BaseAPI):
         )
 
         if stream:
+
             def _stream():
                 for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
                         break
                     yield CreateChatCompletionResponseStream.model_validate_json(event.content)
+
             return _stream()
         else:
             return CreateChatCompletionResponse.model_validate(response.content)
@@ -139,7 +143,7 @@ class ChatAPI(BaseAPI):
             method="GET",
             endpoint="/v1/chat/questions",
             headers=http_headers,
-            query={"queries": queries}
+            query={"queries": queries},
         )
         return HeadlineQuestionsResponse.model_validate(response.content)
 
@@ -223,11 +227,13 @@ class AsyncChatAPI(BaseAPI):
         )
 
         if stream:
+
             async def _stream():
                 async for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
                         break
                     yield CreateChatCompletionResponseStream.model_validate_json(event.content)
+
             return _stream()
         else:
             return CreateChatCompletionResponse.model_validate(response.content)
@@ -273,6 +279,6 @@ class AsyncChatAPI(BaseAPI):
             method="GET",
             endpoint="/v1/chat/questions",
             headers=http_headers,
-            query={"queries": queries}
+            query={"queries": queries},
         )
         return HeadlineQuestionsResponse.model_validate(response.content)
