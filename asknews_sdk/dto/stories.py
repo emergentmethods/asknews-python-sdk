@@ -56,8 +56,8 @@ class IntraClusterStatistics(BaseModel):
 
 
 class GraphRelationships(BaseModel):
-    nodes: list[dict[Literal["id", "type", "detailed_type"], str]]
-    edges: list[dict[Literal["from", "to", "label"], str]]
+    nodes: List[Dict[Literal["id", "type", "detailed_type"], str]]
+    edges: List[Dict[Literal["from", "to", "label"], str]]
 
 
 class StoryResponseUpdate(BaseModel):
