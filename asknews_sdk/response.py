@@ -63,15 +63,14 @@ class APIResponse:
         :rtype: APIResponse
         """
         if stream:
-            match stream_type:
-                case "bytes":
-                    response_body = response.iter_bytes() if sync else response.aiter_bytes()
-                case "lines":
-                    response_body = response.iter_lines() if sync else response.aiter_lines()
-                case "raw":
-                    response_body = response.iter_raw() if sync else response.aiter_raw()
-                case _:
-                    raise ValueError(f"Invalid stream type: {stream_type}")
+            if stream_type == "bytes":
+                response_body = response.iter_bytes() if sync else response.aiter_bytes()
+            elif stream_type == "lines":
+                response_body = response.iter_lines() if sync else response.aiter_lines()
+            elif stream_type == "raw":
+                response_body = response.iter_raw() if sync else response.aiter_raw()
+            else:
+                raise ValueError(f"Invalid stream type: {stream_type}")
         else:
             response_body = response.content
 
@@ -134,19 +133,16 @@ class EventSource:
 
         key, value = key.strip(), value.strip()
 
-        match key:
-            case "event":
-                self.current_event.event = value
-            case "data":
-                self.current_event.data.append(value)
-            case "id":
-                self.current_event.id = value
-            case "retry":
-                try:
-                    self.current_event.retry = int(value)
-                except ValueError:
-                    pass
-            case _:
+        if key == "event":
+            self.current_event.event = value
+        elif key == "data":
+            self.current_event.data.append(value)
+        elif key == "id":
+            self.current_event.id = value
+        elif key == "retry":
+            try:
+                self.current_event.retry = int(value)
+            except ValueError:
                 pass
 
     @classmethod
