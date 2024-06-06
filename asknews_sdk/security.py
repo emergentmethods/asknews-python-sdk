@@ -128,6 +128,8 @@ class OAuth2ClientCredentials(Auth):
         return request
 
     def sync_auth_flow(self, request: Request) -> Generator[Request, Response, None]:
+        retried = False
+
         if (
             not self.token.access_token
             and self._token_load_hook
@@ -136,15 +138,26 @@ class OAuth2ClientCredentials(Auth):
             with self._token_lock:
                 self.token.set_token(self._token_load_hook())
 
-        if self.token.is_expired:
-            fetch_response = yield self._build_fetch_token_request()
-            fetch_response.read()
-            fetch_response.raise_for_status()
+        while True:
+            if self.token.is_expired:
+                fetch_response = yield self._build_fetch_token_request()
+                fetch_response.read()
+                fetch_response.raise_for_status()
 
-            with self._token_lock:
-                self.token.set_token(fetch_response.json())
+                with self._token_lock:
+                    self.token.set_token(fetch_response.json())
 
-        yield self.inject_headers(request)
+            response = yield self.inject_headers(request)
+            if (
+                response
+                and response.status_code == 401
+                and not retried
+            ):
+                retried = True
+                self.token.reset_token()
+                continue
+            else:
+                break
 
         if (
             self._token_save_hook
@@ -155,6 +168,8 @@ class OAuth2ClientCredentials(Auth):
                 self._token_save_hook(self.token.token_info)
 
     async def async_auth_flow(self, request: Request) -> AsyncGenerator[Request, Response]:
+        retried = False
+
         if (
             not self.token.access_token
             and self._token_load_hook
@@ -163,15 +178,27 @@ class OAuth2ClientCredentials(Auth):
             async with self._atoken_lock:
                 self.token.set_token(await self._token_load_hook())
 
-        if self.token.is_expired:
-            fetch_response = yield self._build_fetch_token_request()
-            await fetch_response.aread()
-            fetch_response.raise_for_status()
+        while True:
+            if self.token.is_expired:
+                fetch_response = yield self._build_fetch_token_request()
+                await fetch_response.aread()
+                fetch_response.raise_for_status()
 
-            async with self._atoken_lock:
-                self.token.set_token(fetch_response.json())
+                async with self._atoken_lock:
+                    self.token.set_token(fetch_response.json())
 
-        yield self.inject_headers(request)
+            response = yield self.inject_headers(request)
+
+            if (
+                response
+                and response.status_code == 401
+                and not retried
+            ):
+                retried = True
+                self.token.reset_token()
+                continue
+            else:
+                break
 
         if self._token_save_hook and inspect.iscoroutinefunction(self._token_save_hook):
             async with self._atoken_lock:
