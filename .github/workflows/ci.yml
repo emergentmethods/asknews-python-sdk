@@ -91,13 +91,13 @@ jobs:
             ~/.cache/pypoetry/artifacts
           key: poetry-${{ runner.os }}-${{ runner.arch }}-py-${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
       - name: Install dependencies
-        run: poetry install --with dev
+        run: |
+          poetry install
+          echo $(poetry env info --path)/bin >> $GITHUB_PATH
       - name: Install task
         uses: arduino/setup-task@v2
         with:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Activate virtual environment
-        run: source $(poetry env info --path)/bin/activate
       - name: Run test task
         run: task test
