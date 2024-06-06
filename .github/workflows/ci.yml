@@ -97,5 +97,7 @@ jobs:
         with:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Activate virtual environment
+        run: source $(poetry env info --path)/bin/activate
       - name: Run test task
         run: task test
