@@ -1,3 +1,14 @@
+## 0.7.3 (2024-06-06)
+
+### Fix
+
+- Fix typing in graph relationships dto
+- Fix typing in story response dto
+- Fix typing in sentiment response dto
+- Change match statements to if to support 3.8
+- Handle 401 code in OAuth2ClientCredentials to retry getting new token
+- Remove user param from chat api
+
 ## 0.7.2 (2024-06-05)
 
 ### Fix
