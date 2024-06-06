@@ -74,6 +74,7 @@ class NewsAPI(BaseAPI):
         reporting_voice: Optional[str] = "all",
         domain_url: Optional[str] = None,
         page_rank: Optional[int] = None,
+        diversify_sources: Optional[bool] = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
@@ -159,6 +160,7 @@ class NewsAPI(BaseAPI):
                 "reporting_voice": reporting_voice,
                 "domain_url": domain_url,
                 "page_rank": page_rank,
+                "diversify_sources": diversify_sources,
             },
             headers=http_headers,
             accept=[(SearchResponse.__content_type__, 1.0)],
@@ -280,6 +282,7 @@ class AsyncNewsAPI(BaseAPI):
         reporting_voice: Optional[str] = "all",
         domain_url: Optional[str] = None,
         page_rank: Optional[int] = None,
+        diversify_sources: Optional[bool] = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
@@ -365,6 +368,7 @@ class AsyncNewsAPI(BaseAPI):
                 "reporting_voice": reporting_voice,
                 "domain_url": domain_url,
                 "page_rank": page_rank,
+                "diversify_sources": diversify_sources,
             },
             headers=http_headers,
             accept=[(SearchResponse.__content_type__, 1.0)],
