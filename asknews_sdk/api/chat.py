@@ -21,7 +21,6 @@ class ChatAPI(BaseAPI):
     def get_chat_completions(
         self,
         messages: List[Dict[str, str]],
-        user: str | None = None,
         model: Literal[
             "gpt-3.5-turbo-16k",
             "gpt-4-1106-preview",
@@ -76,7 +75,6 @@ class ChatAPI(BaseAPI):
                 append_references=append_references,
                 asknews_watermark=asknews_watermark,
                 journalist_mode=journalist_mode,
-                user=user,
             ).model_dump(mode="json"),
             headers={
                 **(http_headers or {}),
@@ -158,7 +156,6 @@ class AsyncChatAPI(BaseAPI):
     async def get_chat_completions(
         self,
         messages: List[Dict[str, str]],
-        user: str | None = None,
         model: Literal[
             "gpt-3.5-turbo-16k",
             "gpt-4-1106-preview",
@@ -214,7 +211,6 @@ class AsyncChatAPI(BaseAPI):
                 append_references=append_references,
                 asknews_watermark=asknews_watermark,
                 journalist_mode=journalist_mode,
-                user=user,
             ).model_dump(mode="json"),
             headers={
                 "Content-Type": CreateChatCompletionRequest.__content_type__,

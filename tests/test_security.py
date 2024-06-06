@@ -35,7 +35,14 @@ def oauth2_client_credentials(client_credentials):
 
 
 def test_oauth2_client_credentials_sync_auth_flow_happy(oauth2_client_credentials):
-    request = Request("GET", "https://example.com/api")
+    api_request = Request("GET", "https://example.com/api")
+    api_response = Response(
+        request=api_request,
+        status_code=200,
+        headers={"content-type": "application/json"},
+        content=b'{"data": "data"}',
+    )
+
     token_response = Response(
         request=Request("POST", "https://example.com/token"),
         status_code=200,
@@ -43,7 +50,7 @@ def test_oauth2_client_credentials_sync_auth_flow_happy(oauth2_client_credential
         content=b'{"access_token": "access_token", "expires_in": 3600, "token_type": "Bearer", "scope": "scope1 scope2"}',
     )
 
-    auth_flow = oauth2_client_credentials.sync_auth_flow(request)
+    auth_flow = oauth2_client_credentials.sync_auth_flow(api_request)
 
     request = auth_flow.__next__()
     assert request.url == "https://example.com/token"
@@ -52,7 +59,7 @@ def test_oauth2_client_credentials_sync_auth_flow_happy(oauth2_client_credential
     assert response.headers["Authorization"] == "Bearer access_token"
 
     with pytest.raises(StopIteration):
-        auth_flow.__next__()
+        response = auth_flow.send(api_response)
 
     auth_flow.close()
 
@@ -61,7 +68,14 @@ def test_oauth2_client_credentials_sync_auth_flow_happy(oauth2_client_credential
 
 
 async def test_oauth2_client_credentials_async_auth_flow_happy(oauth2_client_credentials):
-    request = Request("GET", "https://example.com/api")
+    api_request = Request("GET", "https://example.com/api")
+    api_response = Response(
+        request=api_request,
+        status_code=200,
+        headers={"content-type": "application/json"},
+        content=b'{"data": "data"}',
+    )
+
     token_response = Response(
         request=Request("POST", "https://example.com/token"),
         status_code=200,
@@ -69,7 +83,7 @@ async def test_oauth2_client_credentials_async_auth_flow_happy(oauth2_client_cre
         content=b'{"access_token": "access_token", "expires_in": 3600, "token_type": "Bearer", "scope": "scope1 scope2"}',
     )
 
-    auth_flow = oauth2_client_credentials.async_auth_flow(request)
+    auth_flow = oauth2_client_credentials.async_auth_flow(api_request)
     request = await auth_flow.__anext__()
     assert request.url == "https://example.com/token"
 
@@ -77,7 +91,7 @@ async def test_oauth2_client_credentials_async_auth_flow_happy(oauth2_client_cre
     assert response.headers["Authorization"] == "Bearer access_token"
 
     with pytest.raises(StopAsyncIteration):
-        await auth_flow.__anext__()
+        response = await auth_flow.asend(api_response)
 
     await auth_flow.aclose()
 
@@ -134,6 +148,98 @@ async def test_oauth2_client_credentials_async_auth_flow_error_response(oauth2_c
     assert oauth2_client_credentials.token.scope == ""
 
     await auth_flow.aclose()
+
+
+def test_oauth2_client_credentials_sync_auth_flow_api_unauthorized(oauth2_client_credentials):
+    api_request = Request("GET", "https://example.com/api")
+    token_request = Request("POST", "https://example.com/token")
+
+    api_response = Response(
+        request=api_request,
+        status_code=401,
+        headers={"content-type": "application/json"},
+        content=b'{"error": "unauthorized"}',
+    )
+    token_response_initial = Response(
+        request=token_request,
+        status_code=200,
+        headers={"content-type": "application/json"},
+        content=b'{"access_token": "access_token", "expires_in": 3600, "token_type": "Bearer", "scope": "scope1 scope2"}',
+    )
+    token_response_next = Response(
+        request=token_request,
+        status_code=200,
+        headers={"content-type": "application/json"},
+        content=b'{"access_token": "access_token_new", "expires_in": 3600, "token_type": "Bearer", "scope": "scope1 scope2"}',
+    )
+
+    auth_flow = oauth2_client_credentials.sync_auth_flow(api_request)
+
+    request = auth_flow.__next__()
+    assert request.url == "https://example.com/token"
+
+    response = auth_flow.send(token_response_initial)
+    assert response.headers["Authorization"] == "Bearer access_token"
+    
+    request = auth_flow.send(api_response)
+    assert request.url == "https://example.com/token"
+
+    response = auth_flow.send(token_response_next)
+    assert response.headers["Authorization"] == "Bearer access_token_new"
+
+    with pytest.raises(StopIteration):
+        response = auth_flow.send(api_response)
+
+    auth_flow.close()
+
+    assert oauth2_client_credentials.token.access_token == "access_token_new"
+    assert oauth2_client_credentials.token.scope == "scope1 scope2"
+
+
+async def test_oauth2_client_credentials_async_auth_flow_api_unauthorized(oauth2_client_credentials):
+    api_request = Request("GET", "https://example.com/api")
+    token_request = Request("POST", "https://example.com/token")
+
+    api_response = Response(
+        request=api_request,
+        status_code=401,
+        headers={"content-type": "application/json"},
+        content=b'{"error": "unauthorized"}',
+    )
+    token_response_initial = Response(
+        request=token_request,
+        status_code=200,
+        headers={"content-type": "application/json"},
+        content=b'{"access_token": "access_token", "expires_in": 3600, "token_type": "Bearer", "scope": "scope1 scope2"}',
+    )
+    token_response_next = Response(
+        request=token_request,
+        status_code=200,
+        headers={"content-type": "application/json"},
+        content=b'{"access_token": "access_token_new", "expires_in": 3600, "token_type": "Bearer", "scope": "scope1 scope2"}',
+    )
+
+    auth_flow = oauth2_client_credentials.async_auth_flow(api_request)
+
+    request = await auth_flow.__anext__()
+    assert request.url == "https://example.com/token"
+
+    response = await auth_flow.asend(token_response_initial)
+    assert response.headers["Authorization"] == "Bearer access_token"
+
+    request = await auth_flow.asend(api_response)
+    assert request.url == "https://example.com/token"
+
+    response = await auth_flow.asend(token_response_next)
+    assert response.headers["Authorization"] == "Bearer access_token_new"
+
+    with pytest.raises(StopAsyncIteration):
+        response = await auth_flow.asend(api_response)
+
+    await auth_flow.aclose()
+
+    assert oauth2_client_credentials.token.access_token == "access_token_new"
+    assert oauth2_client_credentials.token.scope == "scope1 scope2"
 
 
 def test_oauth2_client_credentials_sync_auth_flow_token_load_hook(client_credentials):
