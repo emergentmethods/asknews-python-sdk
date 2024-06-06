@@ -51,3 +51,5 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run lint task
         run: task lint
+      - name: Run test task
+        run: task test
