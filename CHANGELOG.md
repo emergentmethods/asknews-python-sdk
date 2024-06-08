@@ -1,3 +1,9 @@
+## 0.7.5 (2024-06-08)
+
+### Fix
+
+- add strategy and hours_back params
+
 ## 0.7.4 (2024-06-06)
 
 ### Fix
