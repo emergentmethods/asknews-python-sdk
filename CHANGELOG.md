@@ -1,3 +1,9 @@
+## 0.7.4 (2024-06-06)
+
+### Fix
+
+- add 'diversity_sources' option to SDK
+
 ## 0.7.3 (2024-06-06)
 
 ### Fix

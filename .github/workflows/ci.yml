@@ -3,7 +3,7 @@ on:
   pull_request:
   push:
 jobs:
-  lint:
+  ci:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -53,53 +53,5 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run lint task
         run: task lint
-  test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-        python-version:
-          - 3.8
-          - 3.9
-          - "3.10"
-          - 3.11
-          - 3.12
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Cache pip
-        uses: actions/cache@v4
-        env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
-        with:
-          path: |
-            ~/.cache/pip
-          key: pip-${{ runner.os }}-${{ runner.arch }}-py-${{ matrix.python-version }}
-      - name: Install poetry
-        run: pipx install poetry --python python${{ matrix.python-version }}
-      - name: Cache poetry
-        uses: actions/cache@v4
-        env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
-        with:
-          path: |
-            ~/.cache/pypoetry/virtualenvs
-            ~/.cache/pypoetry/cache
-            ~/.cache/pypoetry/artifacts
-          key: poetry-${{ runner.os }}-${{ runner.arch }}-py-${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
-      - name: Install dependencies
-        run: |
-          poetry install
-          echo $(poetry env info --path)/bin >> $GITHUB_PATH
-      - name: Install task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run test task
         run: task test
