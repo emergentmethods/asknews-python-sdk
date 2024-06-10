@@ -1,4 +1,4 @@
-# AskNews Python SDk
+# AskNews Python SDK
 
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/asknews?style=flat-square)
 
