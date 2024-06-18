@@ -118,6 +118,6 @@ class ForecastResponse(BaseModel):
     resolution_criteria: str
     date: datetime
     reasoning: str
-    sources: list[SearchResponseDictItem]
-    timeline: list[str]
+    sources: List[SearchResponseDictItem]
+    timeline: List[str]
     opposite_request: str
