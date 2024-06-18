@@ -133,6 +133,7 @@ def test_sync_stories_api_search_stories(sync_stories_api: StoriesAPI, response_
         "provocative": ["all"],
         "obj_type": ["story"],
         "citation_method": ["brackets"],
+        "strategy": ["default"],
     }
     assert mocked_route.calls.last.response.status_code == 200
 
@@ -172,6 +173,7 @@ async def test_async_stories_api_search_stories(
         "provocative": ["all"],
         "obj_type": ["story"],
         "citation_method": ["brackets"],
+        "strategy": ["default"],
     }
     assert mocked_route.calls.last.response.status_code == 200
 
