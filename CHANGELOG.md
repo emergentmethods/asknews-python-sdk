@@ -1,3 +1,9 @@
+## 0.7.6 (2024-06-18)
+
+### Fix
+
+- add forecast endpoint, bump httpx
+
 ## 0.7.5 (2024-06-08)
 
 ### Fix
