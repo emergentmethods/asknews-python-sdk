@@ -62,6 +62,9 @@ class StoriesAPI(BaseAPI):
         obj_type: Optional[List[Literal["story", "story_update"]]] = None,
         provocative: Literal["unknown", "low", "medium", "high", "all"] = "all",
         citation_method: Literal["brackets", "urls", "none"] = "brackets",
+        strategy: Literal[
+            "default", "topstories", "topstories_continents", "topstories_categories"
+        ] = "default",
         *,
         http_headers: Optional[Dict] = None,
     ) -> StoriesResponse:
@@ -129,6 +132,7 @@ class StoriesAPI(BaseAPI):
                 "uuids": uuids,
                 "provocative": provocative,
                 "citation_method": citation_method,
+                "strategy": strategy,
             },
             headers=http_headers,
             accept=[(StoriesResponse.__content_type__, 1.0)],
@@ -247,6 +251,9 @@ class AsyncStoriesAPI(BaseAPI):
         obj_type: Optional[List[Literal["story", "story_update"]]] = None,
         provocative: Literal["unknown", "low", "medium", "high", "all"] = "all",
         citation_method: Literal["brackets", "urls", "none"] = "brackets",
+        strategy: Literal[
+            "default", "topstories", "topstories_continents", "topstories_categories"
+        ] = "default",
         *,
         http_headers: Optional[Dict] = None,
     ) -> StoriesResponse:
@@ -314,6 +321,7 @@ class AsyncStoriesAPI(BaseAPI):
                 "uuids": uuids,
                 "provocative": provocative,
                 "citation_method": citation_method,
+                "strategy": strategy,
             },
             headers=http_headers,
             accept=[(StoriesResponse.__content_type__, 1.0)],

@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, RootModel
 from typing_extensions import Annotated
 
 from asknews_sdk.dto.base import BaseSchema
+from asknews_sdk.dto.news import SearchResponseDictItem
 
 
 class CreateChatCompletionRequestMessage(BaseModel):
@@ -109,5 +110,14 @@ class ListModelResponse(BaseSchema):
     data: Annotated[List[ModelItem], Field(title="Data")]
 
 
-class HeadlineQuestionsResponse(BaseSchema, RootModel[Dict[str, List[str]]]):
-    ...
+class HeadlineQuestionsResponse(BaseSchema, RootModel[Dict[str, List[str]]]): ...
+
+
+class ForecastResponse(BaseModel):
+    forecast: str
+    resolution_criteria: str
+    date: datetime
+    reasoning: str
+    sources: list[SearchResponseDictItem]
+    timeline: list[str]
+    opposite_request: str

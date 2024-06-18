@@ -5,6 +5,7 @@ from asknews_sdk.dto.chat import (
     CreateChatCompletionRequest,
     CreateChatCompletionResponse,
     CreateChatCompletionResponseStream,
+    ForecastResponse,
     HeadlineQuestionsResponse,
     ListModelResponse,
 )
@@ -145,6 +146,36 @@ class ChatAPI(BaseAPI):
         )
         return HeadlineQuestionsResponse.model_validate(response.content)
 
+    def get_forecast(
+        self,
+        query: str,
+        lookback: int = 7,
+        articles_per_day: int = 1,
+        method: Literal["nl", "kw", "both"] = "kw",
+        model: Literal["gpt-4o"] = "gpt-4o",
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> ForecastResponse:
+        """
+        Get an expert forecast, complete with full sources
+        and reasoning.
+
+        https://docs.asknews.app/en/reference#get-/v1/chat/forecast
+        """
+        response = self.client.request(
+            method="GET",
+            endpoint="/v1/chat/forecast",
+            headers=http_headers,
+            query={
+                "query": query,
+                "lookback": lookback,
+                "articles_per_day": articles_per_day,
+                "method": method,
+                "model": model,
+            },
+        )
+        return ForecastResponse.model_validate(response.content)
+
 
 class AsyncChatAPI(BaseAPI):
     """
@@ -280,3 +311,33 @@ class AsyncChatAPI(BaseAPI):
             query={"queries": queries},
         )
         return HeadlineQuestionsResponse.model_validate(response.content)
+
+    async def get_forecast(
+        self,
+        query: str,
+        lookback: int = 7,
+        articles_per_day: int = 1,
+        method: Literal["nl", "kw", "both"] = "kw",
+        model: Literal["gpt-4o"] = "gpt-4o",
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> ForecastResponse:
+        """
+        Get an expert forecast, complete with full sources
+        and reasoning.
+
+        https://docs.asknews.app/en/reference#get-/v1/chat/forecast
+        """
+        response = await self.client.request(
+            method="GET",
+            endpoint="/v1/chat/forecast",
+            headers=http_headers,
+            query={
+                "query": query,
+                "lookback": lookback,
+                "articles_per_day": articles_per_day,
+                "method": method,
+                "model": model,
+            },
+        )
+        return ForecastResponse.model_validate(response.content)

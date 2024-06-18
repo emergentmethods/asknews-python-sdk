@@ -10,7 +10,7 @@ from asknews_sdk.dto.base import Article, BaseSchema, Entities, RedditEntities
 
 
 class RedditPerspective(BaseModel):
-    sentiment: Annotated[int, Field(title="Sentiment")]
+    sentiment: Annotated[Union[int, float], Field(title="Sentiment")]
     relevant: Annotated[bool, Field(title="Relevant")]
     summary: Annotated[str, Field(title="Summary")]
 
@@ -28,7 +28,7 @@ class RedditThread(BaseModel):
     id: Annotated[UUID, Field(title="Id")]
     key_takeaways: Annotated[List[str], Field(title="Key Takeaways")]
     keywords: Annotated[List[str], Field(title="Keywords")]
-    sentiment: Annotated[int, Field(title="Sentiment")]
+    sentiment: Annotated[Union[int, float], Field(title="Sentiment")]
     subreddit_name: Annotated[str, Field(title="Subreddit Name")]
     subreddit_url: Annotated[str, Field(title="Subreddit Url")]
     summary: Annotated[str, Field(title="Summary")]
@@ -141,4 +141,4 @@ class StoryResponse(BaseSchema):
 
 class StoriesResponse(BaseSchema):
     stories: Annotated[List[StoryResponse], Field(title="Stories")]
-    offset: Annotated[Union[int, str], Field(title="Offset")]
+    offset: Annotated[Optional[Union[int, str]], Field(title="Offset")]

@@ -12,7 +12,7 @@ repository = "https://github.com/emergentmethods/asknews-python-sdk"
 python = ">=3.8.1,<4.0"
 orjson = "^3.9.10"
 pydantic = "^2.5.3"
-httpx = "^0.24.1"
+httpx = "^0.25.0"
 asgiref = "^3.7.2"
 cryptography = "^42.0.7"
 
