@@ -1,3 +1,9 @@
+## 0.7.9 (2024-06-19)
+
+### Fix
+
+- add confidence to forecast return object
+
 ## 0.7.8 (2024-06-18)
 
 ### Fix
