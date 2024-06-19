@@ -121,3 +121,4 @@ class ForecastResponse(BaseModel):
     sources: List[SearchResponseDictItem]
     timeline: List[str]
     opposite_request: str
+    confidence: float
