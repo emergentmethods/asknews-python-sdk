@@ -122,3 +122,5 @@ class ForecastResponse(BaseModel):
     timeline: List[str]
     opposite_request: str
     confidence: float
+    choice: bool | str
+    llm_confidence: int
