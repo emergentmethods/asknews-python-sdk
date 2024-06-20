@@ -1,3 +1,9 @@
+## 0.7.10 (2024-06-20)
+
+### Fix
+
+- update forecast response to include choice
+
 ## 0.7.9 (2024-06-19)
 
 ### Fix
