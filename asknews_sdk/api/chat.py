@@ -149,8 +149,8 @@ class ChatAPI(BaseAPI):
     def get_forecast(
         self,
         query: str,
-        lookback: int = 7,
-        articles_per_day: int = 1,
+        lookback: int = 14,
+        articles_to_use: int = 14,
         method: Literal["nl", "kw", "both"] = "kw",
         model: Literal["gpt-4o"] = "gpt-4o",
         *,
@@ -169,7 +169,7 @@ class ChatAPI(BaseAPI):
             query={
                 "query": query,
                 "lookback": lookback,
-                "articles_per_day": articles_per_day,
+                "articles_to_use": articles_to_use,
                 "method": method,
                 "model": model,
             },
@@ -315,8 +315,8 @@ class AsyncChatAPI(BaseAPI):
     async def get_forecast(
         self,
         query: str,
-        lookback: int = 7,
-        articles_per_day: int = 1,
+        lookback: int = 14,
+        articles_to_use: int = 14,
         method: Literal["nl", "kw", "both"] = "kw",
         model: Literal["gpt-4o"] = "gpt-4o",
         *,
@@ -335,7 +335,7 @@ class AsyncChatAPI(BaseAPI):
             query={
                 "query": query,
                 "lookback": lookback,
-                "articles_per_day": articles_per_day,
+                "articles_to_use": articles_to_use,
                 "method": method,
                 "model": model,
             },
