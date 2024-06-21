@@ -1,3 +1,9 @@
+## 0.7.11 (2024-06-21)
+
+### Fix
+
+- update forecast parameters
+
 ## 0.7.10 (2024-06-20)
 
 ### Fix
