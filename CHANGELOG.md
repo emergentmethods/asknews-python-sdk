@@ -1,3 +1,9 @@
+## 0.7.13 (2024-06-22)
+
+### Fix
+
+- make cryptography more flexible
+
 ## 0.7.12 (2024-06-21)
 
 ### Fix
