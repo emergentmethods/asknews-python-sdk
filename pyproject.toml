@@ -14,7 +14,7 @@ orjson = "^3.9.10"
 pydantic = "^2.5.3"
 httpx = "^0.25.0"
 asgiref = "^3.7.2"
-cryptography = "^42.0.7"
+cryptography = ">=40.0.0,<42.0.7"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.2.0"
