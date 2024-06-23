@@ -1,3 +1,9 @@
+## 0.7.15 (2024-06-23)
+
+### Fix
+
+- add cutoff_date to get_forecast
+
 ## 0.7.14 (2024-06-23)
 
 ### Fix
