@@ -155,6 +155,7 @@ class ChatAPI(BaseAPI):
         articles_to_use: int = 14,
         method: Literal["nl", "kw", "both"] = "kw",
         model: Literal["gpt-4o", "claude-3-5-sonnet-20240620"] = "claude-3-5-sonnet-20240620",
+        cutoff_date: Optional[str] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> ForecastResponse:
@@ -174,6 +175,7 @@ class ChatAPI(BaseAPI):
                 "articles_to_use": articles_to_use,
                 "method": method,
                 "model": model,
+                "cutoff_date": cutoff_date,
             },
         )
         return ForecastResponse.model_validate(response.content)
@@ -323,6 +325,7 @@ class AsyncChatAPI(BaseAPI):
         articles_to_use: int = 14,
         method: Literal["nl", "kw", "both"] = "kw",
         model: Literal["gpt-4o", "claude-3-5-sonnet-20240620"] = "claude-3-5-sonnet-20240620",
+        cutoff_date: Optional[str] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> ForecastResponse:
@@ -342,6 +345,7 @@ class AsyncChatAPI(BaseAPI):
                 "articles_to_use": articles_to_use,
                 "method": method,
                 "model": model,
+                "cutoff_date": cutoff_date,
             },
         )
         return ForecastResponse.model_validate(response.content)
