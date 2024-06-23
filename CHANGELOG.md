@@ -1,3 +1,9 @@
+## 0.7.14 (2024-06-23)
+
+### Fix
+
+- allow gpt4o and claude-35 to sync and async chat
+
 ## 0.7.13 (2024-06-22)
 
 ### Fix
