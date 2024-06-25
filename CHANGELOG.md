@@ -1,3 +1,9 @@
+## 0.7.17 (2024-06-25)
+
+### Fix
+
+- make sure reddit threads can be lists or strings
+
 ## 0.7.16 (2024-06-25)
 
 ### Fix
