@@ -35,6 +35,7 @@ class ChatAPI(BaseAPI):
         append_references: bool = True,
         asknews_watermark: bool = True,
         journalist_mode: bool = True,
+        conversational_awareness: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Union[CreateChatCompletionResponse, Iterator[CreateChatCompletionResponseStream]]:
@@ -78,6 +79,7 @@ class ChatAPI(BaseAPI):
                 append_references=append_references,
                 asknews_watermark=asknews_watermark,
                 journalist_mode=journalist_mode,
+                conversational_awareness=conversational_awareness,
             ).model_dump(mode="json"),
             headers={
                 **(http_headers or {}),
@@ -204,6 +206,7 @@ class AsyncChatAPI(BaseAPI):
         append_references: bool = True,
         asknews_watermark: bool = True,
         journalist_mode: bool = True,
+        conversational_awareness: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Union[CreateChatCompletionResponse, AsyncIterator[CreateChatCompletionResponseStream]]:
@@ -248,6 +251,7 @@ class AsyncChatAPI(BaseAPI):
                 append_references=append_references,
                 asknews_watermark=asknews_watermark,
                 journalist_mode=journalist_mode,
+                conversational_awareness=conversational_awareness,
             ).model_dump(mode="json"),
             headers={
                 "Content-Type": CreateChatCompletionRequest.__content_type__,
