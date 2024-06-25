@@ -1,3 +1,9 @@
+## 0.7.16 (2024-06-25)
+
+### Fix
+
+- add conversational awareness to chat completions
+
 ## 0.7.15 (2024-06-23)
 
 ### Fix
