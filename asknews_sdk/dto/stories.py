@@ -20,7 +20,7 @@ class RedditThread(BaseModel):
     author_comment_karma: Annotated[int, Field(title="Author Comment Karma")]
     author_link_karma: Annotated[int, Field(title="Author Link Karma")]
     body: Annotated[str, Field(title="Body")]
-    classification: Annotated[List[str], Field(title="Classification")]
+    classification: Annotated[Union[List[str], str], Field(title="Classification")]
     comments: Annotated[List[RedditComment], Field(title="Comments")]
     comments_count: Annotated[int, Field(title="Comments Count")]
     date: Annotated[AwareDatetime, Field(title="Date")]
@@ -36,6 +36,7 @@ class RedditThread(BaseModel):
     topic: Annotated[str, Field(title="Topic")]
     upvotes: Annotated[int, Field(title="Upvotes")]
     url: Annotated[str, Field(title="Url")]
+    main_speculation: Annotated[str, Field(title="Main Speculation/conspiracy/discussion")]
 
 
 class RedditComment(BaseModel):
