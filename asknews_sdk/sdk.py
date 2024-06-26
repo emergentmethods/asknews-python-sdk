@@ -27,6 +27,7 @@ from asknews_sdk.types import CLIENT_DEFAULT, RequestAuth, Sentinel
 
 DEFAULT_API_BASE_URL = "https://api.asknews.app"
 DEFAULT_TOKEN_URL = "https://auth.asknews.app/oauth2/token"
+DEFAULT_SCOPES = ["news", "stories", "chat", "analytics"]
 
 
 class AskNewsSDK:
@@ -68,7 +69,7 @@ class AskNewsSDK:
         self,
         client_id: Optional[str] = None,
         client_secret: Optional[str] = None,
-        scopes: Optional[Set[str]] = None,
+        scopes: Optional[Set[str]] = DEFAULT_SCOPES,
         base_url: str = DEFAULT_API_BASE_URL,
         token_url: str = DEFAULT_TOKEN_URL,
         verify_ssl: bool = True,
@@ -166,7 +167,7 @@ class AsyncAskNewsSDK:
         self,
         client_id: Optional[str] = None,
         client_secret: Optional[str] = None,
-        scopes: Optional[Set[str]] = None,
+        scopes: Optional[Set[str]] = DEFAULT_SCOPES,
         base_url: str = DEFAULT_API_BASE_URL,
         token_url: str = DEFAULT_TOKEN_URL,
         verify_ssl: bool = True,
