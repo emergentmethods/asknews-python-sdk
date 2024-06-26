@@ -1,3 +1,9 @@
+## 0.7.18 (2024-06-26)
+
+### Fix
+
+- ensure scopes are set by default
+
 ## 0.7.17 (2024-06-25)
 
 ### Fix
