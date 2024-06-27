@@ -38,5 +38,5 @@ class ArticleResponse(BaseSchema, Article): ...
 
 
 class RedditResponse(BaseSchema):
-    as_dicts: list[RedditThread] | None = None
+    as_dicts: Optional[List[RedditThread]] = None
     as_string: str | None = None
