@@ -2,7 +2,12 @@ from typing import Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from asknews_sdk.api.base import BaseAPI
-from asknews_sdk.dto.news import ArticleResponse, SearchResponse, SourceReportResponse
+from asknews_sdk.dto.news import (
+    ArticleResponse,
+    RedditResponse,
+    SearchResponse,
+    SourceReportResponse,
+)
 
 
 class NewsAPI(BaseAPI):
@@ -216,6 +221,35 @@ class NewsAPI(BaseAPI):
         )
         return SourceReportResponse.model_validate(response.content)
 
+    def search_reddit(
+        self,
+        keywords: list[str],
+        n_threads: int = 5,
+        method: Literal["nl", "kw"] = "kw",
+        deep: bool = True,
+        return_type: Literal["dicts", "string", "both"] = "string",
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> RedditResponse:
+        """
+        Search Reddit, summarize and analyze the threads,
+        Return the list of threads and analyses.
+        """
+        response = self.client.request(
+            method="GET",
+            endpoint="/v1/reddit/search",
+            query={
+                "keywords": keywords,
+                "n_threads": n_threads,
+                "method": method,
+                "deep": deep,
+                "return_type": return_type,
+            },
+            headers=http_headers,
+            accept=[(RedditResponse.__content_type__, 1.0)],
+        )
+        return RedditResponse.model_validate(response.content)
+
 
 class AsyncNewsAPI(BaseAPI):
     """
@@ -427,3 +461,32 @@ class AsyncNewsAPI(BaseAPI):
             accept=[(SourceReportResponse.__content_type__, 1.0)],
         )
         return SourceReportResponse.model_validate(response.content)
+
+    async def search_reddit(
+        self,
+        keywords: list[str],
+        n_threads: int = 5,
+        method: Literal["nl", "kw"] = "kw",
+        deep: bool = True,
+        return_type: Literal["dicts", "string", "both"] = "string",
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> RedditResponse:
+        """
+        Search Reddit, summarize and analyze the threads,
+        Return the list of threads and analyses.
+        """
+        response = await self.client.request(
+            method="GET",
+            endpoint="/v1/reddit/search",
+            query={
+                "keywords": keywords,
+                "n_threads": n_threads,
+                "method": method,
+                "deep": deep,
+                "return_type": return_type,
+            },
+            headers=http_headers,
+            accept=[(RedditResponse.__content_type__, 1.0)],
+        )
+        return RedditResponse.model_validate(response.content)

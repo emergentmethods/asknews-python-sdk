@@ -127,3 +127,4 @@ class ForecastResponse(BaseModel):
     confidence: float
     choice: Union[bool, str]
     llm_confidence: int
+    model_used: str

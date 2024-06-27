@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, RootModel
 from typing_extensions import Annotated
 
 from asknews_sdk.dto.base import Article, BaseSchema
+from asknews_sdk.dto.stories import RedditThread
 
 
 class SearchResponseDictItem(Article):
@@ -33,5 +34,9 @@ class SourceReportResponse(BaseSchema, RootModel[List[SourceReportItem]]):
     root: Annotated[List[SourceReportItem], Field(title="SourceReportResponse")]
 
 
-class ArticleResponse(BaseSchema, Article):
-    ...
+class ArticleResponse(BaseSchema, Article): ...
+
+
+class RedditResponse(BaseSchema):
+    as_dicts: list[RedditThread] | None = None
+    as_string: str | None = None
