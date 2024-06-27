@@ -1,3 +1,9 @@
+## 0.7.19 (2024-06-27)
+
+### Fix
+
+- add search_reddit, add command-nightly to forecast
+
 ## 0.7.18 (2024-06-26)
 
 ### Fix
