@@ -223,7 +223,7 @@ class NewsAPI(BaseAPI):
 
     def search_reddit(
         self,
-        keywords: list[str],
+        keywords: List[str],
         n_threads: int = 5,
         method: Literal["nl", "kw"] = "kw",
         deep: bool = True,
@@ -464,7 +464,7 @@ class AsyncNewsAPI(BaseAPI):
 
     async def search_reddit(
         self,
-        keywords: list[str],
+        keywords: List[str],
         n_threads: int = 5,
         method: Literal["nl", "kw"] = "kw",
         deep: bool = True,
