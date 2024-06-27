@@ -39,4 +39,4 @@ class ArticleResponse(BaseSchema, Article): ...
 
 class RedditResponse(BaseSchema):
     as_dicts: Optional[List[RedditThread]] = None
-    as_string: str | None = None
+    as_string: Optional[str] = None
