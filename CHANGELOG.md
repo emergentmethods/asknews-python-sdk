@@ -1,3 +1,9 @@
+## 0.7.23 (2024-06-29)
+
+### Fix
+
+- add params to search_reddit
+
 ## 0.7.22 (2024-06-27)
 
 ### Fix
