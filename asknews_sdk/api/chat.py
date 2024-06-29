@@ -160,7 +160,7 @@ class ChatAPI(BaseAPI):
             "gpt-4o", "claude-3-5-sonnet-20240620", "command-nightly"
         ] = "claude-3-5-sonnet-20240620",
         cutoff_date: Optional[str] = None,
-        reddit: bool = False,
+        use_reddit: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> ForecastResponse:
@@ -181,7 +181,7 @@ class ChatAPI(BaseAPI):
                 "method": method,
                 "model": model,
                 "cutoff_date": cutoff_date,
-                "reddit": reddit,
+                "use_reddit": use_reddit,
             },
         )
         return ForecastResponse.model_validate(response.content)
@@ -336,7 +336,7 @@ class AsyncChatAPI(BaseAPI):
             "gpt-4o", "claude-3-5-sonnet-20240620", "command-nightly"
         ] = "claude-3-5-sonnet-20240620",
         cutoff_date: Optional[str] = None,
-        reddit: bool = False,
+        use_reddit: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> ForecastResponse:
@@ -357,7 +357,7 @@ class AsyncChatAPI(BaseAPI):
                 "method": method,
                 "model": model,
                 "cutoff_date": cutoff_date,
-                "reddit": reddit,
+                "use_reddit": use_reddit,
             },
         )
         return ForecastResponse.model_validate(response.content)
