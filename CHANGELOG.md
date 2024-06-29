@@ -1,3 +1,9 @@
+## 0.7.24 (2024-06-29)
+
+### Fix
+
+- add reddit option to get_forecast
+
 ## 0.7.23 (2024-06-29)
 
 ### Fix
