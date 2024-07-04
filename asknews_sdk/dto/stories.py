@@ -108,6 +108,7 @@ class StoryResponseUpdate(BaseModel):
         GraphRelationships, Field(title="Relationships mapped out between entities.")
     ]
     mermaid: Annotated[str, Field(title="Mermaid syntax for the relationships graph.")]
+    alignment: Annotated[int, Field(title="Alignment")]
 
 
 class StoryResponse(BaseSchema):
