@@ -1,3 +1,9 @@
+## 0.7.26 (2024-07-04)
+
+### Fix
+
+- add string_guarantee/reverse_string_guarantee/entity_guarantee
+
 ## 0.7.25 (2024-06-29)
 
 ### Fix
