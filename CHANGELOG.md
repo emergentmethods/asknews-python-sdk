@@ -1,3 +1,9 @@
+## 0.7.25 (2024-06-29)
+
+### Fix
+
+- make sure the reddit param is correcT
+
 ## 0.7.24 (2024-06-29)
 
 ### Fix
