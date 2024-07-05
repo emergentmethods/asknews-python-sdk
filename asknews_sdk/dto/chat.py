@@ -128,3 +128,4 @@ class ForecastResponse(BaseModel):
     choice: Union[bool, str]
     llm_confidence: int
     model_used: str
+    probability: str

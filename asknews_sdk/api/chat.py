@@ -161,6 +161,7 @@ class ChatAPI(BaseAPI):
         ] = "claude-3-5-sonnet-20240620",
         cutoff_date: Optional[str] = None,
         use_reddit: bool = False,
+        additional_context: Optional[str] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> ForecastResponse:
@@ -182,6 +183,7 @@ class ChatAPI(BaseAPI):
                 "model": model,
                 "cutoff_date": cutoff_date,
                 "use_reddit": use_reddit,
+                "additional_context": additional_context,
             },
         )
         return ForecastResponse.model_validate(response.content)
@@ -337,6 +339,7 @@ class AsyncChatAPI(BaseAPI):
         ] = "claude-3-5-sonnet-20240620",
         cutoff_date: Optional[str] = None,
         use_reddit: bool = False,
+        additional_context: Optional[str] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> ForecastResponse:
@@ -358,6 +361,7 @@ class AsyncChatAPI(BaseAPI):
                 "model": model,
                 "cutoff_date": cutoff_date,
                 "use_reddit": use_reddit,
+                "additional_context": additional_context,
             },
         )
         return ForecastResponse.model_validate(response.content)
