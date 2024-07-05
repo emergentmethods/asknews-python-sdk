@@ -1,3 +1,9 @@
+## 0.7.27 (2024-07-05)
+
+### Fix
+
+- add probability to return object for forecast
+
 ## 0.7.26 (2024-07-04)
 
 ### Fix
