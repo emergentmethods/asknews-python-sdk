@@ -162,6 +162,7 @@ class ChatAPI(BaseAPI):
         cutoff_date: Optional[str] = None,
         use_reddit: bool = False,
         additional_context: Optional[str] = None,
+        web_search: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> ForecastResponse:
@@ -184,6 +185,7 @@ class ChatAPI(BaseAPI):
                 "cutoff_date": cutoff_date,
                 "use_reddit": use_reddit,
                 "additional_context": additional_context,
+                "web_search": web_search,
             },
         )
         return ForecastResponse.model_validate(response.content)
@@ -340,6 +342,7 @@ class AsyncChatAPI(BaseAPI):
         cutoff_date: Optional[str] = None,
         use_reddit: bool = False,
         additional_context: Optional[str] = None,
+        web_search: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> ForecastResponse:
@@ -362,6 +365,7 @@ class AsyncChatAPI(BaseAPI):
                 "cutoff_date": cutoff_date,
                 "use_reddit": use_reddit,
                 "additional_context": additional_context,
+                "web_search": web_search,
             },
         )
         return ForecastResponse.model_validate(response.content)
