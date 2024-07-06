@@ -1,3 +1,9 @@
+## 0.7.28 (2024-07-06)
+
+### Fix
+
+- add web_search functionality
+
 ## 0.7.27 (2024-07-05)
 
 ### Fix
