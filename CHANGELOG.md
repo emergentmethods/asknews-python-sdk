@@ -1,3 +1,9 @@
+## 0.7.29 (2024-07-08)
+
+### Fix
+
+- add more return values to ForecastResponse
+
 ## 0.7.28 (2024-07-06)
 
 ### Fix
