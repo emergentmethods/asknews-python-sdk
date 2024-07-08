@@ -130,10 +130,10 @@ class ForecastResponse(BaseModel):
     model_used: str
     likelihood: str
     probability: int
-    web_search_results: list[dict]
+    web_search_results: List[Dict]
     summary: str
-    key_people: list[str]
-    key_facets: list[str]
+    key_people: List[str]
+    key_facets: List[str]
     reconciled_information: str
-    candidate_models: list[str]
+    candidate_models: List[str]
     unique_information: str
