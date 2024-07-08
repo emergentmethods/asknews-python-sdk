@@ -1,3 +1,9 @@
+## 0.7.30 (2024-07-08)
+
+### Fix
+
+- use old types for old python versions
+
 ## 0.7.29 (2024-07-08)
 
 ### Fix
