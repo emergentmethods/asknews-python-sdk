@@ -13,7 +13,7 @@ pip install asknews
 ## Usage
 
 ```python
-from asknews import AskNewsSDK
+from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK()
 query = "Effect of fed policy on tech sector"
