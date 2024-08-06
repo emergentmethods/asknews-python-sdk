@@ -1,3 +1,9 @@
+## 0.7.31 (2024-08-06)
+
+### Fix
+
+- improve the typing on forecast return
+
 ## 0.7.30 (2024-07-08)
 
 ### Fix
