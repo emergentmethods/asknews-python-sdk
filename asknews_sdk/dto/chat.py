@@ -129,7 +129,7 @@ class WebSearchResult(BaseModel):
     url: HttpUrlString
     source: str
     published: str
-    key_points: list[str]
+    key_points: List[str]
 
 
 class ForecastResponse(BaseModel):
