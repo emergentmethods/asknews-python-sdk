@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Literal, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field, RootModel
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, HttpUrl, RootModel
 from typing_extensions import Annotated
 
 from asknews_sdk.dto.base import BaseSchema
@@ -116,6 +116,22 @@ class ListModelResponse(BaseSchema):
 class HeadlineQuestionsResponse(BaseSchema, RootModel[Dict[str, List[str]]]): ...
 
 
+HttpUrlString = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
+
+
+class KeyPerson(BaseModel):
+    name: str
+    role: str
+
+
+class WebSearchResult(BaseModel):
+    title: str
+    url: HttpUrlString
+    source: str
+    published: str
+    key_points: list[str]
+
+
 class ForecastResponse(BaseModel):
     forecast: str
     resolution_criteria: str
@@ -130,9 +146,9 @@ class ForecastResponse(BaseModel):
     model_used: str
     likelihood: str
     probability: int
-    web_search_results: List[Dict]
+    web_search_results: List[WebSearchResult]
     summary: str
-    key_people: List[str]
+    key_people: List[KeyPerson]
     key_facets: List[str]
     reconciled_information: str
     candidate_models: List[str]
