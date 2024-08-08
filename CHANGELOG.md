@@ -1,3 +1,9 @@
+## 0.7.33 (2024-08-08)
+
+### Fix
+
+- add knowledge graphs, allow filtering on countries, languages, continents
+
 ## 0.7.32 (2024-08-06)
 
 ### Fix
