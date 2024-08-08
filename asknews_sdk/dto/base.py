@@ -1,8 +1,13 @@
-from typing import ClassVar, List, Optional, Union
+from typing import ClassVar, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import AnyUrl, AwareDatetime, BaseModel, Field
 from typing_extensions import Annotated
+
+
+class GraphRelationships(BaseModel):
+    nodes: List[Dict[Literal["id", "type", "detailed_type", "ner_type"], str]]
+    edges: List[Dict[Literal["from", "to", "label"], str]]
 
 
 class BaseSchema(BaseModel):
@@ -69,6 +74,9 @@ class Article(BaseModel):
         str, Field(title="A measure of how provocative this story update is.")
     ] = "low"
     reporting_voice: Annotated[str, Field(title="The reporting voice of the article.")] = "Unknown"
+    entity_relation_graph: Annotated[
+        Optional[GraphRelationships], Field(None, title="Entity Relation Graph")
+    ] = None
 
 
 class PingResponse(BaseSchema):
