@@ -1,3 +1,10 @@
+## 0.7.35 (2024-08-28)
+
+### Fix
+
+- linting and README
+- linting and README
+
 ## 0.7.34 (2024-08-28)
 
 ### Fix
