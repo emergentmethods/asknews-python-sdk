@@ -1,3 +1,9 @@
+## 0.7.34 (2024-08-28)
+
+### Fix
+
+- add mega-news-knowledge-graph endpoint :tada:
+
 ## 0.7.33 (2024-08-08)
 
 ### Fix
