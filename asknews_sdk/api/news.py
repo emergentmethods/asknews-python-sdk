@@ -7,6 +7,7 @@ from asknews_sdk.dto.news import (
     RedditResponse,
     SearchResponse,
     SourceReportResponse,
+    GraphResponse
 )
 
 
@@ -80,7 +81,8 @@ class NewsAPI(BaseAPI):
         domain_url: Optional[str] = None,
         page_rank: Optional[int] = None,
         diversify_sources: Optional[bool] = False,
-        strategy: Literal["latest news", "news knowledge", "default"] = "default",
+        strategy: Literal["latest news",
+                          "news knowledge", "default"] = "default",
         hours_back: Optional[int] = 24,
         string_guarantee: Optional[List[str]] = None,
         reverse_string_guarantee: Optional[List[str]] = None,
@@ -242,8 +244,10 @@ class NewsAPI(BaseAPI):
         method: Literal["nl", "kw"] = "kw",
         deep: bool = True,
         return_type: Literal["dicts", "string", "both"] = "string",
-        time_filter: Literal["all", "day", "hour", "month", "week", "year"] = "all",
-        sort: Literal["relevance", "hot", "top", "new", "comments"] = "relevance",
+        time_filter: Literal["all", "day", "hour",
+                             "month", "week", "year"] = "all",
+        sort: Literal["relevance", "hot", "top",
+                      "new", "comments"] = "relevance",
         *,
         http_headers: Optional[Dict] = None,
     ) -> RedditResponse:
@@ -267,6 +271,34 @@ class NewsAPI(BaseAPI):
             accept=[(RedditResponse.__content_type__, 1.0)],
         )
         return RedditResponse.model_validate(response.content)
+
+    def build_graph(
+        self,
+        query: str,
+        return_articles: bool = False,
+        min_cluster_probability: float = 0.9,
+        geo_disambiguation: bool = False,
+        filter_params: Optional[Dict] = None,
+        disambiguation_correction: Optional[Dict] = None,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> GraphResponse:
+        
+        response = self.client.request(
+            method="POST",
+            endpoint="/v1/news/graph",
+            body={
+                "query": query,
+                "return_articles": return_articles,
+                "min_cluster_probability": min_cluster_probability,
+                "geo_disambiguation": geo_disambiguation,
+                "filter_params": filter_params,
+                "disambiguation_correction": disambiguation_correction,
+            },
+            headers=http_headers,
+            accept=[(GraphResponse.__content_type__, 1.0)],
+        )
+        return GraphResponse.model_validate(response.content)
 
 
 class AsyncNewsAPI(BaseAPI):
@@ -339,7 +371,8 @@ class AsyncNewsAPI(BaseAPI):
         domain_url: Optional[str] = None,
         page_rank: Optional[int] = None,
         diversify_sources: Optional[bool] = False,
-        strategy: Literal["latest news", "news knowledge", "default"] = "default",
+        strategy: Literal["latest news",
+                          "news knowledge", "default"] = "default",
         hours_back: Optional[int] = 24,
         string_guarantee: Optional[List[str]] = None,
         reverse_string_guarantee: Optional[List[str]] = None,
@@ -501,8 +534,10 @@ class AsyncNewsAPI(BaseAPI):
         method: Literal["nl", "kw"] = "kw",
         deep: bool = True,
         return_type: Literal["dicts", "string", "both"] = "string",
-        time_filter: Literal["all", "day", "hour", "month", "week", "year"] = "all",
-        sort: Literal["relevance", "hot", "top", "new", "comments"] = "relevance",
+        time_filter: Literal["all", "day", "hour",
+                             "month", "week", "year"] = "all",
+        sort: Literal["relevance", "hot", "top",
+                      "new", "comments"] = "relevance",
         *,
         http_headers: Optional[Dict] = None,
     ) -> RedditResponse:
@@ -526,3 +561,32 @@ class AsyncNewsAPI(BaseAPI):
             accept=[(RedditResponse.__content_type__, 1.0)],
         )
         return RedditResponse.model_validate(response.content)
+
+
+    async def build_graph(
+        self,
+        query: str,
+        return_articles: bool = False,
+        min_cluster_probability: float = 0.9,
+        geo_disambiguation: bool = False,
+        filter_params: Optional[Dict] = None,
+        disambiguation_correction: Optional[Dict] = None,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> GraphResponse:
+        
+        response = await self.client.request(
+            method="POST",
+            endpoint="/v1/news/graph",
+            body={
+                "query": query,
+                "return_articles": return_articles,
+                "min_cluster_probability": min_cluster_probability,
+                "geo_disambiguation": geo_disambiguation,
+                "filter_params": filter_params,
+                "disambiguation_correction": disambiguation_correction,
+            },
+            headers=http_headers,
+            accept=[(GraphResponse.__content_type__, 1.0)],
+        )
+        return GraphResponse.model_validate(response.content)

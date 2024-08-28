@@ -40,3 +40,9 @@ class ArticleResponse(BaseSchema, Article): ...
 class RedditResponse(BaseSchema):
     as_dicts: Optional[List[RedditThread]] = None
     as_string: Optional[str] = None
+
+
+class GraphResponse(BaseSchema):
+    full_graph: Dict
+    disambiguations: List[Dict]
+    articles: Optional[List[SearchResponseDictItem]] = None
