@@ -50,7 +50,7 @@ class NewsAPI(BaseAPI):
         end_timestamp: Optional[int] = None,
         return_type: Literal["string", "dicts", "both"] = "string",
         historical: bool = False,
-        method: Literal["nl", "kw", "both"] = "nl",
+        method: Literal["nl", "kw", "both"] = "kw",
         similarity_score_threshold: float = 0.5,
         offset: int = 0,
         categories: Optional[
@@ -336,7 +336,7 @@ class AsyncNewsAPI(BaseAPI):
         end_timestamp: Optional[int] = None,
         return_type: Literal["string", "dicts", "both"] = "string",
         historical: bool = False,
-        method: Literal["nl", "kw", "both"] = "nl",
+        method: Literal["nl", "kw", "both"] = "kw",
         similarity_score_threshold: float = 0.5,
         offset: int = 0,
         categories: Optional[
