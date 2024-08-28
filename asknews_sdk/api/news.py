@@ -4,10 +4,10 @@ from uuid import UUID
 from asknews_sdk.api.base import BaseAPI
 from asknews_sdk.dto.news import (
     ArticleResponse,
+    GraphResponse,
     RedditResponse,
     SearchResponse,
     SourceReportResponse,
-    GraphResponse
 )
 
 
@@ -81,8 +81,7 @@ class NewsAPI(BaseAPI):
         domain_url: Optional[str] = None,
         page_rank: Optional[int] = None,
         diversify_sources: Optional[bool] = False,
-        strategy: Literal["latest news",
-                          "news knowledge", "default"] = "default",
+        strategy: Literal["latest news", "news knowledge", "default"] = "default",
         hours_back: Optional[int] = 24,
         string_guarantee: Optional[List[str]] = None,
         reverse_string_guarantee: Optional[List[str]] = None,
@@ -244,10 +243,8 @@ class NewsAPI(BaseAPI):
         method: Literal["nl", "kw"] = "kw",
         deep: bool = True,
         return_type: Literal["dicts", "string", "both"] = "string",
-        time_filter: Literal["all", "day", "hour",
-                             "month", "week", "year"] = "all",
-        sort: Literal["relevance", "hot", "top",
-                      "new", "comments"] = "relevance",
+        time_filter: Literal["all", "day", "hour", "month", "week", "year"] = "all",
+        sort: Literal["relevance", "hot", "top", "new", "comments"] = "relevance",
         *,
         http_headers: Optional[Dict] = None,
     ) -> RedditResponse:
@@ -283,7 +280,6 @@ class NewsAPI(BaseAPI):
         *,
         http_headers: Optional[Dict] = None,
     ) -> GraphResponse:
-        
         response = self.client.request(
             method="POST",
             endpoint="/v1/news/graph",
@@ -371,8 +367,7 @@ class AsyncNewsAPI(BaseAPI):
         domain_url: Optional[str] = None,
         page_rank: Optional[int] = None,
         diversify_sources: Optional[bool] = False,
-        strategy: Literal["latest news",
-                          "news knowledge", "default"] = "default",
+        strategy: Literal["latest news", "news knowledge", "default"] = "default",
         hours_back: Optional[int] = 24,
         string_guarantee: Optional[List[str]] = None,
         reverse_string_guarantee: Optional[List[str]] = None,
@@ -534,10 +529,8 @@ class AsyncNewsAPI(BaseAPI):
         method: Literal["nl", "kw"] = "kw",
         deep: bool = True,
         return_type: Literal["dicts", "string", "both"] = "string",
-        time_filter: Literal["all", "day", "hour",
-                             "month", "week", "year"] = "all",
-        sort: Literal["relevance", "hot", "top",
-                      "new", "comments"] = "relevance",
+        time_filter: Literal["all", "day", "hour", "month", "week", "year"] = "all",
+        sort: Literal["relevance", "hot", "top", "new", "comments"] = "relevance",
         *,
         http_headers: Optional[Dict] = None,
     ) -> RedditResponse:
@@ -562,7 +555,6 @@ class AsyncNewsAPI(BaseAPI):
         )
         return RedditResponse.model_validate(response.content)
 
-
     async def build_graph(
         self,
         query: str,
@@ -574,7 +566,6 @@ class AsyncNewsAPI(BaseAPI):
         *,
         http_headers: Optional[Dict] = None,
     ) -> GraphResponse:
-        
         response = await self.client.request(
             method="POST",
             endpoint="/v1/news/graph",
