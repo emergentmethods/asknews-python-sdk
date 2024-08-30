@@ -1,3 +1,9 @@
+## 0.7.36 (2024-08-30)
+
+### Fix
+
+- allow domain_url to be a list, allow filtering on sentiment
+
 ## 0.7.35 (2024-08-28)
 
 ### Fix
