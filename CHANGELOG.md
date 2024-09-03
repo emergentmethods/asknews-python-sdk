@@ -1,3 +1,9 @@
+## 0.7.37 (2024-09-03)
+
+### Fix
+
+- allow docs_upload, change name for constrained_disamb, add visualize_with option, improve GraphResponse
+
 ## 0.7.36 (2024-08-30)
 
 ### Fix
