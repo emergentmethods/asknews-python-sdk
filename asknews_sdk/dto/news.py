@@ -46,3 +46,7 @@ class GraphResponse(BaseSchema):
     full_graph: Dict
     disambiguations: List[Dict]
     articles: Optional[List[SearchResponseDictItem]] = None
+    query: Optional[str] = None
+    docs_enhanced: Optional[List[Dict]] = None
+    triples_url: Optional[str] = None
+    visualize_url: Optional[str] = None
