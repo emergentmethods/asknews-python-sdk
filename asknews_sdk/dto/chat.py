@@ -153,4 +153,4 @@ class ForecastResponse(BaseModel):
     reconciled_information: str
     candidate_models: List[str]
     unique_information: str
-    expert_information: dict
+    expert_information: Dict
