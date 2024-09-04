@@ -1,3 +1,10 @@
+## 0.7.38 (2024-09-04)
+
+### Fix
+
+- allow expert definition on get_forecast
+- allow expert definition on get_forecast
+
 ## 0.7.37 (2024-09-03)
 
 ### Fix
