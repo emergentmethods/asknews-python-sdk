@@ -163,6 +163,7 @@ class ChatAPI(BaseAPI):
         use_reddit: bool = False,
         additional_context: Optional[str] = None,
         web_search: bool = False,
+        expert: Literal["general", "sports"] = "general",
         *,
         http_headers: Optional[Dict] = None,
     ) -> ForecastResponse:
@@ -186,6 +187,7 @@ class ChatAPI(BaseAPI):
                 "use_reddit": use_reddit,
                 "additional_context": additional_context,
                 "web_search": web_search,
+                "expert": expert,
             },
         )
         return ForecastResponse.model_validate(response.content)
@@ -343,6 +345,7 @@ class AsyncChatAPI(BaseAPI):
         use_reddit: bool = False,
         additional_context: Optional[str] = None,
         web_search: bool = False,
+        expert: Literal["general", "sports"] = "general",
         *,
         http_headers: Optional[Dict] = None,
     ) -> ForecastResponse:
@@ -366,6 +369,7 @@ class AsyncChatAPI(BaseAPI):
                 "use_reddit": use_reddit,
                 "additional_context": additional_context,
                 "web_search": web_search,
+                "expert": expert,
             },
         )
         return ForecastResponse.model_validate(response.content)
