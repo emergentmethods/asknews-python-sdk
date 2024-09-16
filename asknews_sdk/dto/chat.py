@@ -130,6 +130,12 @@ class WebSearchResult(BaseModel):
     source: str
     published: str
     key_points: List[str]
+    raw_text: str = ""
+
+
+class WebSearchResponse(BaseModel):
+    as_string: str
+    as_dicts: List[WebSearchResult]
 
 
 class ForecastResponse(BaseModel):

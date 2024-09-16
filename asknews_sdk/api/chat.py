@@ -8,6 +8,7 @@ from asknews_sdk.dto.chat import (
     ForecastResponse,
     HeadlineQuestionsResponse,
     ListModelResponse,
+    WebSearchResponse,
 )
 from asknews_sdk.response import EventSource
 
@@ -192,6 +193,30 @@ class ChatAPI(BaseAPI):
         )
         return ForecastResponse.model_validate(response.content)
 
+    def live_web_search(
+        self,
+        queries: List[str],
+        lookback: Optional[int] = None,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> WebSearchResponse:
+        """
+        Run a live websearch, results fully distilled and analyzed
+        by LLMs
+
+        https://docs.asknews.app/en/reference#get-/v1/chat/websearch
+        """
+        response = self.client.request(
+            method="GET",
+            endpoint="/v1/chat/websearch",
+            headers=http_headers,
+            query={
+                "queries": queries,
+                "lookback": lookback,
+            },
+        )
+        return WebSearchResponse.model_validate(response.content)
+
 
 class AsyncChatAPI(BaseAPI):
     """
@@ -373,3 +398,27 @@ class AsyncChatAPI(BaseAPI):
             },
         )
         return ForecastResponse.model_validate(response.content)
+
+    async def live_web_search(
+        self,
+        queries: list[str],
+        lookback: Optional[int] = None,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> WebSearchResponse:
+        """
+        Run a live websearch, results fully distilled and analyzed
+        by LLMs.
+
+        https://docs.asknews.app/en/reference#get-/v1/chat/websearch
+        """
+        response = await self.client.request(
+            method="GET",
+            endpoint="/v1/chat/websearch",
+            headers=http_headers,
+            query={
+                "queries": queries,
+                "lookback": lookback,
+            },
+        )
+        return WebSearchResponse.model_validate(response.content)
