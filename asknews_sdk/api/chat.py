@@ -24,7 +24,7 @@ class ChatAPI(BaseAPI):
         self,
         messages: List[Dict[str, str]],
         model: Literal[
-            "gpt-3.5-turbo-16k",
+            "gpt-4o-mini",
             "gpt-4-1106-preview",
             "open-mixtral-8x7b",
             "meta-llama/Meta-Llama-3-70B-Instruct",
@@ -32,7 +32,7 @@ class ChatAPI(BaseAPI):
             "meta-llama/Meta-Llama-3.1-405B-Instruct",
             "claude-3-5-sonnet-20240620",
             "gpt-4o",
-        ] = "gpt-3.5-turbo-16k",
+        ] = "gpt-4o-mini",
         stream: bool = False,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -160,7 +160,10 @@ class ChatAPI(BaseAPI):
         articles_to_use: int = 14,
         method: Literal["nl", "kw", "both"] = "kw",
         model: Literal[
-            "gpt-4o", "claude-3-5-sonnet-20240620", "command-nightly"
+            "gpt-4o",
+            "claude-3-5-sonnet-20240620",
+            "command-nightly",
+            "meta-llama/Meta-Llama-3.1-405B-Instruct",
         ] = "claude-3-5-sonnet-20240620",
         cutoff_date: Optional[str] = None,
         use_reddit: bool = False,
@@ -231,7 +234,7 @@ class AsyncChatAPI(BaseAPI):
         self,
         messages: List[Dict[str, str]],
         model: Literal[
-            "gpt-3.5-turbo-16k",
+            "gpt-4o-mini",
             "gpt-4-1106-preview",
             "open-mixtral-8x7b",
             "meta-llama/Meta-Llama-3-70B-Instruct",
@@ -239,7 +242,7 @@ class AsyncChatAPI(BaseAPI):
             "meta-llama/Meta-Llama-3.1-405B-Instruct",
             "claude-3-5-sonnet-20240620",
             "gpt-4o",
-        ] = "gpt-3.5-turbo-16k",
+        ] = "gpt-4o-mini",
         stream: bool = False,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -368,7 +371,10 @@ class AsyncChatAPI(BaseAPI):
         articles_to_use: int = 14,
         method: Literal["nl", "kw", "both"] = "kw",
         model: Literal[
-            "gpt-4o", "claude-3-5-sonnet-20240620", "command-nightly"
+            "gpt-4o",
+            "claude-3-5-sonnet-20240620",
+            "command-nightly",
+            "meta-llama/Meta-Llama-3.1-405B-Instruct",
         ] = "claude-3-5-sonnet-20240620",
         cutoff_date: Optional[str] = None,
         use_reddit: bool = False,
