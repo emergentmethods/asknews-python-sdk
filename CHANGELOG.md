@@ -1,3 +1,9 @@
+## 0.7.40 (2024-09-16)
+
+### Fix
+
+- add live_web_search endpoint
+
 ## 0.7.39 (2024-09-04)
 
 ### Fix
