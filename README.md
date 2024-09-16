@@ -15,7 +15,12 @@ pip install asknews
 ```python
 from asknews_sdk import AskNewsSDK
 
-ask = AskNewsSDK()
+ask = AskNewsSDK(
+    client_id=<"YOUR_CLIENT_ID>",
+    client_secret="<YOUR_CLIENT_SECRET>",
+    scopes=["news"]
+)
+
 query = "Effect of fed policy on tech sector"
 
 # prompt-optimized string ready to go for any LLM:
