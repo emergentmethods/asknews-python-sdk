@@ -401,7 +401,7 @@ class AsyncChatAPI(BaseAPI):
 
     async def live_web_search(
         self,
-        queries: list[str],
+        queries: List[str],
         lookback: Optional[int] = None,
         *,
         http_headers: Optional[Dict] = None,
