@@ -71,6 +71,10 @@ class CreateChatCompletionRequest(BaseSchema):
     conversational_awareness: Annotated[
         Optional[bool], Field(False, title="Conversational Awareness")
     ]
+    filter_params: Annotated[
+        Optional[Dict[str, Any]],
+        Field(None, title="Any filter param available on the /news endpoint."),
+    ]
 
 
 class CreateChatCompletionResponse(BaseSchema):
