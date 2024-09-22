@@ -1,3 +1,9 @@
+## 0.7.44 (2024-09-22)
+
+### Fix
+
+- allow users to pass filter_param to get_chat_completion
+
 ## 0.7.43 (2024-09-17)
 
 ### Fix
