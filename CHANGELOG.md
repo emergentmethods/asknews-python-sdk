@@ -1,3 +1,9 @@
+## 0.7.45 (2024-10-02)
+
+### Fix
+
+- ensure reporting_voice can be a list or string
+
 ## 0.7.44 (2024-09-22)
 
 ### Fix
