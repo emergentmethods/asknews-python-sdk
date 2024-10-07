@@ -1,3 +1,9 @@
+## 0.7.47 (2024-10-07)
+
+### Fix
+
+- add ability to control string/entity operators
+
 ## 0.7.46 (2024-10-07)
 
 ### Fix
