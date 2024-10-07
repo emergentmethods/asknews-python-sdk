@@ -1,3 +1,9 @@
+## 0.7.46 (2024-10-07)
+
+### Fix
+
+- allow query-less filtering + streaming
+
 ## 0.7.45 (2024-10-02)
 
 ### Fix
