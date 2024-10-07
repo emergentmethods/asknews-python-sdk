@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field, RootModel
 from typing_extensions import Annotated
@@ -17,7 +17,7 @@ class SearchResponseDictItem(Article):
 class SearchResponse(BaseSchema):
     as_dicts: Annotated[Optional[List[SearchResponseDictItem]], Field(None, title="As Dicts")]
     as_string: Annotated[Optional[str], Field(None, title="As String")]
-    offset: Annotated[Optional[int], Field(None, title="Offset")]
+    offset: Annotated[Optional[Union[int, str]], Field(None, title="Offset")]
 
 
 class SourceReportItem(BaseModel):

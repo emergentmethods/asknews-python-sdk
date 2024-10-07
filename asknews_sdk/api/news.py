@@ -44,7 +44,7 @@ class NewsAPI(BaseAPI):
 
     def search_news(
         self,
-        query: str,
+        query: str = "",
         n_articles: int = 10,
         start_timestamp: Optional[int] = None,
         end_timestamp: Optional[int] = None,
@@ -52,7 +52,7 @@ class NewsAPI(BaseAPI):
         historical: bool = False,
         method: Literal["nl", "kw", "both"] = "kw",
         similarity_score_threshold: float = 0.5,
-        offset: int = 0,
+        offset: Union[int, str] = 0,
         categories: Optional[
             List[
                 Literal[
@@ -336,7 +336,7 @@ class AsyncNewsAPI(BaseAPI):
 
     async def search_news(
         self,
-        query: str,
+        query: str = "",
         n_articles: int = 10,
         start_timestamp: Optional[int] = None,
         end_timestamp: Optional[int] = None,
@@ -344,7 +344,7 @@ class AsyncNewsAPI(BaseAPI):
         historical: bool = False,
         method: Literal["nl", "kw", "both"] = "kw",
         similarity_score_threshold: float = 0.5,
-        offset: int = 0,
+        offset: Union[int, str] = 0,
         categories: Optional[
             List[
                 Literal[
