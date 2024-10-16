@@ -277,7 +277,7 @@ class NewsAPI(BaseAPI):
 
     def build_graph(
         self,
-        query: str,
+        query: str = "",
         return_articles: bool = False,
         min_cluster_probability: float = 0.9,
         geo_disambiguation: bool = False,
@@ -573,7 +573,7 @@ class AsyncNewsAPI(BaseAPI):
 
     async def build_graph(
         self,
-        query: str,
+        query: str = "",
         return_articles: bool = False,
         min_cluster_probability: float = 0.9,
         geo_disambiguation: bool = False,
