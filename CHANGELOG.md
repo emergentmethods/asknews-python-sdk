@@ -1,3 +1,9 @@
+## 0.7.48 (2024-10-16)
+
+### Fix
+
+- no longer require query for graph build
+
 ## 0.7.47 (2024-10-07)
 
 ### Fix
