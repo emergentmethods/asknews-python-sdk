@@ -1,3 +1,9 @@
+## 0.7.49 (2024-10-20)
+
+### Fix
+
+- Add py.typed file to package
+
 ## 0.7.48 (2024-10-16)
 
 ### Fix
