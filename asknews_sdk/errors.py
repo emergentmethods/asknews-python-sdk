@@ -49,6 +49,15 @@ class MethodNotAllowed(APIError):
     detail = "Method Not Allowed"
 
 
+class RateLimitExceededError(APIError):
+    code = 429000
+    detail = "Rate Limit Exceeded"
+
+
+class ConcurrencyLimitExceededError(APIError):
+    code = 429001
+    detail = "Concurrency Limit Exceeded"
+
 class ValidationError(APIError):
     code = 422000
     detail: Dict = {}
@@ -79,6 +88,8 @@ ErrorMap = {
     404000: ResourceNotFoundError,
     405000: MethodNotAllowed,
     422000: ValidationError,
+    429000: RateLimitExceededError,
+    429001: ConcurrencyLimitExceededError,
     500000: APIError,
     503000: ServiceUnavailableError,
 }
