@@ -1,3 +1,9 @@
+## 0.7.50 (2024-10-20)
+
+### Fix
+
+- Add rate and concurrency limit errors
+
 ## 0.7.49 (2024-10-20)
 
 ### Fix
