@@ -5,6 +5,12 @@ from pydantic import AnyUrl, AwareDatetime, BaseModel, Field
 from typing_extensions import Annotated
 
 
+class GeoCoordinate(BaseModel):
+    latitude: Annotated[float, Field(title="Latitude")]
+    longitude: Annotated[float, Field(title="Longitude")]
+    metadata: Annotated[Dict, Field(title="Metadata")]
+
+
 class GraphRelationships(BaseModel):
     nodes: List[Dict[Literal["id", "type", "detailed_type", "ner_type"], str]]
     edges: List[Dict[Literal["from", "to", "label"], str]]
@@ -76,6 +82,9 @@ class Article(BaseModel):
     reporting_voice: Annotated[str, Field(title="The reporting voice of the article.")] = "Unknown"
     entity_relation_graph: Annotated[
         Optional[GraphRelationships], Field(None, title="Entity Relation Graph")
+    ] = None
+    geo_coordinates: Annotated[
+        Optional[Dict[str, GeoCoordinate]], Field(None, title="Geo Coordinates")
     ] = None
 
 
