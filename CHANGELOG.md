@@ -1,3 +1,9 @@
+## 0.7.52 (2024-11-17)
+
+### Fix
+
+- allow users to filter on pub_date or crawl_date
+
 ## 0.7.51 (2024-11-01)
 
 ### Fix
