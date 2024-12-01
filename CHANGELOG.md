@@ -1,3 +1,9 @@
+## 0.7.53 (2024-12-01)
+
+### Fix
+
+- allow search on premium sources
+
 ## 0.7.52 (2024-11-17)
 
 ### Fix
