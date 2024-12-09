@@ -1,3 +1,9 @@
+## 0.7.54 (2024-12-09)
+
+### Fix
+
+- add -latest tag to claude 3.5, add llama 3.3 70b
+
 ## 0.7.53 (2024-12-01)
 
 ### Fix
