@@ -5,6 +5,7 @@ from asknews_sdk.dto.chat import (
     CreateChatCompletionRequest,
     CreateChatCompletionResponse,
     CreateChatCompletionResponseStream,
+    FilterParamsResponse,
     ForecastResponse,
     HeadlineQuestionsResponse,
     ListModelResponse,
@@ -228,6 +229,29 @@ class ChatAPI(BaseAPI):
         )
         return WebSearchResponse.model_validate(response.content)
 
+    def get_autofilter(
+        self,
+        query: str,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> FilterParamsResponse:
+        """
+        Generate filter parameters automatically for the AskNews API.
+
+        The output from this can be passed to /news, /chat, /graph, and /forecast
+
+        https://docs.asknews.app/en/reference#get-/v1/chat/autofilter
+        """
+        response = self.client.request(
+            method="GET",
+            endpoint="/v1/chat/autofilter",
+            headers=http_headers,
+            query={
+                "query": query,
+            },
+        )
+        return FilterParamsResponse.model_validate(response.content)
+
 
 class AsyncChatAPI(BaseAPI):
     """
@@ -444,3 +468,26 @@ class AsyncChatAPI(BaseAPI):
             },
         )
         return WebSearchResponse.model_validate(response.content)
+
+    def get_autofilter(
+        self,
+        query: str,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> FilterParamsResponse:
+        """
+        Generate filter parameters automatically for the AskNews API.
+
+        The output from this can be passed to /news, /chat, /graph, and /forecast
+
+        https://docs.asknews.app/en/reference#get-/v1/chat/autofilter
+        """
+        response = self.client.request(
+            method="GET",
+            endpoint="/v1/chat/autofilter",
+            headers=http_headers,
+            query={
+                "query": query,
+            },
+        )
+        return FilterParamsResponse.model_validate(response.content)

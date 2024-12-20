@@ -164,3 +164,126 @@ class ForecastResponse(BaseModel):
     candidate_models: List[str]
     unique_information: str
     expert_information: Dict
+
+
+class FilterParamsResponse(BaseModel):
+    query: Annotated[
+        str,
+        "Query string that can be any phrase, "
+        "keyword, question, or paragraph. The more descriptive the better. "
+        "Treat this like a powerful google query. This is optional.",
+    ] = ("",)
+    categories: Annotated[
+        list[
+            Literal[
+                "All",
+                "Business",
+                "Crime",
+                "Politics",
+                "Science",
+                "Sports",
+                "Technology",
+                "Military",
+                "Health",
+                "Entertainment",
+                "Finance",
+                "Culture",
+                "Climate",
+                "Environment",
+                "World",
+            ]
+        ],
+        "Categories of news to filter on",
+    ] = (["All"],)
+    reporting_voice: Annotated[
+        list[
+            Literal[
+                "Objective",
+                "Subjective",
+                "Investigative",
+                "Narrative",
+                "Analytical",
+                "Advocacy",
+                "Conversational",
+                "Satirical",
+                "Emotive",
+                "Explanatory",
+                "Persuasive",
+                "Sensational",
+                "Unknown",
+                "all",
+            ]
+        ],
+        "Type of reporting voice to filer by.",
+    ] = (["all"],)
+    strategy: Annotated[
+        Literal["latest news", "news knowledge", "default"],
+        "Strategy to use for searching. 'latest news' automatically sets"
+        "method='nl', historical=False, and looks within the past 24 hours. "
+        "'news knowledge' automatically sets method='kw', historical=True, and looks"
+        " within the past 60 days. 'news knowledge' will increase latency due to the "
+        " larger search space in the archive. Use 'default' if you want to control "
+        " start_timestamp, end_timestamp, historical, and method.",
+    ] = ("default",)
+    hours_back: Annotated[
+        int,
+        "Can be set to easily control the look back on the search. "
+        "This is the same as controlling the 'start_timestamp' parameter. "
+        "The difference is that this is not a timestamp, it is the number of hours "
+        "back to look from the current time. Defaults to 24 hours.",
+    ] = (24,)
+    string_guarantee: Annotated[
+        list[str] | None,
+        "If defined, the search will only occur on articles "
+        "that contain strings in this list. This is powerful for "
+        "constraining important names or concepts. It is optional.",
+    ] = (None,)
+    string_guarantee_op: Annotated[
+        Literal["AND", "OR"],
+        "Operator to use for string guarantee list. AND means all string_guarantee "
+        "items must be present in all articles. OR means at least one of the items must "
+        "be present.",
+    ] = ("AND",)
+    reverse_string_guarantee: Annotated[
+        list[str] | None,
+        "If defined, the search will only occur on articles "
+        "that do not contain strings in this list. This is powerful "
+        "for avoiding articles with a particular name or concept. It is optional.",
+    ] = (None,)
+    entity_guarantee: Annotated[
+        list[str] | None,
+        "Entities that must be present in the retrieved articles. This is a list of strings, "
+        "where each string includes entity type and entity value separated by a "
+        "colon. The first element is the entity type and the second element is "
+        "the entity value. For example ['Location:Paris', 'Person:John']. "
+        "Allowed entity types include: Location, Person, Organization, Product, Technology",
+    ] = (None,)
+    entity_guarantee_op: Annotated[
+        Literal["AND", "OR"],
+        "Operator to use for entity guarantee list. AND means all entity_guarantee "
+        "items must be present in all articles. OR means at least one of the items "
+        "must be present.",
+    ] = ("OR",)
+    countries: Annotated[
+        list[str] | None,
+        "Article source countries to filter by, this is the two-letter ISO country code"
+        "For example: United States is 'US', France is 'FR', Sweden is 'SE'.",
+    ] = (None,)
+    continents: Annotated[
+        list[
+            Literal[
+                "Africa",
+                "Asia",
+                "Oceania",
+                "Europe",
+                "Middle East",
+                "North America",
+                "South America",
+            ]
+        ]
+        | None,
+        "The articles must be geographically focused on this continent.",
+    ] = (None,)
+    sentiment: Annotated[
+        Literal["negative", "neutral", "positive"] | None, "Sentiment to filter articles by."
+    ] = None
