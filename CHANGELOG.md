@@ -1,3 +1,10 @@
+## 0.7.57 (2025-01-03)
+
+### Fix
+
+- autofilter response type
+- Make autofilter function async
+
 ## 0.7.56 (2025-01-03)
 
 ### Fix
