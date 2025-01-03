@@ -1,4 +1,4 @@
-from typing import Callable, Literal, Tuple, Union
+from typing import Callable, List, Literal, Tuple, Union
 
 from httpx import Auth, Request
 from pydantic import BaseModel
@@ -7,6 +7,7 @@ from pydantic import BaseModel
 class Sentinel:
     def __repr__(self):
         return self.__class__.__name__
+
 
 CLIENT_DEFAULT = Sentinel()
 
@@ -19,9 +20,10 @@ RequestAuth = Union[
 
 StreamType = Literal["bytes", "lines", "raw"]
 
+
 class ServerSentEvent(BaseModel):
     event: str = "message"
-    data: list = []
+    data: List = []
     id: str = ""
     retry: int = 0
 
