@@ -174,7 +174,7 @@ class FilterParams(BaseModel):
         "Treat this like a powerful google query. This is optional.",
     ] = ("",)
     categories: Annotated[
-        list[
+        List[
             Literal[
                 "All",
                 "Business",
@@ -196,7 +196,7 @@ class FilterParams(BaseModel):
         "Categories of news to filter on",
     ] = (["All"],)
     reporting_voice: Annotated[
-        list[
+        List[
             Literal[
                 "Objective",
                 "Subjective",
@@ -233,7 +233,7 @@ class FilterParams(BaseModel):
         "back to look from the current time. Defaults to 24 hours.",
     ] = (24,)
     string_guarantee: Annotated[
-        list[str] | None,
+        Optional[List[str]],
         "If defined, the search will only occur on articles "
         "that contain strings in this list. This is powerful for "
         "constraining important names or concepts. It is optional.",
@@ -245,13 +245,13 @@ class FilterParams(BaseModel):
         "be present.",
     ] = ("AND",)
     reverse_string_guarantee: Annotated[
-        list[str] | None,
+        Optional[List[str]],
         "If defined, the search will only occur on articles "
         "that do not contain strings in this list. This is powerful "
         "for avoiding articles with a particular name or concept. It is optional.",
     ] = (None,)
     entity_guarantee: Annotated[
-        list[str] | None,
+        Optional[List[str]],
         "Entities that must be present in the retrieved articles. This is a list of strings, "
         "where each string includes entity type and entity value separated by a "
         "colon. The first element is the entity type and the second element is "
@@ -265,27 +265,28 @@ class FilterParams(BaseModel):
         "must be present.",
     ] = ("OR",)
     countries: Annotated[
-        list[str] | None,
+        Optional[List[str]],
         "Article source countries to filter by, this is the two-letter ISO country code"
         "For example: United States is 'US', France is 'FR', Sweden is 'SE'.",
     ] = (None,)
     continents: Annotated[
-        list[
-            Literal[
-                "Africa",
-                "Asia",
-                "Oceania",
-                "Europe",
-                "Middle East",
-                "North America",
-                "South America",
+        Optional[
+            List[
+                Literal[
+                    "Africa",
+                    "Asia",
+                    "Oceania",
+                    "Europe",
+                    "Middle East",
+                    "North America",
+                    "South America",
+                ]
             ]
-        ]
-        | None,
+        ],
         "The articles must be geographically focused on this continent.",
     ] = (None,)
     sentiment: Annotated[
-        Literal["negative", "neutral", "positive"] | None, "Sentiment to filter articles by."
+        Optional[Literal["negative", "neutral", "positive"]], "Sentiment to filter articles by."
     ] = None
 
 
