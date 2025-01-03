@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, RootModel
@@ -93,7 +93,7 @@ class GoogleDocsAction(BaseModel):
 
 
 Trigger = Annotated[
-    ReportAction | WebhookAction | EmailAction | GoogleDocsAction,
+    Union[ReportAction, WebhookAction, EmailAction, GoogleDocsAction],
     Field(discriminator="action"),
 ]
 
