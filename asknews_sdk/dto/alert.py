@@ -16,7 +16,7 @@ ReportModel = Literal[
 
 
 class ReportParams(BaseModel):
-    query: Optional[List[List[str, str]]] = Field(
+    query: Optional[List[List[str]]] = Field(
         None,
         description=(
             "The optional prompt to use for report generation. The prompt should be a list of "
