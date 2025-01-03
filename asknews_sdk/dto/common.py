@@ -270,7 +270,7 @@ class FilterParams(BaseModel):
             ]
         ]
     ] = Field(None, description="Continents to filter by.")
-    sentiment: Literal["negative", "neutral", "positive"] | None = Field(
+    sentiment: Optional[Literal["negative", "neutral", "positive"]] = Field(
         None, description="Sentiment to filter articles by."
     )
     premium: bool = Field(False, description="Include premium sources.")
