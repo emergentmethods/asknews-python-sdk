@@ -1,6 +1,10 @@
 from typing import AsyncIterator, Dict, Iterator, List, Literal, Optional, Union
+from uuid import UUID
+
+from orjson import loads
 
 from asknews_sdk.api.base import BaseAPI
+from asknews_sdk.dto.alert import AlertResponse, CreateAlertRequest, UpdateAlertRequest
 from asknews_sdk.dto.chat import (
     CreateChatCompletionRequest,
     CreateChatCompletionResponse,
@@ -11,6 +15,7 @@ from asknews_sdk.dto.chat import (
     ListModelResponse,
     WebSearchResponse,
 )
+from asknews_sdk.dto.common import PaginatedResponse
 from asknews_sdk.response import EventSource
 
 
@@ -252,6 +257,139 @@ class ChatAPI(BaseAPI):
         )
         return FilterParamsResponse.model_validate(response.content)
 
+    def create_alert(
+        self, payload: CreateAlertRequest, *, http_headers: Optional[Dict] = None
+    ) -> AlertResponse:
+        """
+        Create an alert.
+
+        https://docs.asknews.app/en/reference#post-/v1/chat/alerts
+
+        :param payload: The alert payload.
+        :type payload: CreateAlertRequest
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The created alert.
+        :rtype: AlertResponse
+        """
+        response = self.client.request(
+            method="POST",
+            endpoint="/v1/chat/alerts",
+            headers=http_headers,
+            json=loads(payload.model_dump_json()),
+        )
+        return AlertResponse.model_validate(response.content)
+
+    def get_alert(
+        self,
+        alert_id: Union[UUID, str],
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> AlertResponse:
+        """
+        Get an alert.
+
+        https://docs.asknews.app/en/reference#get-/v1/chat/alerts/{alert_id}
+
+        :param alert_id: The alert ID.
+        :type alert_id: Union[UUID, str]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: Alert details.
+        :rtype: AlertResponse
+        """
+        response = self.client.request(
+            method="GET",
+            endpoint=f"/v1/chat/alerts/{alert_id}",
+            headers=http_headers,
+        )
+        return AlertResponse.model_validate(response.content)
+
+    def list_alerts(
+        self,
+        page: int = 1,
+        per_page: int = 10,
+        all: bool = False,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> PaginatedResponse[AlertResponse]:
+        """
+        List alerts.
+
+        https://docs.asknews.app/en/reference#get-/v1/chat/alerts
+
+        :param page: The page number.
+        :type page: int
+        :param per_page: The number of items per page.
+        :type per_page: int
+        :param all: Whether to return all alerts.
+        :type all: bool
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: List of alerts.
+        :rtype: PaginatedResponse[AlertResponse]
+        """
+        response = self.client.request(
+            method="GET",
+            endpoint="/v1/chat/alerts",
+            headers=http_headers,
+            query={"page": page, "per_page": per_page, "all": all},
+        )
+        return PaginatedResponse[AlertResponse].model_validate(response.content)
+
+    def update_alert(
+        self,
+        alert_id: Union[UUID, str],
+        payload: UpdateAlertRequest,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> AlertResponse:
+        """
+        Update an alert.
+
+        https://docs.asknews.app/en/reference#post-/v1/chat/alerts/{alert_id}
+
+        :param alert_id: The alert ID.
+        :type alert_id: Union[UUID, str]
+        :param payload: The alert payload.
+        :type payload: UpdateAlertRequest
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The updated alert.
+        :rtype: AlertResponse
+        """
+        response = self.client.request(
+            method="POST",
+            endpoint=f"/v1/chat/alerts/{alert_id}",
+            headers=http_headers,
+            json=loads(payload.model_dump_json(exclude_unset=True, exclude_defaults=True)),
+        )
+        return AlertResponse.model_validate(response.content)
+
+    def delete_alert(
+        self,
+        alert_id: Union[UUID, str],
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> None:
+        """
+        Delete an alert.
+
+        https://docs.asknews.app/en/reference#delete-/v1/chat/alerts/{alert_id}
+
+        :param alert_id: The alert ID.
+        :type alert_id: Union[UUID, str]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: None
+        :rtype: None
+        """
+        self.client.request(
+            method="DELETE",
+            endpoint=f"/v1/chat/alerts/{alert_id}",
+            headers=http_headers,
+        )
+
 
 class AsyncChatAPI(BaseAPI):
     """
@@ -491,3 +629,136 @@ class AsyncChatAPI(BaseAPI):
             },
         )
         return FilterParamsResponse.model_validate(response.content)
+
+    async def create_alert(
+        self, payload: CreateAlertRequest, *, http_headers: Optional[Dict] = None
+    ) -> AlertResponse:
+        """
+        Create an alert.
+
+        https://docs.asknews.app/en/reference#post-/v1/chat/alerts
+
+        :param payload: The alert payload.
+        :type payload: CreateAlertRequest
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The created alert.
+        :rtype: AlertResponse
+        """
+        response = await self.client.request(
+            method="POST",
+            endpoint="/v1/chat/alerts",
+            headers=http_headers,
+            json=loads(payload.model_dump_json()),
+        )
+        return AlertResponse.model_validate(response.content)
+
+    async def get_alert(
+        self,
+        alert_id: Union[UUID, str],
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> AlertResponse:
+        """
+        Get an alert.
+
+        https://docs.asknews.app/en/reference#get-/v1/chat/alerts/{alert_id}
+
+        :param alert_id: The alert ID.
+        :type alert_id: Union[UUID, str]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: Alert details.
+        :rtype: AlertResponse
+        """
+        response = await self.client.request(
+            method="GET",
+            endpoint=f"/v1/chat/alerts/{alert_id}",
+            headers=http_headers,
+        )
+        return AlertResponse.model_validate(response.content)
+
+    async def list_alerts(
+        self,
+        page: int = 1,
+        per_page: int = 10,
+        all: bool = False,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> PaginatedResponse[AlertResponse]:
+        """
+        List alerts.
+
+        https://docs.asknews.app/en/reference#get-/v1/chat/alerts
+
+        :param page: The page number.
+        :type page: int
+        :param per_page: The number of items per page.
+        :type per_page: int
+        :param all: Whether to return all alerts.
+        :type all: bool
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: List of alerts.
+        :rtype: PaginatedResponse[AlertResponse]
+        """
+        response = await self.client.request(
+            method="GET",
+            endpoint="/v1/chat/alerts",
+            headers=http_headers,
+            query={"page": page, "per_page": per_page, "all": all},
+        )
+        return PaginatedResponse[AlertResponse].model_validate(response.content)
+
+    async def update_alert(
+        self,
+        alert_id: Union[UUID, str],
+        payload: UpdateAlertRequest,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> AlertResponse:
+        """
+        Update an alert.
+
+        https://docs.asknews.app/en/reference#post-/v1/chat/alerts/{alert_id}
+
+        :param alert_id: The alert ID.
+        :type alert_id: Union[UUID, str]
+        :param payload: The alert payload.
+        :type payload: UpdateAlertRequest
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The updated alert.
+        :rtype: AlertResponse
+        """
+        response = await self.client.request(
+            method="POST",
+            endpoint=f"/v1/chat/alerts/{alert_id}",
+            headers=http_headers,
+            json=loads(payload.model_dump_json(exclude_unset=True, exclude_defaults=True)),
+        )
+        return AlertResponse.model_validate(response.content)
+
+    async def delete_alert(
+        self,
+        alert_id: Union[UUID, str],
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> None:
+        """
+        Delete an alert.
+
+        https://docs.asknews.app/en/reference#delete-/v1/chat/alerts/{alert_id}
+
+        :param alert_id: The alert ID.
+        :type alert_id: Union[UUID, str]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: None
+        :rtype: None
+        """
+        await self.client.request(
+            method="DELETE",
+            endpoint=f"/v1/chat/alerts/{alert_id}",
+            headers=http_headers,
+        )
