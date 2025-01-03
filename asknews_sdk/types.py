@@ -1,7 +1,9 @@
 from typing import Callable, List, Literal, Tuple, Union
 
+from crontab import CronTab
 from httpx import Auth, Request
-from pydantic import BaseModel
+from pydantic import AfterValidator, BaseModel, BeforeValidator, HttpUrl
+from typing_extensions import Annotated
 
 
 class Sentinel:
@@ -30,3 +32,17 @@ class ServerSentEvent(BaseModel):
     @property
     def content(self) -> str:
         return "\n".join(self.data)
+
+
+HttpUrlString = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
+CronStr = Annotated[str, BeforeValidator(lambda v: validate_crontab(v))]
+
+
+def validate_crontab(v: str):
+    try:
+        CronTab(crontab=v)
+    except ValueError:
+        raise
+    except BaseException:
+        pass
+    return v
