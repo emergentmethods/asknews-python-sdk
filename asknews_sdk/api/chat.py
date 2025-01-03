@@ -469,7 +469,7 @@ class AsyncChatAPI(BaseAPI):
         )
         return WebSearchResponse.model_validate(response.content)
 
-    def get_autofilter(
+    async def get_autofilter(
         self,
         query: str,
         *,
@@ -482,7 +482,7 @@ class AsyncChatAPI(BaseAPI):
 
         https://docs.asknews.app/en/reference#get-/v1/chat/autofilter
         """
-        response = self.client.request(
+        response = await self.client.request(
             method="GET",
             endpoint="/v1/chat/autofilter",
             headers=http_headers,

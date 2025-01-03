@@ -166,7 +166,7 @@ class ForecastResponse(BaseModel):
     expert_information: Dict
 
 
-class FilterParamsResponse(BaseModel):
+class FilterParams(BaseModel):
     query: Annotated[
         str,
         "Query string that can be any phrase, "
@@ -288,3 +288,12 @@ class FilterParamsResponse(BaseModel):
     sentiment: Annotated[
         Optional[Literal["negative", "neutral", "positive"]], "Sentiment to filter articles by."
     ] = None
+
+
+class FilterParamsMetadata(BaseModel):
+    title: str
+
+
+class FilterParamsResponse(BaseModel):
+    metadata: FilterParamsMetadata
+    filter_params: FilterParams
