@@ -1,8 +1,6 @@
 from typing import AsyncIterator, Dict, Iterator, List, Literal, Optional, Union
 from uuid import UUID
 
-from orjson import loads
-
 from asknews_sdk.api.base import BaseAPI
 from asknews_sdk.dto.alert import AlertResponse, CreateAlertRequest, UpdateAlertRequest
 from asknews_sdk.dto.chat import (
@@ -276,7 +274,7 @@ class ChatAPI(BaseAPI):
             method="POST",
             endpoint="/v1/chat/alerts",
             headers=http_headers,
-            json=loads(payload.model_dump_json()),
+            json=payload.model_dump(mode="json"),
         )
         return AlertResponse.model_validate(response.content)
 
@@ -362,7 +360,7 @@ class ChatAPI(BaseAPI):
             method="POST",
             endpoint=f"/v1/chat/alerts/{alert_id}",
             headers=http_headers,
-            json=loads(payload.model_dump_json(exclude_unset=True, exclude_defaults=True)),
+            json=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True),
         )
         return AlertResponse.model_validate(response.content)
 
@@ -649,7 +647,7 @@ class AsyncChatAPI(BaseAPI):
             method="POST",
             endpoint="/v1/chat/alerts",
             headers=http_headers,
-            json=loads(payload.model_dump_json()),
+            json=payload.model_dump(mode="json"),
         )
         return AlertResponse.model_validate(response.content)
 
@@ -735,7 +733,7 @@ class AsyncChatAPI(BaseAPI):
             method="POST",
             endpoint=f"/v1/chat/alerts/{alert_id}",
             headers=http_headers,
-            json=loads(payload.model_dump_json(exclude_unset=True, exclude_defaults=True)),
+            json=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True),
         )
         return AlertResponse.model_validate(response.content)
 
