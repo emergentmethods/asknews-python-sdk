@@ -1,4 +1,4 @@
-from typing import Annotated, Callable, Literal, Tuple, Union
+from typing import Annotated, Callable, List, Literal, Tuple, Union
 
 from crontab import CronTab
 from httpx import Auth, Request
@@ -24,7 +24,7 @@ StreamType = Literal["bytes", "lines", "raw"]
 
 class ServerSentEvent(BaseModel):
     event: str = "message"
-    data: list = []
+    data: List = []
     id: str = ""
     retry: int = 0
 
