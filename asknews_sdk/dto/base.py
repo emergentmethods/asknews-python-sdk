@@ -86,6 +86,11 @@ class Article(BaseModel):
     geo_coordinates: Annotated[
         Optional[Dict[str, GeoCoordinate]], Field(None, title="Geo Coordinates")
     ] = None
+    continent: Optional[
+        Literal[
+            "Africa", "Asia", "Europe", "Middle East", "North America", "South America", "Oceania"
+        ]
+    ] = None
 
 
 class PingResponse(BaseSchema):
