@@ -345,7 +345,7 @@ class ChatAPI(BaseAPI):
         """
         Update an alert.
 
-        https://docs.asknews.app/en/reference#post-/v1/chat/alerts/{alert_id}
+        https://docs.asknews.app/en/reference#put-/v1/chat/alerts/{alert_id}
 
         :param alert_id: The alert ID.
         :type alert_id: Union[UUID, str]
@@ -357,7 +357,7 @@ class ChatAPI(BaseAPI):
         :rtype: AlertResponse
         """
         response = self.client.request(
-            method="POST",
+            method="PUT",
             endpoint=f"/v1/chat/alerts/{alert_id}",
             headers=http_headers,
             json=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True),
@@ -718,7 +718,7 @@ class AsyncChatAPI(BaseAPI):
         """
         Update an alert.
 
-        https://docs.asknews.app/en/reference#post-/v1/chat/alerts/{alert_id}
+        https://docs.asknews.app/en/reference#put-/v1/chat/alerts/{alert_id}
 
         :param alert_id: The alert ID.
         :type alert_id: Union[UUID, str]
@@ -730,7 +730,7 @@ class AsyncChatAPI(BaseAPI):
         :rtype: AlertResponse
         """
         response = await self.client.request(
-            method="POST",
+            method="PUT",
             endpoint=f"/v1/chat/alerts/{alert_id}",
             headers=http_headers,
             json=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True),
