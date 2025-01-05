@@ -5,6 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, EmailStr, Field, RootModel
 from typing_extensions import Annotated
 
+from asknews_sdk.dto.base import BaseSchema
 from asknews_sdk.dto.common import FilterParams
 from asknews_sdk.types import CronStr, HttpUrlString
 
@@ -73,22 +74,22 @@ class GoogleDocsParams(BaseModel):
 
 
 class ReportAction(BaseModel):
-    action: Literal["report"]
+    action: Literal["report"] = Field("report")
     params: ReportParams
 
 
 class WebhookAction(BaseModel):
-    action: Literal["webhook"]
+    action: Literal["webhook"] = Field("webhook")
     params: WebhookParams
 
 
 class EmailAction(BaseModel):
-    action: Literal["email"]
+    action: Literal["email"] = Field("email")
     params: EmailParams
 
 
 class GoogleDocsAction(BaseModel):
-    action: Literal["google_docs"]
+    action: Literal["google_docs"] = Field("google_docs")
     params: GoogleDocsParams
 
 
@@ -102,7 +103,7 @@ class Triggers(RootModel):
     root: List[Trigger]
 
 
-class CreateAlertRequest(BaseModel):
+class CreateAlertRequest(BaseSchema):
     query: Optional[str] = Field(
         None,
         description=(
@@ -148,7 +149,7 @@ class CreateAlertRequest(BaseModel):
     active: bool = Field(True, description="Whether the alert is active or not. Default is True.")
 
 
-class UpdateAlertRequest(BaseModel):
+class UpdateAlertRequest(BaseSchema):
     query: Optional[str] = Field(
         None,
         description=(
@@ -196,7 +197,7 @@ class UpdateAlertRequest(BaseModel):
     )
 
 
-class AlertResponse(BaseModel):
+class AlertResponse(BaseSchema):
     id: UUID
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None

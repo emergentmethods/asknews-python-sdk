@@ -1,3 +1,17 @@
+from asknews_sdk.dto.alert import (
+    AlertResponse,
+    CreateAlertRequest,
+    EmailAction,
+    EmailParams,
+    GoogleDocsAction,
+    GoogleDocsParams,
+    ReportAction,
+    ReportParams,
+    UpdateAlertRequest,
+    WebhookAction,
+    WebhookParams,
+)
+from asknews_sdk.dto.common import FilterParams
 from asknews_sdk.dto.error import APIErrorModel, HTTPValidationError, ValidationError
 from asknews_sdk.dto.news import SearchResponse, SearchResponseDictItem
 from asknews_sdk.dto.sentiment import (
@@ -9,6 +23,18 @@ from asknews_sdk.dto.stories import StoriesResponse, StoryResponse, StoryRespons
 
 
 __all__ = (
+    "AlertResponse",
+    "CreateAlertRequest",
+    "EmailAction",
+    "EmailParams",
+    "GoogleDocsAction",
+    "GoogleDocsParams",
+    "UpdateAlertRequest",
+    "ReportAction",
+    "ReportParams",
+    "WebhookAction",
+    "WebhookParams",
+    "FilterParams",
     "APIErrorModel",
     "ValidationError",
     "HTTPValidationError",

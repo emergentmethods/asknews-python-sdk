@@ -273,8 +273,14 @@ class ChatAPI(BaseAPI):
         response = self.client.request(
             method="POST",
             endpoint="/v1/chat/alerts",
-            headers=http_headers,
-            json=payload.model_dump(mode="json"),
+            body=payload.model_dump(mode="json"),
+            headers={
+                **(http_headers or {}),
+                "Content-Type": CreateAlertRequest.__content_type__,
+            },
+            accept=[
+                (AlertResponse.__content_type__, 1.0),
+            ],
         )
         return AlertResponse.model_validate(response.content)
 
@@ -359,8 +365,14 @@ class ChatAPI(BaseAPI):
         response = self.client.request(
             method="PUT",
             endpoint=f"/v1/chat/alerts/{alert_id}",
-            headers=http_headers,
-            json=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True),
+            body=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True),
+            headers={
+                **(http_headers or {}),
+                "Content-Type": UpdateAlertRequest.__content_type__,
+            },
+            accept=[
+                (AlertResponse.__content_type__, 1.0),
+            ],
         )
         return AlertResponse.model_validate(response.content)
 
@@ -646,8 +658,14 @@ class AsyncChatAPI(BaseAPI):
         response = await self.client.request(
             method="POST",
             endpoint="/v1/chat/alerts",
-            headers=http_headers,
-            json=payload.model_dump(mode="json"),
+            body=payload.model_dump(mode="json"),
+            headers={
+                **(http_headers or {}),
+                "Content-Type": CreateAlertRequest.__content_type__,
+            },
+            accept=[
+                (AlertResponse.__content_type__, 1.0),
+            ],
         )
         return AlertResponse.model_validate(response.content)
 
@@ -732,8 +750,14 @@ class AsyncChatAPI(BaseAPI):
         response = await self.client.request(
             method="PUT",
             endpoint=f"/v1/chat/alerts/{alert_id}",
-            headers=http_headers,
-            json=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True),
+            body=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True),
+            headers={
+                **(http_headers or {}),
+                "Content-Type": UpdateAlertRequest.__content_type__,
+            },
+            accept=[
+                (AlertResponse.__content_type__, 1.0),
+            ],
         )
         return AlertResponse.model_validate(response.content)
 
