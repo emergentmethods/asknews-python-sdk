@@ -33,7 +33,7 @@ class APIResponse:
     def _deserialize_body(self) -> Any:
         if self.content_type == "application/octet-stream":
             return self.body
-        elif self.content_type == "application/json":
+        elif self.content_type == "application/json" and self.body:
             return deserialize(self.body)
         elif self.content_type == "text/plain":
             return self.body.decode("utf-8")
