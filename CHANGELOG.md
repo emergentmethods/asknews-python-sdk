@@ -1,3 +1,9 @@
+## 0.7.58 (2025-01-03)
+
+### Fix
+
+- add continent to return value for article
+
 ## 0.7.57 (2025-01-03)
 
 ### Fix
