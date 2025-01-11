@@ -115,7 +115,7 @@ class CreateAlertRequest(BaseSchema):
     cron: CronStr = Field(
         ...,
         description=(
-            "The cron schedule for the alert. For example every 15 minutes is '*/15 * * * *'."
+            "The cron schedule for the alert. For example hourly is '0 * * * *'."
             " See https://crontab.run/ for more examples"
         ),
         example="*/15 * * * *",
@@ -161,7 +161,7 @@ class UpdateAlertRequest(BaseSchema):
     cron: Optional[CronStr] = Field(
         None,
         description=(
-            "The cron schedule for the alert. For example every 15 minutes is '*/15 * * * *'."
+            "The cron schedule for the alert. For example hourly is '0 * * * *'."
             " See https://crontab.run/ for more examples"
         ),
         example="*/15 * * * *",
