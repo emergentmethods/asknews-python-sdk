@@ -198,6 +198,17 @@ class UpdateAlertRequest(BaseSchema):
     )
 
 
+class AlertLog(BaseModel):
+    id: UUID
+    created_at: datetime
+    alert_id: UUID
+    user_id: UUID
+    alert: bool
+    reasoning: str
+    report: str | None = None
+    article_ids: List[UUID]
+
+
 class AlertResponse(BaseSchema):
     id: UUID
     created_at: Optional[datetime] = None
