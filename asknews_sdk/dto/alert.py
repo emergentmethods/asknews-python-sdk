@@ -17,30 +17,6 @@ ReportModel = Literal[
 ]
 
 
-class ReportParams(BaseModel):
-    query: Optional[List[List[str]]] = Field(
-        None,
-        description=(
-            "The optional prompt to use for report generation. The prompt should be a list of "
-            "tuples where the first element is the author of the prompt and the second element "
-            "is the prompt itself. For example, [['system', 'You are a helpful AI bot. Write a "
-            "report based on summaries provided by the user.'], ['human', '{summaries}']]. "
-            "If not provided, the default report prompt will be used. You can use {summaries} "
-            "to insert the prompt optimized summaries into your report query."
-        ),
-        example=[
-            [
-                "system",
-                "You are a helpful AI bot. Write a report based on summaries provided by the user.",
-            ],
-            ["human", "{summaries}"],
-        ],
-    )
-    model: Optional[ReportModel] = Field(
-        None, description="The model to use for the report", example="gpt-4o"
-    )
-
-
 class WebhookParams(BaseModel):
     url: HttpUrlString = Field(
         ..., description="The URL to send the webhook when the alert triggers"
@@ -73,11 +49,6 @@ class GoogleDocsParams(BaseModel):
     emails: Optional[List[EmailStr]] = Field(None, description="The emails to share the doc with")
 
 
-class ReportAction(BaseModel):
-    action: Literal["report"] = Field("report")
-    params: ReportParams
-
-
 class WebhookAction(BaseModel):
     action: Literal["webhook"] = Field("webhook")
     params: WebhookParams
@@ -94,13 +65,37 @@ class GoogleDocsAction(BaseModel):
 
 
 Trigger = Annotated[
-    Union[ReportAction, WebhookAction, EmailAction, GoogleDocsAction],
+    Union[WebhookAction, EmailAction, GoogleDocsAction],
     Field(discriminator="action"),
 ]
 
 
 class Triggers(RootModel):
     root: List[Trigger]
+
+
+class ReportRequest(BaseModel):
+    prompt: List[List[str]] | None = Field(
+        None,
+        description=(
+            "The optional prompt to use for report generation. The prompt should be a list of "
+            "tuples where the first element is the author of the prompt and the second element "
+            "is the prompt itself. For example, [['system', 'You are a helpful AI bot. Write a "
+            "report based on summaries provided by the user.'], ['human', '{summaries}']]. "
+            "If not provided, the default report prompt will be used. You can use {summaries} "
+            "to insert the prompt optimized summaries into your report query."
+        ),
+        example=[
+            [
+                "system",
+                "You are a helpful AI bot. Write a report based on summaries provided by the user.",
+            ],
+            ["human", "{summaries}"],
+        ],
+    )
+    model: ReportModel | None = Field(
+        None, description="The model to use for the report", example="gpt-4o"
+    )
 
 
 class CreateAlertRequest(BaseSchema):
@@ -130,6 +125,9 @@ class CreateAlertRequest(BaseSchema):
     )
     filter_params: Optional[FilterParams] = Field(
         None, description="The filter params to use for the alert query"
+    )
+    report: ReportRequest | None = Field(
+        None, description="The report to generate when the alert triggers"
     )
     triggers: Triggers = Field(..., description="The triggers to use for the alert")
     always_trigger: bool = Field(
@@ -177,6 +175,9 @@ class UpdateAlertRequest(BaseSchema):
     filter_params: Optional[FilterParams] = Field(
         None, description="The filter params to use for the alert query"
     )
+    report: ReportRequest | None = Field(
+        None, description="The report to generate when the alert triggers"
+    )
     triggers: Optional[Triggers] = Field(None, description="The triggers to use for the alert")
     always_trigger: Optional[bool] = Field(
         None,
@@ -207,6 +208,7 @@ class AlertResponse(BaseSchema):
     model: Optional[str]
     share_link: Optional[str] = None
     filter_params: Optional[Dict[str, Any]] = None
+    report: Dict[str, Any] | None = None
     triggers: List[Dict[str, Any]]
     always_trigger: bool = False
     repeat: bool = True
