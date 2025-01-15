@@ -1,4 +1,4 @@
-from typing import AsyncIterator, Dict, Iterator, List, Literal, Optional, Union
+from typing import Any, AsyncIterator, Dict, Iterator, List, Literal, Optional, Union
 from uuid import UUID
 
 from asknews_sdk.api.base import BaseAPI
@@ -256,7 +256,10 @@ class ChatAPI(BaseAPI):
         return FilterParamsResponse.model_validate(response.content)
 
     def create_alert(
-        self, payload: CreateAlertRequest, *, http_headers: Optional[Dict] = None
+        self,
+        payload: Union[CreateAlertRequest, Dict[str, Any]],
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> AlertResponse:
         """
         Create an alert.
@@ -273,7 +276,9 @@ class ChatAPI(BaseAPI):
         response = self.client.request(
             method="POST",
             endpoint="/v1/chat/alerts",
-            body=payload.model_dump(mode="json"),
+            body=payload.model_dump(mode="json")
+            if isinstance(payload, CreateAlertRequest)
+            else payload,
             headers={
                 **(http_headers or {}),
                 "Content-Type": CreateAlertRequest.__content_type__,
@@ -344,7 +349,7 @@ class ChatAPI(BaseAPI):
     def update_alert(
         self,
         alert_id: Union[UUID, str],
-        payload: UpdateAlertRequest,
+        payload: Union[UpdateAlertRequest, Dict[str, Any]],
         *,
         http_headers: Optional[Dict] = None,
     ) -> AlertResponse:
@@ -365,7 +370,9 @@ class ChatAPI(BaseAPI):
         response = self.client.request(
             method="PUT",
             endpoint=f"/v1/chat/alerts/{alert_id}",
-            body=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True),
+            body=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True)
+            if isinstance(payload, UpdateAlertRequest)
+            else payload,
             headers={
                 **(http_headers or {}),
                 "Content-Type": UpdateAlertRequest.__content_type__,
@@ -641,7 +648,10 @@ class AsyncChatAPI(BaseAPI):
         return FilterParamsResponse.model_validate(response.content)
 
     async def create_alert(
-        self, payload: CreateAlertRequest, *, http_headers: Optional[Dict] = None
+        self,
+        payload: Union[CreateAlertRequest, Dict[str, Any]],
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> AlertResponse:
         """
         Create an alert.
@@ -658,7 +668,9 @@ class AsyncChatAPI(BaseAPI):
         response = await self.client.request(
             method="POST",
             endpoint="/v1/chat/alerts",
-            body=payload.model_dump(mode="json"),
+            body=payload.model_dump(mode="json")
+            if isinstance(payload, CreateAlertRequest)
+            else payload,
             headers={
                 **(http_headers or {}),
                 "Content-Type": CreateAlertRequest.__content_type__,
@@ -729,7 +741,7 @@ class AsyncChatAPI(BaseAPI):
     async def update_alert(
         self,
         alert_id: Union[UUID, str],
-        payload: UpdateAlertRequest,
+        payload: Union[UpdateAlertRequest, Dict[str, Any]],
         *,
         http_headers: Optional[Dict] = None,
     ) -> AlertResponse:
@@ -750,7 +762,9 @@ class AsyncChatAPI(BaseAPI):
         response = await self.client.request(
             method="PUT",
             endpoint=f"/v1/chat/alerts/{alert_id}",
-            body=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True),
+            body=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True)
+            if isinstance(payload, UpdateAlertRequest)
+            else payload,
             headers={
                 **(http_headers or {}),
                 "Content-Type": UpdateAlertRequest.__content_type__,
