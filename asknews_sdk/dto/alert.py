@@ -126,7 +126,7 @@ class CreateAlertRequest(BaseSchema):
     filter_params: Optional[FilterParams] = Field(
         None, description="The filter params to use for the alert query"
     )
-    report: ReportRequest | None = Field(
+    report: Optional[ReportRequest] = Field(
         None, description="The report to generate when the alert triggers"
     )
     triggers: Triggers = Field(..., description="The triggers to use for the alert")
@@ -175,7 +175,7 @@ class UpdateAlertRequest(BaseSchema):
     filter_params: Optional[FilterParams] = Field(
         None, description="The filter params to use for the alert query"
     )
-    report: ReportRequest | None = Field(
+    report: Optional[ReportRequest] = Field(
         None, description="The report to generate when the alert triggers"
     )
     triggers: Optional[Triggers] = Field(None, description="The triggers to use for the alert")
@@ -205,7 +205,7 @@ class AlertLog(BaseModel):
     user_id: UUID
     alert: bool
     reasoning: str
-    report: str | None = None
+    report: Optional[str] = None
     article_ids: List[UUID]
 
 
@@ -219,7 +219,7 @@ class AlertResponse(BaseSchema):
     model: Optional[str]
     share_link: Optional[str] = None
     filter_params: Optional[Dict[str, Any]] = None
-    report: Dict[str, Any] | None = None
+    report: Optional[Dict[str, Any]] = None
     triggers: List[Dict[str, Any]]
     always_trigger: bool = False
     repeat: bool = True
