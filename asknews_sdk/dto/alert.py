@@ -75,7 +75,7 @@ class Triggers(RootModel):
 
 
 class ReportRequest(BaseModel):
-    prompt: List[List[str]] | None = Field(
+    prompt: Optional[List[List[str]]] = Field(
         None,
         description=(
             "The optional prompt to use for report generation. The prompt should be a list of "
@@ -93,7 +93,7 @@ class ReportRequest(BaseModel):
             ["human", "{summaries}"],
         ],
     )
-    model: ReportModel | None = Field(
+    model: Optional[ReportModel] = Field(
         None, description="The model to use for the report", example="gpt-4o"
     )
 
