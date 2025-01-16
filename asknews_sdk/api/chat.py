@@ -407,6 +407,41 @@ class ChatAPI(BaseAPI):
             headers=http_headers,
         )
 
+    def list_alert_logs(
+        self,
+        alert_id: Union[UUID, str],
+        page: int = 1,
+        per_page: int = 10,
+        all: bool = False,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> PaginatedResponse[AlertLog]:
+        """
+        List alert logs.
+
+        https://docs.asknews.app/en/reference#get-/v1/chat/alerts
+
+        :param alert_id: The alert ID.
+        :type alert_id: Union[UUID, str]
+        :param page: The page number.
+        :type page: int
+        :param per_page: The number of items per page.
+        :type per_page: int
+        :param all: Whether to return all alerts.
+        :type all: bool
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: List of alerts.
+        :rtype: PaginatedResponse[AlertResponse]
+        """
+        response = self.client.request(
+            method="GET",
+            endpoint=f"/v1/chat/alerts/{alert_id}/logs",
+            headers=http_headers,
+            query={"page": page, "per_page": per_page, "all": all},
+        )
+        return PaginatedResponse[AlertLog].model_validate(response.content)
+
 
 class AsyncChatAPI(BaseAPI):
     """
