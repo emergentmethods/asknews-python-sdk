@@ -13,7 +13,11 @@ from asknews_sdk.types import CronStr, HttpUrlString
 CheckAlertModel = Literal["meta-llama/Meta-Llama-3.1-8B-Instruct", "gpt-4o-mini"]
 
 ReportModel = Literal[
-    "gpt-4o", "claude-3-5-sonnet-latest", "meta-llama/Meta-Llama-3.1-405B-Instruct"
+    "gpt-4o",
+    "claude-3-5-sonnet-latest",
+    "meta-llama/Meta-Llama-3.1-405B-Instruct",
+    "gpt-4o-mini",
+    "meta-llama/Meta-Llama-3.3-70B-Instruct",
 ]
 
 
