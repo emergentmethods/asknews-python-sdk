@@ -14,9 +14,9 @@ CheckAlertModel = Literal["meta-llama/Meta-Llama-3.1-8B-Instruct", "gpt-4o-mini"
 
 ReportModel = Literal[
     "gpt-4o",
+    "gpt-4o-mini",
     "claude-3-5-sonnet-latest",
     "meta-llama/Meta-Llama-3.1-405B-Instruct",
-    "gpt-4o-mini",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
 ]
 
@@ -210,7 +210,9 @@ class AlertLog(BaseModel):
     alert: bool
     reasoning: str
     report: Optional[str] = None
+    report_url: Optional[str] = None
     article_ids: List[UUID]
+    webhook: Optional[Dict[str, Any]] = None
 
 
 class AlertResponse(BaseSchema):
