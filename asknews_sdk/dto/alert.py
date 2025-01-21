@@ -149,6 +149,13 @@ class CreateAlertRequest(BaseSchema):
         ),
     )
     active: bool = Field(True, description="Whether the alert is active or not. Default is True.")
+    expires_at: Optional[datetime] = Field(
+        None,
+        description=(
+            "The expiration date for the alert. Default is None. "
+            "If set, the alert will be disabled after this date."
+        ),
+    )
 
 
 class UpdateAlertRequest(BaseSchema):
@@ -200,6 +207,13 @@ class UpdateAlertRequest(BaseSchema):
     active: Optional[bool] = Field(
         None, description="Whether the alert is active or not. Default is True."
     )
+    expires_at: Optional[datetime] = Field(
+        None,
+        description=(
+            "The expiration date for the alert. Default is None. "
+            "If set, the alert will be disabled after this date."
+        ),
+    )
 
 
 class AlertLog(BaseModel):
@@ -219,6 +233,7 @@ class AlertResponse(BaseSchema):
     id: UUID
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
     user_id: UUID
     query: Optional[str] = None
     cron: str
