@@ -1,3 +1,29 @@
+## 0.8.0 (2025-01-22)
+
+### Feat
+
+- Add alerts endpoints
+
+### Fix
+
+- Add sync alert logs
+- Update report request model
+- Update report request model
+- Update request params for alerts
+- Add alert logs
+- Move report to outer object
+- Update description for cron
+- Update request body for alerts and add dtos
+- Add support for empty body (204 no content)
+- Update request method of update alerts
+- Typing fixes
+- Typing fixes
+- Use typing extension for annotated
+- Add pydantic email validator
+- Typing fixes
+- Typing fixes
+- Update payload dump method
+
 ## 0.7.58 (2025-01-03)
 
 ### Fix
