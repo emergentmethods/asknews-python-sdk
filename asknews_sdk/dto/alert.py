@@ -13,7 +13,11 @@ from asknews_sdk.types import CronStr, HttpUrlString
 CheckAlertModel = Literal["meta-llama/Meta-Llama-3.1-8B-Instruct", "gpt-4o-mini"]
 
 ReportModel = Literal[
-    "gpt-4o", "claude-3-5-sonnet-latest", "meta-llama/Meta-Llama-3.1-405B-Instruct"
+    "gpt-4o",
+    "gpt-4o-mini",
+    "claude-3-5-sonnet-latest",
+    "meta-llama/Meta-Llama-3.1-405B-Instruct",
+    "meta-llama/Meta-Llama-3.3-70B-Instruct",
 ]
 
 
@@ -145,6 +149,13 @@ class CreateAlertRequest(BaseSchema):
         ),
     )
     active: bool = Field(True, description="Whether the alert is active or not. Default is True.")
+    expires_at: Optional[datetime] = Field(
+        None,
+        description=(
+            "The expiration date for the alert. Default is None. "
+            "If set, the alert will be disabled after this date."
+        ),
+    )
 
 
 class UpdateAlertRequest(BaseSchema):
@@ -196,6 +207,13 @@ class UpdateAlertRequest(BaseSchema):
     active: Optional[bool] = Field(
         None, description="Whether the alert is active or not. Default is True."
     )
+    expires_at: Optional[datetime] = Field(
+        None,
+        description=(
+            "The expiration date for the alert. Default is None. "
+            "If set, the alert will be disabled after this date."
+        ),
+    )
 
 
 class AlertLog(BaseModel):
@@ -206,13 +224,16 @@ class AlertLog(BaseModel):
     alert: bool
     reasoning: str
     report: Optional[str] = None
+    report_url: Optional[str] = None
     article_ids: List[UUID]
+    webhook: Optional[Dict[str, Any]] = None
 
 
 class AlertResponse(BaseSchema):
     id: UUID
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
     user_id: UUID
     query: Optional[str] = None
     cron: str
