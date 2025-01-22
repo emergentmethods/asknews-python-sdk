@@ -1,3 +1,11 @@
+## 0.9.0 (2025-01-22)
+
+### Fix
+
+- Add expires_at to alerts
+- Update alert log model
+- Add more alert report models
+
 ## 0.8.0 (2025-01-22)
 
 ### Feat
