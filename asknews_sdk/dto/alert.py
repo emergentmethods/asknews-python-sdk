@@ -100,6 +100,9 @@ class ReportRequest(BaseModel):
     model: Optional[ReportModel] = Field(
         None, description="The model to use for the report", example="gpt-4o"
     )
+    logo_url: Optional[HttpUrlString] = Field(
+        None, description="The logo URL to use for the report"
+    )
 
 
 class CreateAlertRequest(BaseSchema):
