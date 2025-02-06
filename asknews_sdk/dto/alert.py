@@ -21,6 +21,27 @@ ReportModel = Literal[
 ]
 
 
+class AskNewsSource(BaseModel):
+    identifier: Literal["asknews"]
+    params: Optional[FilterParams] = Field(None, description="The filter params to use")
+
+
+class TelegramSourceParams(BaseModel):
+    channel_name: str = Field(..., description="The channel name to use as a source")
+
+
+class TelegramSource(BaseModel):
+    identifier: Literal["telegram"]
+    params: TelegramSourceParams
+
+
+Source = Annotated[Union[AskNewsSource, TelegramSource], Field(discriminator="identifier")]
+
+
+class Sources(RootModel):
+    root: List[Source]
+
+
 class WebhookParams(BaseModel):
     url: HttpUrlString = Field(
         ..., description="The URL to send the webhook when the alert triggers"
@@ -130,9 +151,7 @@ class CreateAlertRequest(BaseSchema):
     share_link: Optional[HttpUrlString] = Field(
         None, description="The newsplunker share link to update when the alert triggers"
     )
-    filter_params: Optional[FilterParams] = Field(
-        None, description="The filter params to use for the alert query"
-    )
+    sources: Sources = Field(..., description="The sources to use for the alert query")
     report: Optional[ReportRequest] = Field(
         None, description="The report to generate when the alert triggers"
     )
@@ -189,6 +208,7 @@ class UpdateAlertRequest(BaseSchema):
     filter_params: Optional[FilterParams] = Field(
         None, description="The filter params to use for the alert query"
     )
+    sources: Optional[Sources] = Field(None, description="The sources to use for the alert query")
     report: Optional[ReportRequest] = Field(
         None, description="The report to generate when the alert triggers"
     )
@@ -242,7 +262,7 @@ class AlertResponse(BaseSchema):
     cron: str
     model: Optional[str]
     share_link: Optional[str] = None
-    filter_params: Optional[Dict[str, Any]] = None
+    sources: List[Dict[str, Any]]
     report: Optional[Dict[str, Any]] = None
     triggers: List[Dict[str, Any]]
     always_trigger: bool = False
