@@ -1,3 +1,9 @@
+## 0.9.2 (2025-02-06)
+
+### Fix
+
+- add o3-mini as forecast option
+
 ## 0.9.1 (2025-01-24)
 
 ### Fix
