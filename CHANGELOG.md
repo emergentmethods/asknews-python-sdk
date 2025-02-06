@@ -1,3 +1,9 @@
+## 0.10.0 (2025-02-06)
+
+### Feat
+
+- Add sources and move news into
+
 ## 0.9.2 (2025-02-06)
 
 ### Fix
