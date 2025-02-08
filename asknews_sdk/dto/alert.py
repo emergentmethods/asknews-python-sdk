@@ -45,7 +45,7 @@ class BlueskySource(BaseModel):
 
 
 Source = Annotated[
-    Union[AskNewsSource, TelegramSource | BlueskySource], Field(discriminator="identifier")
+    Union[AskNewsSource, TelegramSource, BlueskySource], Field(discriminator="identifier")
 ]
 
 
