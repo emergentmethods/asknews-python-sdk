@@ -35,7 +35,18 @@ class TelegramSource(BaseModel):
     params: TelegramSourceParams
 
 
-Source = Annotated[Union[AskNewsSource, TelegramSource], Field(discriminator="identifier")]
+class BlueskySourceParams(BaseModel):
+    query: Optional[str] = Field(None, description="The search query")
+
+
+class BlueskySource(BaseModel):
+    identifier: Literal["bluesky"]
+    params: Optional[BlueskySourceParams] = Field(None, description="Bluesky source parameters")
+
+
+Source = Annotated[
+    Union[AskNewsSource, TelegramSource | BlueskySource], Field(discriminator="identifier")
+]
 
 
 class Sources(RootModel):
