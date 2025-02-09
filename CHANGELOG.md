@@ -1,3 +1,9 @@
+## 0.10.1 (2025-02-09)
+
+### Fix
+
+- Remove exclude defaults that is preventing alert updates
+
 ## 0.10.0 (2025-02-06)
 
 ### Feat
