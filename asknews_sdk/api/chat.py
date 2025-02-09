@@ -372,7 +372,7 @@ class ChatAPI(BaseAPI):
         response = self.client.request(
             method="PUT",
             endpoint=f"/v1/chat/alerts/{alert_id}",
-            body=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True)
+            body=payload.model_dump(mode="json", exclude_unset=True)
             if isinstance(payload, UpdateAlertRequest)
             else payload,
             headers={
@@ -799,7 +799,7 @@ class AsyncChatAPI(BaseAPI):
         response = await self.client.request(
             method="PUT",
             endpoint=f"/v1/chat/alerts/{alert_id}",
-            body=payload.model_dump(mode="json", exclude_unset=True, exclude_defaults=True)
+            body=payload.model_dump(mode="json", exclude_unset=True)
             if isinstance(payload, UpdateAlertRequest)
             else payload,
             headers={
