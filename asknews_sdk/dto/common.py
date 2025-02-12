@@ -237,7 +237,7 @@ class FilterParams(BaseModel):
                 "tr",
                 "zh",
                 "jp",
-                "kr",
+                "ko",
                 "sv",
                 "nl",
                 "no",
