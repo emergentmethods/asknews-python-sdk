@@ -1,3 +1,9 @@
+## 0.11.0 (2025-03-05)
+
+### Feat
+
+- Change default value for string_guarantee_op to 'OR' instead of 'AND' to match API
+
 ## 0.10.4 (2025-03-01)
 
 ### Fix
