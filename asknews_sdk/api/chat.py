@@ -18,6 +18,7 @@ from asknews_sdk.dto.deepnews import (
     CreateDeepNewsRequest,
     CreateDeepNewsResponse,
     CreateDeepNewsResponseStream,
+    CreateDeepNewsResponseStreamToken,
 )
 from asknews_sdk.response import EventSource
 
@@ -498,7 +499,7 @@ class ChatAPI(BaseAPI):
             },
             accept=[
                 (CreateDeepNewsResponse.__content_type__, 1.0),
-                (CreateDeepNewsResponseStream.__content_type__, 1.0),
+                (CreateDeepNewsResponseStreamToken.__content_type__, 1.0),
             ],
             stream=stream,
             stream_type="lines",
@@ -510,6 +511,7 @@ class ChatAPI(BaseAPI):
                 for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
                         break
+
                     yield CreateDeepNewsResponseStream.model_validate_json(event.content)
 
             return _stream()

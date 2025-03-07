@@ -1,13 +1,19 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, TypeAlias, Union
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Discriminator, Field, Tag
 from typing_extensions import Annotated
 
 from asknews_sdk.dto.base import BaseSchema
 from asknews_sdk.dto.chat import WebSearchResult
 from asknews_sdk.dto.news import SearchResponseDictItem
+
+
+def object_discriminator(v: Any) -> str:
+    if isinstance(v, dict):
+        return v.get("object", "")
+    return getattr(v, "object", "")
 
 
 class DeepNewsSources(BaseModel):
@@ -95,7 +101,7 @@ class CreateDeepNewsResponse(BaseSchema):
     sources: Annotated[DeepNewsSources, Field(title="Sources")]
 
 
-class CreateDeepNewsResponseStream(BaseSchema):
+class CreateDeepNewsResponseStreamToken(BaseSchema):
     __content_type__ = "text/event-stream"
 
     id: Annotated[str, Field(title="Id")]
@@ -104,4 +110,20 @@ class CreateDeepNewsResponseStream(BaseSchema):
     model: Annotated[Optional[str], Field("deepseek", title="Model")]
     usage: CreateDeepNewsResponseUsage
     choices: Annotated[List[CreateDeepNewsResponseStreamChoice], Field(title="Choices")]
+
+
+class CreateDeepNewsResponseStreamSources(BaseSchema):
+    __content_type__ = "text/event-stream"
+
+    object: Annotated[Optional[str], Field(title="Object")] = "chat.completion.sources"
     sources: Annotated[DeepNewsSources, Field(title="Sources")]
+
+
+
+CreateDeepNewsResponseStream: TypeAlias = Annotated[
+    Union[
+        Annotated[CreateDeepNewsResponseStreamToken, Tag("chat.completion.chunk")],
+        Annotated[CreateDeepNewsResponseStreamSources, Tag("chat.completion.sources")],
+    ],
+    Discriminator(object_discriminator),
+]
