@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Optional, TypeAlias, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Discriminator, Field, Tag
-from typing_extensions import Annotated
+from typing_extensions import Annotated, TypeAlias
 
 from asknews_sdk.dto.base import BaseSchema
 from asknews_sdk.dto.chat import WebSearchResult
