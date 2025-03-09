@@ -257,6 +257,9 @@ class APIClient(BaseAPIClient):
         try:
             response.raise_for_status()
         except HTTPStatusError as e:
+            if stream:
+                response.read()
+
             raise_from_response(
                 APIResponse.from_httpx_response(
                     response=e.response,
@@ -401,6 +404,9 @@ class AsyncAPIClient(BaseAPIClient):
         try:
             response.raise_for_status()
         except HTTPStatusError as e:
+            if stream:
+                await response.aread()
+
             raise_from_response(
                 APIResponse.from_httpx_response(
                     response=e.response,

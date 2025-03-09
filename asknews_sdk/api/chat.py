@@ -1,6 +1,8 @@
 from typing import Any, AsyncIterator, Dict, Iterator, List, Literal, Optional, Union
 from uuid import UUID
 
+from pydantic import TypeAdapter
+
 from asknews_sdk.api.base import BaseAPI
 from asknews_sdk.dto.alert import AlertLog, AlertResponse, CreateAlertRequest, UpdateAlertRequest
 from asknews_sdk.dto.chat import (
@@ -14,6 +16,13 @@ from asknews_sdk.dto.chat import (
     WebSearchResponse,
 )
 from asknews_sdk.dto.common import PaginatedResponse
+from asknews_sdk.dto.deepnews import (
+    CreateDeepNewsRequest,
+    CreateDeepNewsResponse,
+    CreateDeepNewsResponseStream,
+    CreateDeepNewsResponseStreamChunk,
+    CreateDeepNewsResponseStreamSource,
+)
 from asknews_sdk.response import EventSource
 
 
@@ -444,6 +453,77 @@ class ChatAPI(BaseAPI):
         )
         return PaginatedResponse[AlertLog].model_validate(response.content)
 
+    def get_deep_news(
+        self,
+        messages: List[Dict[str, str]],
+        model: Literal[
+            "claude-3-7-sonnet-latest",
+            "deepseek",
+            "o3-mini",
+        ] = "deepseek",
+        stream: bool = False,
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
+        append_references: bool = True,
+        asknews_watermark: bool = True,
+        journalist_mode: bool = True,
+        conversational_awareness: bool = False,
+        filter_params: Optional[Dict] = None,
+        sources: Optional[List[str]] = None,
+        search_depth: int = 3,
+        max_depth: int = 5,
+        return_sources: bool = True,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> Union[CreateDeepNewsResponse, Iterator[CreateDeepNewsResponseStream]]:
+        """
+        Get deep news research!
+
+        https://docs.asknews.app/en/reference#post-/v1/openai/chat/deepnews
+        """
+        response = self.client.request(
+            method="POST",
+            endpoint="/v1/chat/deepnews",
+            body=CreateDeepNewsRequest(
+                messages=messages,
+                model=model,
+                stream=stream,
+                inline_citations=inline_citations,
+                append_references=append_references,
+                asknews_watermark=asknews_watermark,
+                journalist_mode=journalist_mode,
+                conversational_awareness=conversational_awareness,
+                filter_params=filter_params,
+                sources=sources if sources else ["asknews"],
+                search_depth=search_depth,
+                max_depth=max_depth,
+                return_sources=return_sources,
+            ).model_dump(mode="json"),
+            headers={
+                **(http_headers or {}),
+                "Content-Type": CreateDeepNewsRequest.__content_type__,
+            },
+            accept=[
+                (CreateDeepNewsResponse.__content_type__, 1.0),
+                (CreateDeepNewsResponseStreamChunk.__content_type__, 1.0),
+                (CreateDeepNewsResponseStreamSource.__content_type__, 1.0),
+            ],
+            stream=stream,
+            stream_type="lines",
+        )
+
+        if stream:
+
+            def _stream():
+                for event in EventSource.from_api_response(response):
+                    if event.content == "[DONE]":
+                        break
+
+                    yield TypeAdapter(CreateDeepNewsResponseStream).validate_json(event.content)
+
+            return _stream()
+        else:
+            return CreateDeepNewsResponse.model_validate(response.content)
+
 
 class AsyncChatAPI(BaseAPI):
     """
@@ -870,3 +950,72 @@ class AsyncChatAPI(BaseAPI):
             query={"page": page, "per_page": per_page, "all": all},
         )
         return PaginatedResponse[AlertLog].model_validate(response.content)
+
+    async def get_deep_news(
+        self,
+        messages: List[Dict[str, str]],
+        model: Literal[
+            "claude-3-7-sonnet-latest",
+            "deepseek",
+            "o3-mini",
+        ] = "deepseek",
+        stream: bool = False,
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
+        append_references: bool = True,
+        asknews_watermark: bool = True,
+        journalist_mode: bool = True,
+        conversational_awareness: bool = False,
+        filter_params: Optional[Dict] = None,
+        sources: Optional[List[str]] = None,
+        search_depth: int = 3,
+        max_depth: int = 5,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> Union[CreateDeepNewsResponse, AsyncIterator[CreateDeepNewsResponseStream]]:
+        """
+        Get deep news research!
+
+        https://docs.asknews.app/en/reference#post-/v1/openai/chat/deepnews
+        """
+        response = await self.client.request(
+            method="POST",
+            endpoint="/v1/chat/deepnews",
+            body=CreateDeepNewsRequest(
+                messages=messages,
+                model=model,
+                stream=stream,
+                inline_citations=inline_citations,
+                append_references=append_references,
+                asknews_watermark=asknews_watermark,
+                journalist_mode=journalist_mode,
+                conversational_awareness=conversational_awareness,
+                filter_params=filter_params,
+                sources=sources if sources else ["asknews"],
+                search_depth=search_depth,
+                max_depth=max_depth,
+            ).model_dump(mode="json"),
+            headers={
+                **(http_headers or {}),
+                "Content-Type": CreateDeepNewsRequest.__content_type__,
+            },
+            accept=[
+                (CreateDeepNewsResponse.__content_type__, 1.0),
+                (CreateDeepNewsResponseStreamChunk.__content_type__, 1.0),
+                (CreateDeepNewsResponseStreamSource.__content_type__, 1.0),
+            ],
+            stream=stream,
+            stream_type="lines",
+        )
+
+        if stream:
+
+            async def _stream():
+                async for event in EventSource.from_api_response(response):
+                    if event.content == "[DONE]":
+                        break
+
+                    yield TypeAdapter(CreateDeepNewsResponseStream).validate_json(event.content)
+
+            return _stream()
+        else:
+            return CreateDeepNewsResponse.model_validate(response.content)

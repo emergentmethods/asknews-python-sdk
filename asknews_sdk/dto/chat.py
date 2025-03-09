@@ -135,6 +135,7 @@ class WebSearchResult(BaseModel):
     published: str
     key_points: List[str]
     raw_text: str = ""
+    as_string_key: Optional[str] = None
 
 
 class WebSearchResponse(BaseModel):
