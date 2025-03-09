@@ -86,7 +86,15 @@ class CreateDeepNewsRequest(BaseSchema):
         Optional[Dict[str, Any]],
         Field(None, title="Any filter param available on the /news endpoint."),
     ]
-    sources: Annotated[Optional[List[str]], Field(["asknews"], title="Sources")]
+    sources: Annotated[
+        Optional[
+            Union[
+                Literal["asknews", "google"],
+                List[Literal["asknews", "google"]],
+            ]
+        ],
+        Field("asknews", title="Sources"),
+    ]
     search_depth: Annotated[Optional[int], Field(2, title="Search Depth")]
     max_depth: Annotated[Optional[int], Field(4, title="Max Depth")]
     return_sources: Annotated[
