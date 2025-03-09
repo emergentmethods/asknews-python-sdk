@@ -3,8 +3,6 @@ from uuid import UUID
 
 from pydantic import TypeAdapter
 
-from pydantic import TypeAdapter
-
 from asknews_sdk.api.base import BaseAPI
 from asknews_sdk.dto.alert import AlertLog, AlertResponse, CreateAlertRequest, UpdateAlertRequest
 from asknews_sdk.dto.chat import (
@@ -26,9 +24,6 @@ from asknews_sdk.dto.deepnews import (
     CreateDeepNewsResponseStreamSource,
 )
 from asknews_sdk.response import EventSource
-
-
-adapter = TypeAdapter(CreateDeepNewsResponseStream)
 
 
 class ChatAPI(BaseAPI):
