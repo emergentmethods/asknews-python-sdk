@@ -89,8 +89,8 @@ class CreateDeepNewsRequest(BaseSchema):
     ] = False
     filter_params: Annotated[
         Optional[Dict[str, Any]],
-        Field(None, title="Any filter param available on the /news endpoint."),
-    ]
+        Field(title="Any filter param available on the /news endpoint."),
+    ] = None
     sources: Annotated[
         Optional[
             Union[
@@ -98,16 +98,16 @@ class CreateDeepNewsRequest(BaseSchema):
                 List[Literal["asknews", "google"]],
             ]
         ],
-        Field("asknews", title="Sources"),
-    ]
-    search_depth: Annotated[Optional[int], Field(2, title="Search Depth")]
-    max_depth: Annotated[Optional[int], Field(4, title="Max Depth")]
+        Field(title="Sources"),
+    ] = "asknews"
+    search_depth: Annotated[Optional[int], Field(title="Search Depth")] = 2
+    max_depth: Annotated[Optional[int], Field(title="Max Depth")] = 4
     return_sources: Annotated[
         Optional[bool],
         Field(
-            True, title="Return all collected sources as objects as the last token of the stream."
+            title="Return all collected sources as objects as the last token of the stream."
         ),
-    ]
+    ] = True
 
 
 class CreateDeepNewsResponse(BaseSchema):
