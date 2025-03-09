@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import TypeAdapter
 
+from pydantic import TypeAdapter
+
 from asknews_sdk.api.base import BaseAPI
 from asknews_sdk.dto.alert import AlertLog, AlertResponse, CreateAlertRequest, UpdateAlertRequest
 from asknews_sdk.dto.chat import (
@@ -20,7 +22,8 @@ from asknews_sdk.dto.deepnews import (
     CreateDeepNewsRequest,
     CreateDeepNewsResponse,
     CreateDeepNewsResponseStream,
-    CreateDeepNewsResponseStreamToken,
+    CreateDeepNewsResponseStreamChunk,
+    CreateDeepNewsResponseStreamSource,
 )
 from asknews_sdk.response import EventSource
 
@@ -470,7 +473,7 @@ class ChatAPI(BaseAPI):
         journalist_mode: bool = True,
         conversational_awareness: bool = False,
         filter_params: Optional[Dict] = None,
-        sources: List[str] = None,
+        sources: Optional[List[str]] = None,
         search_depth: int = 3,
         max_depth: int = 5,
         return_sources: bool = True,
@@ -506,7 +509,8 @@ class ChatAPI(BaseAPI):
             },
             accept=[
                 (CreateDeepNewsResponse.__content_type__, 1.0),
-                (CreateDeepNewsResponseStreamToken.__content_type__, 1.0),
+                (CreateDeepNewsResponseStreamChunk.__content_type__, 1.0),
+                (CreateDeepNewsResponseStreamSource.__content_type__, 1.0),
             ],
             stream=stream,
             stream_type="lines",
@@ -519,7 +523,7 @@ class ChatAPI(BaseAPI):
                     if event.content == "[DONE]":
                         break
 
-                    yield adapter.validate_json(event.content)
+                    yield TypeAdapter(CreateDeepNewsResponseStream).validate_json(event.content)
 
             return _stream()
         else:
@@ -967,13 +971,12 @@ class AsyncChatAPI(BaseAPI):
         journalist_mode: bool = True,
         conversational_awareness: bool = False,
         filter_params: Optional[Dict] = None,
-        sources: List[str] = None,
+        sources: Optional[List[str]] = None,
         search_depth: int = 3,
         max_depth: int = 5,
-        return_sources: bool = True,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> Union[CreateDeepNewsResponse, Iterator[CreateDeepNewsResponseStream]]:
+    ) -> Union[CreateDeepNewsResponse, AsyncIterator[CreateDeepNewsResponseStream]]:
         """
         Get deep news research!
 
@@ -995,7 +998,6 @@ class AsyncChatAPI(BaseAPI):
                 sources=sources if sources else ["asknews"],
                 search_depth=search_depth,
                 max_depth=max_depth,
-                return_sources=return_sources,
             ).model_dump(mode="json"),
             headers={
                 **(http_headers or {}),
@@ -1003,7 +1005,8 @@ class AsyncChatAPI(BaseAPI):
             },
             accept=[
                 (CreateDeepNewsResponse.__content_type__, 1.0),
-                (CreateDeepNewsResponseStreamToken.__content_type__, 1.0),
+                (CreateDeepNewsResponseStreamChunk.__content_type__, 1.0),
+                (CreateDeepNewsResponseStreamSource.__content_type__, 1.0),
             ],
             stream=stream,
             stream_type="lines",
@@ -1012,11 +1015,11 @@ class AsyncChatAPI(BaseAPI):
         if stream:
 
             async def _stream():
-                for event in EventSource.from_api_response(response):
+                async for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
                         break
 
-                    yield CreateDeepNewsResponseStream.model_validate_json(event.content)
+                    yield TypeAdapter(CreateDeepNewsResponseStream).validate_json(event.content)
 
             return _stream()
         else:
