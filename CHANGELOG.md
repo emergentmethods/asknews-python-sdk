@@ -1,3 +1,14 @@
+## 0.11.1 (2025-03-09)
+
+### Fix
+
+- Fix lint
+- Fix models and deep news methods
+- avoid mutable defaults
+- use an adapter for the final deepnews token
+- Add discriminated union for deep news stream token and sources
+- Add DeepNews endpoint
+
 ## 0.11.0 (2025-03-05)
 
 ### Feat
