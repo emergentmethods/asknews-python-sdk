@@ -89,6 +89,12 @@ class CreateDeepNewsRequest(BaseSchema):
     sources: Annotated[Optional[List[str]], Field(["asknews"], title="Sources")]
     search_depth: Annotated[Optional[int], Field(2, title="Search Depth")]
     max_depth: Annotated[Optional[int], Field(4, title="Max Depth")]
+    return_sources: Annotated[
+        Optional[bool],
+        Field(
+            True, title="Return all collected sources as objects as the last token of the stream."
+        ),
+    ]
 
 
 class CreateDeepNewsResponse(BaseSchema):
@@ -117,7 +123,6 @@ class CreateDeepNewsResponseStreamSources(BaseSchema):
 
     object: Annotated[Optional[str], Field(title="Object")] = "chat.completion.sources"
     sources: Annotated[DeepNewsSources, Field(title="Sources")]
-
 
 
 CreateDeepNewsResponseStream: TypeAlias = Annotated[
