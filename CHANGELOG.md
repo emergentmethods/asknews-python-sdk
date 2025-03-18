@@ -1,3 +1,9 @@
+## 0.11.2 (2025-03-18)
+
+### Fix
+
+- allow llama3.3 70b as an alert model
+
 ## 0.11.1 (2025-03-09)
 
 ### Fix
