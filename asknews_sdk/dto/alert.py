@@ -10,11 +10,18 @@ from asknews_sdk.dto.common import FilterParams
 from asknews_sdk.types import CronStr, HttpUrlString
 
 
-CheckAlertModel = Literal["meta-llama/Meta-Llama-3.1-8B-Instruct", "gpt-4o-mini", "gpt-4o"]
+CheckAlertModel = Literal[
+    "meta-llama/Meta-Llama-3.1-8B-Instruct",
+    "gpt-4o-mini",
+    "gpt-4o",
+    "o3-mini",
+    "meta-llama/Meta-Llama-3.3-70B-Instruct",
+]
 
 ReportModel = Literal[
     "gpt-4o",
     "gpt-4o-mini",
+    "o3-mini",
     "claude-3-5-sonnet-latest",
     "meta-llama/Meta-Llama-3.1-405B-Instruct",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
