@@ -80,6 +80,7 @@ class NewsAPI(BaseAPI):
         provocative: Optional[str] = "all",
         reporting_voice: Optional[Union[List[str], str]] = None,
         domain_url: Optional[Union[List[str], str]] = None,
+        bad_domain_url: Optional[Union[List[str], str]] = None,
         page_rank: Optional[int] = None,
         diversify_sources: Optional[bool] = False,
         strategy: Literal["latest news", "news knowledge", "default"] = "default",
@@ -126,11 +127,9 @@ class NewsAPI(BaseAPI):
             meaning that the search will only look through the most recent news
             (48 hours)
         :type historical: bool
-        :param method: Method to use for searching. 'nl' means Natural Language, which
-            is a string that can be any phrase, keyword, question, or paragraph that
-            will be used for semantic search on the news. 'kw' means Keyword, which can
-            also be any keyword(s), phrase, or paragraph, however the search is a direct
-            keyword search on the database. 'both' uses a hybrid approach.
+        :param method: Method to use for searching. Both `kw` and `nl`
+            support natural language queries. `kw` tries to match keywords,
+            while `nl` tries to match the meaning of the query.
         :type method: Literal["nl", "kw", "both"]
         :param similarity_score_threshold: Similarity score threshold, defaults to 0.5
         :type similarity_score_threshold: float
@@ -181,6 +180,7 @@ class NewsAPI(BaseAPI):
                 "provocative": provocative,
                 "reporting_voice": reporting_voice,
                 "domain_url": domain_url,
+                "bad_domain_url": bad_domain_url,
                 "page_rank": page_rank,
                 "diversify_sources": diversify_sources,
                 "strategy": strategy,
@@ -382,6 +382,7 @@ class AsyncNewsAPI(BaseAPI):
         provocative: Optional[str] = "all",
         reporting_voice: Optional[Union[List[str], str]] = None,
         domain_url: Optional[Union[List[str], str]] = None,
+        bad_domain_url: Optional[Union[List[str], str]] = None,
         page_rank: Optional[int] = None,
         diversify_sources: Optional[bool] = False,
         strategy: Literal["latest news", "news knowledge", "default"] = "default",
@@ -428,11 +429,9 @@ class AsyncNewsAPI(BaseAPI):
             meaning that the search will only look through the most recent news
             (48 hours)
         :type historical: bool
-        :param method: Method to use for searching. 'nl' means Natural Language, which
-            is a string that can be any phrase, keyword, question, or paragraph that
-            will be used for semantic search on the news. 'kw' means Keyword, which can
-            also be any keyword(s), phrase, or paragraph, however the search is a direct
-            keyword search on the database.
+        :param method: Method to use for searching. Both `kw` and `nl`
+            support natural language queries. `kw` tries to match keywords,
+            while `nl` tries to match the meaning of the query.
         :type method: Literal["nl", "kw"]
         :param similarity_score_threshold: Similarity score threshold, defaults to 0.5
         :type similarity_score_threshold: float
@@ -483,6 +482,7 @@ class AsyncNewsAPI(BaseAPI):
                 "provocative": provocative,
                 "reporting_voice": reporting_voice,
                 "domain_url": domain_url,
+                "bad_domain_url": bad_domain_url,
                 "page_rank": page_rank,
                 "diversify_sources": diversify_sources,
                 "strategy": strategy,

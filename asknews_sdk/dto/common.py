@@ -161,6 +161,12 @@ class FilterParams(BaseModel):
         "This can be a single domain or a list of domains. "
         "For example, 'npr.org' or ['nature.com', 'npr.org']",
     )
+    domain_url: Optional[Union[List[str], str]] = Field(
+        None,
+        description="Domain blacklist. "
+        "This can be a single domain or a list of domains. "
+        "For example, 'npr.org' or ['nature.com', 'npr.org']",
+    )
     page_rank: Optional[int] = Field(
         None, description="Maximum allowed page rank for returned articles."
     )
