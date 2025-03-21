@@ -1,3 +1,9 @@
+## 0.11.3 (2025-03-21)
+
+### Fix
+
+- Allow users to blacklist domains
+
 ## 0.11.2 (2025-03-18)
 
 ### Fix
