@@ -1,3 +1,9 @@
+## 0.11.5 (2025-03-27)
+
+### Fix
+
+- add return_sources to async client
+
 ## 0.11.4 (2025-03-27)
 
 ### Fix
