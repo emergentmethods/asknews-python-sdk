@@ -967,6 +967,7 @@ class AsyncChatAPI(BaseAPI):
         conversational_awareness: bool = False,
         filter_params: Optional[Dict] = None,
         sources: Optional[List[str]] = None,
+        return_sources: bool = True,
         search_depth: int = 3,
         max_depth: int = 5,
         *,
@@ -993,6 +994,7 @@ class AsyncChatAPI(BaseAPI):
                 sources=sources if sources else ["asknews"],
                 search_depth=search_depth,
                 max_depth=max_depth,
+                return_sources=return_sources,
             ).model_dump(mode="json"),
             headers={
                 **(http_headers or {}),
