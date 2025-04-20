@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "asknews"
-version = "0.11.5"
+version = "0.11.6"
 description = "Python SDK for AskNews"
 authors = ["Emergent Methods <contact@emergentmethods.ai>"]
 packages = [{ include = "asknews_sdk" }]

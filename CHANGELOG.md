@@ -1,3 +1,9 @@
+## 0.11.6 (2025-04-20)
+
+### Fix
+
+- Allow graph source in deepnews
+
 ## 0.11.5 (2025-03-27)
 
 ### Fix
