@@ -1,3 +1,9 @@
+## 0.11.7 (2025-04-24)
+
+### Fix
+
+- Add support for gpt4.1 in alerts
+
 ## 0.11.6 (2025-04-20)
 
 ### Fix
