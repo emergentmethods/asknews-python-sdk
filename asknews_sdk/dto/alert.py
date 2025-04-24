@@ -16,6 +16,9 @@ CheckAlertModel = Literal[
     "gpt-4o",
     "o3-mini",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
+    "gpt-4.1-2025-04-14",
+    "gpt-4.1-nano-2025-04-14",
+    "gpt-4.1-mini-2025-04-14",
 ]
 
 ReportModel = Literal[
@@ -25,6 +28,8 @@ ReportModel = Literal[
     "claude-3-5-sonnet-latest",
     "meta-llama/Meta-Llama-3.1-405B-Instruct",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
+    "gpt-4.1-2025-04-14",
+    "gpt-4.1-mini-2025-04-14",
 ]
 
 
