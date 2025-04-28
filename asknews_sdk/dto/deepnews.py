@@ -106,6 +106,39 @@ class CreateDeepNewsRequest(BaseSchema):
         Optional[bool],
         Field(title="Return all collected sources as objects as the last token of the stream."),
     ] = True
+    include_coordinates: Annotated[
+        Optional[bool],
+        Field(
+            title=(
+                "Include geocoordinates of the sources in the internal context. "
+                "Activating this will increase internal token usage. "
+                "This is useful if you need the LLM to report exact coordinates "
+                "to you."
+            ),
+        ),
+    ] = False
+    include_graphs: Annotated[
+        Optional[bool],
+        Field(
+            title=(
+                "Include graphs of the sources in the internal context. "
+                "Activating this will increase internal token usage. "
+                "This is useful if you want the LLM to understand graph "
+                "relationships between the entities in the sources."
+            ),
+        ),
+    ] = False
+    include_entities: Annotated[
+        Optional[bool],
+        Field(
+            title=(
+                "Include entities of the sources in the internal context. "
+                "Activating this will increase internal token usage. "
+                "This is useful if you want the LLM to better understand "
+                "which entities are associated with which types in the context."
+            ),
+        ),
+    ] = True
 
 
 class CreateDeepNewsResponse(BaseSchema):
