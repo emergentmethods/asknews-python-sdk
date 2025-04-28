@@ -1,3 +1,9 @@
+## 0.11.8 (2025-04-28)
+
+### Fix
+
+- Allow more control over the internal context size
+
 ## 0.11.7 (2025-04-24)
 
 ### Fix
