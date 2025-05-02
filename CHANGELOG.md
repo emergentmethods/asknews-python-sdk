@@ -1,3 +1,9 @@
+## 0.11.9 (2025-05-02)
+
+### Fix
+
+- Add start_timestamp and stop_timestamp to autofilter response
+
 ## 0.11.8 (2025-04-28)
 
 ### Fix
