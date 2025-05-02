@@ -173,7 +173,7 @@ class FilterParams(BaseModel):
         "Query string that can be any phrase, "
         "keyword, question, or paragraph. The more descriptive the better. "
         "Treat this like a powerful google query. This is optional.",
-    ] = ("",)
+    ] = ""
     categories: Annotated[
         List[
             Literal[
@@ -195,7 +195,7 @@ class FilterParams(BaseModel):
             ]
         ],
         "Categories of news to filter on",
-    ] = (["All"],)
+    ] = ["All"]
     reporting_voice: Annotated[
         List[
             Literal[
@@ -216,7 +216,7 @@ class FilterParams(BaseModel):
             ]
         ],
         "Type of reporting voice to filer by.",
-    ] = (["all"],)
+    ] = ["all"]
     strategy: Annotated[
         Literal["latest news", "news knowledge", "default"],
         "Strategy to use for searching. 'latest news' automatically sets"
@@ -232,25 +232,25 @@ class FilterParams(BaseModel):
         "This is the same as controlling the 'start_timestamp' parameter. "
         "The difference is that this is not a timestamp, it is the number of hours "
         "back to look from the current time. Defaults to 24 hours.",
-    ] = (24,)
+    ] = 24
     string_guarantee: Annotated[
         Optional[List[str]],
         "If defined, the search will only occur on articles "
         "that contain strings in this list. This is powerful for "
         "constraining important names or concepts. It is optional.",
-    ] = (None,)
+    ] = None
     string_guarantee_op: Annotated[
         Literal["AND", "OR"],
         "Operator to use for string guarantee list. AND means all string_guarantee "
         "items must be present in all articles. OR means at least one of the items must "
         "be present.",
-    ] = ("AND",)
+    ] = "AND"
     reverse_string_guarantee: Annotated[
         Optional[List[str]],
         "If defined, the search will only occur on articles "
         "that do not contain strings in this list. This is powerful "
         "for avoiding articles with a particular name or concept. It is optional.",
-    ] = (None,)
+    ] = None
     entity_guarantee: Annotated[
         Optional[List[str]],
         "Entities that must be present in the retrieved articles. This is a list of strings, "
@@ -258,18 +258,18 @@ class FilterParams(BaseModel):
         "colon. The first element is the entity type and the second element is "
         "the entity value. For example ['Location:Paris', 'Person:John']. "
         "Allowed entity types include: Location, Person, Organization, Product, Technology",
-    ] = (None,)
+    ] = None
     entity_guarantee_op: Annotated[
         Literal["AND", "OR"],
         "Operator to use for entity guarantee list. AND means all entity_guarantee "
         "items must be present in all articles. OR means at least one of the items "
         "must be present.",
-    ] = ("OR",)
+    ] = "OR"
     countries: Annotated[
         Optional[List[str]],
         "Article source countries to filter by, this is the two-letter ISO country code"
         "For example: United States is 'US', France is 'FR', Sweden is 'SE'.",
-    ] = (None,)
+    ] = None
     continents: Annotated[
         Optional[
             List[
@@ -285,9 +285,19 @@ class FilterParams(BaseModel):
             ]
         ],
         "The articles must be geographically focused on this continent.",
-    ] = (None,)
+    ] = None
     sentiment: Annotated[
         Optional[Literal["negative", "neutral", "positive"]], "Sentiment to filter articles by."
+    ] = None
+    start_timestamp: Annotated[
+        Optional[int],
+        "Start timestamp to filter articles by. This is the earliest time "
+        "to look for articles. This is a datetime object.",
+    ] = None
+    end_timestamp: Annotated[
+        Optional[int],
+        "End timestamp to filter articles by. This is the latest time "
+        "to look for articles. This is a datetime object.",
     ] = None
 
 
