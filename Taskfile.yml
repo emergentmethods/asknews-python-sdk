@@ -23,10 +23,13 @@ tasks:
         else
           export SRC_DIR="{{.PACKAGE_SRC_DIR}}"
         fi
-      - poetry run ruff check $SRC_DIR {{.CLI_ARGS}}
-      - poetry run ruff format $SRC_DIR {{.CLI_ARGS}}
+      - uvx ruff check $SRC_DIR {{.CLI_ARGS}}
+      - |
+        if [ "{{.FORMAT}}" = "true" ]; then
+          uvx ruff format $SRC_DIR {{.CLI_ARGS}}
+        fi
 
   # Build
   build:
     cmds:
-      - poetry build --format wheel
+      - uv build --wheel

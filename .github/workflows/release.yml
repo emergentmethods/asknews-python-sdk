@@ -33,20 +33,21 @@ jobs:
           path: |
             ~/.cache/pip
           key: pip-${{ runner.os }}-${{ runner.arch }}-py-${{ matrix.python-version }}
-      - name: Install poetry
-        run: pipx install poetry --python python${{ matrix.python-version }}
-      - name: Cache poetry
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
+      - name: Cache uv
         uses: actions/cache@v4
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
         with:
           path: |
-            ~/.cache/pypoetry/virtualenvs
-            ~/.cache/pypoetry/cache
-            ~/.cache/pypoetry/artifacts
-          key: poetry-${{ runner.os }}-${{ runner.arch }}-py-${{ matrix.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
+            ~/.cache/pip
+            ~/.cache/uv
+          key: uv-${{ runner.os }}-${{ runner.arch }}-py-${{ matrix.python-version }}-uv-${{ hashFiles('uv.lock') }}
       - name: Install dependencies
-        run: poetry install
+        run: |
+          uv sync --refresh
+          uv cache prune --ci
       - name: Install task
         uses: arduino/setup-task@v2
         with:
