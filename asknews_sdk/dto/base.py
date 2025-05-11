@@ -71,7 +71,8 @@ class Article(BaseModel):
     keywords: Annotated[List[str], Field(title="Keywords")]
     language: Annotated[str, Field(title="Language")]
     pub_date: Annotated[AwareDatetime, Field(title="Pub Date")]
-    summary: Annotated[str, Field(title="Summary")]
+    summary: Annotated[str, Field(title="Summary. Deprecated, please use Key Points instead.")]
+    key_points: Annotated[Optional[List[str]], Field(None, title="Key Points")]
     title: Annotated[str, Field(title="Title")]
     sentiment: Annotated[int, Field(title="Sentiment")]
     medoid_distance: Annotated[Optional[float], Field(title="Medoid Distance")] = None
