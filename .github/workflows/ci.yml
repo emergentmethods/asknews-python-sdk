@@ -31,7 +31,12 @@ jobs:
             ~/.cache/pip
           key: pip-${{ runner.os }}-${{ runner.arch }}-py-${{ matrix.python-version }}
       - name: Install poetry
-        run: pipx install poetry==2.1.2 --python python${{ matrix.python-version }}
+        run: |
+          if [ "${{ matrix.python-version }}" == "3.8" ]; then
+            pipx install poetry==1.8.3 --python python3.8
+          else
+            pipx install poetry --python python${{ matrix.python-version }}
+          fi
       - name: Cache poetry
         uses: actions/cache@v4
         env:
