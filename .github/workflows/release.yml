@@ -48,7 +48,7 @@ jobs:
         run: |
           uv sync --refresh
           uv cache prune --ci
-          echo $VIRTUAL_ENV/bin >> $GITHUB_PATH
+          echo "$PWD/.venv/bin" >> $GITHUB_PATH
       - name: Install task
         uses: arduino/setup-task@v2
         with:
