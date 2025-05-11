@@ -33,7 +33,7 @@ jobs:
       - name: Install poetry
         run: |
           if [ "${{ matrix.python-version }}" == "3.8" ]; then
-            pipx install poetry==1.8.3 --python python3.8
+            pipx install poetry==1.8.5 --python python3.8
           else
             pipx install poetry --python python${{ matrix.python-version }}
           fi

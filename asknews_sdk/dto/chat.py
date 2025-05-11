@@ -218,16 +218,16 @@ class FilterParams(BaseModel):
         "Type of reporting voice to filer by.",
     ] = ["all"]
     strategy: Annotated[
-        Literal["latest news", "news knowledge", "default"],
+        Optional[Literal["latest news", "news knowledge", "default"]],
         "Strategy to use for searching. 'latest news' automatically sets"
         "method='nl', historical=False, and looks within the past 24 hours. "
         "'news knowledge' automatically sets method='kw', historical=True, and looks"
         " within the past 60 days. 'news knowledge' will increase latency due to the "
         " larger search space in the archive. Use 'default' if you want to control "
         " start_timestamp, end_timestamp, historical, and method.",
-    ] = ("default",)
+    ] = "default"
     hours_back: Annotated[
-        int,
+        Optional[int],
         "Can be set to easily control the look back on the search. "
         "This is the same as controlling the 'start_timestamp' parameter. "
         "The difference is that this is not a timestamp, it is the number of hours "
@@ -240,7 +240,7 @@ class FilterParams(BaseModel):
         "constraining important names or concepts. It is optional.",
     ] = None
     string_guarantee_op: Annotated[
-        Literal["AND", "OR"],
+        Optional[Literal["AND", "OR"]],
         "Operator to use for string guarantee list. AND means all string_guarantee "
         "items must be present in all articles. OR means at least one of the items must "
         "be present.",
@@ -260,7 +260,7 @@ class FilterParams(BaseModel):
         "Allowed entity types include: Location, Person, Organization, Product, Technology",
     ] = None
     entity_guarantee_op: Annotated[
-        Literal["AND", "OR"],
+        Optional[Literal["AND", "OR"]],
         "Operator to use for entity guarantee list. AND means all entity_guarantee "
         "items must be present in all articles. OR means at least one of the items "
         "must be present.",
