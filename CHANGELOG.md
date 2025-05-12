@@ -1,3 +1,12 @@
+## 0.11.10 (2025-05-12)
+
+### Fix
+
+- Replace poetry with uv
+- pin poetry to 1.8.3 for python3.8 only
+- pin poetry
+- add keypoints to the Article object
+
 ## 0.11.9 (2025-05-02)
 
 ### Fix
