@@ -1,54 +1,55 @@
-[tool.poetry]
+[project]
 name = "asknews"
 version = "0.11.9"
 description = "Python SDK for AskNews"
-authors = ["Emergent Methods <contact@emergentmethods.ai>"]
-packages = [{ include = "asknews_sdk" }]
-license = "MIT"
 readme = "README.md"
+authors = [
+    {name = "Emergent Methods", email = "contact@emergentmethods.ai"},
+]
+license = {text = "MIT"}
+requires-python = ">=3.8.1,<4.0"
+dependencies = [
+    "orjson>=3.9.10",
+    "httpx>=0.27.2,<0.29.0",
+    "asgiref>=3.7.2",
+    "cryptography>=40.0.0,<43.0.4",
+    "crontab>=1.0.1",
+    "pydantic[email]>=2.10.4",
+]
+
+[project.urls]
 repository = "https://github.com/emergentmethods/asknews-python-sdk"
 
-[tool.poetry.dependencies]
-python = ">=3.8.1,<4.0"
-orjson = "^3.9.10"
-pydantic = {extras = ["email"], version = "^2.10.4"}
-httpx = ">=0.27.2,<0.29.0"
-asgiref = "^3.7.2"
-cryptography = ">=40.0.0,<43.0.4"
-crontab = "^1.0.1"
+[dependency-groups]
+dev = [
+    "mypy>=1.2.0",
+    "ruff>=0.8.0",
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
+    "coverage>=7.2.7",
+    "pre-commit>=3.3.2",
+    "gitlint>=0.19.1",
+    "commitizen>=3.25.0",
+    "respx>=0.22.0",
+    "polyfactory>=2.20.0",
+]
 
-[tool.poetry.group.dev.dependencies]
-mypy = "^1.2.0"
-ruff = ">=0.4.3,<0.9.0"
-pytest = ">=7.3.1,<9.0.0"
-pytest-asyncio = "^0.21.2"
-coverage = "^7.2.7"
-pre-commit = "^3.3.2"
-gitlint = "^0.19.1"
-commitizen = "^3.25.0"
-respx = "^0.22.0"
-polyfactory = "^2.20.0"
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.ruff]
-line-length = 100
-exclude = ["tests"]
-
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "C", "B"]
-
-[tool.ruff.lint.mccabe]
-max-complexity = 15
-
-[tool.ruff.lint.isort]
-lines-after-imports = 2
+[tool.hatch.build.targets.wheel]
+packages = ["asknews_sdk"]
 
 [tool.mypy]
 plugins = "pydantic.mypy"
-ignore_missing_imports = true
+ignore_missing_imports = "True"
 
 [tool.pytest.ini_options]
 addopts = "-s -p no:warnings"
-testpaths = ["tests"]
+testpaths = [
+    "tests",
+]
 asyncio_mode = "auto"
 log_cli = "True"
 log_auto_indent = "False"
@@ -62,14 +63,23 @@ ignore_errors = "true"
 [tool.coverage.xml]
 output = "coverage.xml"
 
+[tool.ruff]
+line-length = 100
+exclude = ["tests", "examples"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C", "B"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
+
 [tool.commitizen]
 name = "cz_conventional_commits"
 tag_format = "$version"
 version_scheme = "semver"
-version_provider = "poetry"
+version_provider = "uv"
 update_changelog_on_bump = true
 bump_message = "chore(release): Release $new_version"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
