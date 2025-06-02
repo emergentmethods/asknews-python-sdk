@@ -1,3 +1,9 @@
+## 0.11.11 (2025-06-02)
+
+### Fix
+
+- Start returning asset lists with docs
+
 ## 0.11.10 (2025-05-12)
 
 ### Fix
