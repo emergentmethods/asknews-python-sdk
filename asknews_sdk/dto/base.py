@@ -16,6 +16,11 @@ class GraphRelationships(BaseModel):
     edges: List[Dict[Literal["from", "to", "label"], str]]
 
 
+class Assets(BaseModel):
+    images: Annotated[Optional[List[str]], Field(None, title="Images")]
+    vidoes: Annotated[Optional[List[str]], Field(None, title="Videos")]
+
+
 class BaseSchema(BaseModel):
     __content_type__: ClassVar[str] = "application/json"
 
@@ -92,6 +97,7 @@ class Article(BaseModel):
             "Africa", "Asia", "Europe", "Middle East", "North America", "South America", "Oceania"
         ]
     ] = None
+    assets: Optional[Assets] = None
 
 
 class PingResponse(BaseSchema):

@@ -459,7 +459,9 @@ class ChatAPI(BaseAPI):
         model: Literal[
             "claude-3-7-sonnet-latest",
             "deepseek",
+            "deepseek-basic",
             "o3-mini",
+            "claude-sonnet-4-20250514",
         ] = "deepseek",
         stream: bool = False,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
@@ -958,6 +960,8 @@ class AsyncChatAPI(BaseAPI):
             "claude-3-7-sonnet-latest",
             "deepseek",
             "o3-mini",
+            "deepseek-basic",
+            "claude-sonnet-4-20250514",
         ] = "deepseek",
         stream: bool = False,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",

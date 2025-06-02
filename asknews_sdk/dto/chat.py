@@ -299,6 +299,12 @@ class FilterParams(BaseModel):
         "End timestamp to filter articles by. This is the latest time "
         "to look for articles. This is a datetime object.",
     ] = None
+    time_filter: Annotated[
+        Optional[Literal["pub_date", "crawl_date"]],
+        "Time filter to use for filtering articles. 'pub_date' is the "
+        "published date of the article. 'created_at' is the date the article "
+        "was created in the database.",
+    ] = "crawl_date"
 
 
 class FilterParamsMetadata(BaseModel):
