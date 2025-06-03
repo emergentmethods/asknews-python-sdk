@@ -157,11 +157,11 @@ class FilterParams(BaseModel):
     ] = Field(["all"], description="Type of reporting voice to filer by.")
     domain_url: Optional[Union[List[str], str]] = Field(
         None,
-        description="filter by domain url of interest. "
+        description="filter by domain(s) url of interest. "
         "This can be a single domain or a list of domains. "
         "For example, 'npr.org' or ['nature.com', 'npr.org']",
     )
-    domain_url: Optional[Union[List[str], str]] = Field(
+    bad_domain_url: Optional[Union[List[str], str]] = Field(
         None,
         description="Domain blacklist. "
         "This can be a single domain or a list of domains. "
