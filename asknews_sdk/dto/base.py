@@ -22,10 +22,10 @@ class Assets(BaseModel):
 
 
 class SocialEmbeds(BaseModel):
-    instagram: list[str] = []
-    facebook: list[str] = []
-    x: list[str] = []
-    bluesky: list[str] = []
+    instagram: List[str] = []
+    facebook: List[str] = []
+    x: List[str] = []
+    bluesky: List[str] = []
 
 
 class BaseSchema(BaseModel):
