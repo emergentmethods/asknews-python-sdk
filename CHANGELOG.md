@@ -1,3 +1,9 @@
+## 0.11.13 (2025-06-05)
+
+### Fix
+
+- Add deepseek-r1-0528 and social_embeds
+
 ## 0.11.12 (2025-06-03)
 
 ### Fix
