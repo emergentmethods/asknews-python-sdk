@@ -21,6 +21,13 @@ class Assets(BaseModel):
     vidoes: Annotated[Optional[List[str]], Field(None, title="Videos")]
 
 
+class SocialEmbeds(BaseModel):
+    instagram: list[str] = []
+    facebook: list[str] = []
+    x: list[str] = []
+    bluesky: list[str] = []
+
+
 class BaseSchema(BaseModel):
     __content_type__: ClassVar[str] = "application/json"
 
@@ -98,6 +105,7 @@ class Article(BaseModel):
         ]
     ] = None
     assets: Optional[Assets] = None
+    social_embeds: Optional[SocialEmbeds] = None
 
 
 class PingResponse(BaseSchema):
