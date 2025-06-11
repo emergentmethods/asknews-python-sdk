@@ -260,7 +260,19 @@ class FilterParams(BaseModel):
     )
     countries: Optional[List[str]] = Field(
         None,
-        description="Countries to filter by, this is the two-letter ISO country code"
+        description="Source countries to filter by (this is only for the publisher location, "
+        "not the locations mentioned in articles. For "
+        "Locations mentioned in articles, refer to entity_guarantee)"
+        ", countries must be the two-letter ISO country code"
+        "For example: United States is 'US', France is 'FR', Sweden is 'SE'.",
+    )
+    countries_blacklist: Optional[List[str]] = Field(
+        None,
+        description="Source countries to blacklist from search "
+        "(this is only for the publisher location, "
+        "not the locations mentioned in articles. For Locations mentioned in articles, "
+        "refer to reverse_entity_guarantee)"
+        ", countries must be the two-letter ISO country code"
         "For example: United States is 'US', France is 'FR', Sweden is 'SE'.",
     )
     continents: Optional[
