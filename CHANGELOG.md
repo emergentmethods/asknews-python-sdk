@@ -1,3 +1,9 @@
+## 0.11.15 (2025-06-11)
+
+### Fix
+
+- Add countries_blacklist as an option
+
 ## 0.11.14 (2025-06-05)
 
 ### Fix
