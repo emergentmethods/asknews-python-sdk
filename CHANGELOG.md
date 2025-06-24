@@ -1,3 +1,9 @@
+## 0.11.16 (2025-06-24)
+
+### Fix
+
+- Add support for claude 4 opus and o3
+
 ## 0.11.15 (2025-06-11)
 
 ### Fix
