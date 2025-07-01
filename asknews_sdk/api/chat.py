@@ -9,6 +9,7 @@ from asknews_sdk.dto.chat import (
     CreateChatCompletionRequest,
     CreateChatCompletionResponse,
     CreateChatCompletionResponseStream,
+    CreateChatCompletionResponseStreamError,
     FilterParamsResponse,
     ForecastResponse,
     HeadlineQuestionsResponse,
@@ -21,8 +22,10 @@ from asknews_sdk.dto.deepnews import (
     CreateDeepNewsResponse,
     CreateDeepNewsResponseStream,
     CreateDeepNewsResponseStreamChunk,
+    CreateDeepNewsResponseStreamError,
     CreateDeepNewsResponseStreamSource,
 )
+from asknews_sdk.errors import APIError
 from asknews_sdk.response import EventSource
 
 
@@ -120,7 +123,23 @@ class ChatAPI(BaseAPI):
                 for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
                         break
-                    yield CreateChatCompletionResponseStream.model_validate_json(event.content)
+
+                    token = (
+                        TypeAdapter(Union[
+                            CreateChatCompletionResponseStreamError,
+                            CreateChatCompletionResponseStream
+                        ])
+                        .validate_json(event.content)
+                    )
+
+                    if isinstance(token, CreateChatCompletionResponseStreamError):
+                        raise APIError(
+                            response=response,
+                            detail=token.error.message,
+                            code=token.error.code,
+                        )
+
+                    yield token
 
             return _stream()
         else:
@@ -524,7 +543,22 @@ class ChatAPI(BaseAPI):
                     if event.content == "[DONE]":
                         break
 
-                    yield TypeAdapter(CreateDeepNewsResponseStream).validate_json(event.content)
+                    token = (
+                        TypeAdapter(Union[
+                            CreateDeepNewsResponseStreamError,
+                            CreateDeepNewsResponseStream
+                        ])
+                        .validate_json(event.content)
+                    )
+
+                    if isinstance(token, CreateDeepNewsResponseStreamError):
+                        raise APIError(
+                            response=response,
+                            detail=token.error.message,
+                            code=token.error.code,
+                        )
+
+                    yield token
 
             return _stream()
         else:
@@ -625,7 +659,23 @@ class AsyncChatAPI(BaseAPI):
                 async for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
                         break
-                    yield CreateChatCompletionResponseStream.model_validate_json(event.content)
+
+                    token = (
+                        TypeAdapter(Union[
+                            CreateChatCompletionResponseStreamError,
+                            CreateChatCompletionResponseStream
+                        ])
+                        .validate_json(event.content)
+                    )
+
+                    if isinstance(token, CreateChatCompletionResponseStreamError):
+                        raise APIError(
+                            response=response,
+                            detail=token.error.message,
+                            code=token.error.code,
+                        )
+
+                    yield token
 
             return _stream()
         else:
@@ -1022,13 +1072,27 @@ class AsyncChatAPI(BaseAPI):
         )
 
         if stream:
-
             async def _stream():
                 async for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
                         break
 
-                    yield TypeAdapter(CreateDeepNewsResponseStream).validate_json(event.content)
+                    token = (
+                        TypeAdapter(Union[
+                            CreateDeepNewsResponseStreamError,
+                            CreateDeepNewsResponseStream
+                        ])
+                        .validate_json(event.content)
+                    )
+
+                    if isinstance(token, CreateDeepNewsResponseStreamError):
+                        raise APIError(
+                            response=response,
+                            detail=token.error.message,
+                            code=token.error.code,
+                        )
+
+                    yield token
 
             return _stream()
         else:

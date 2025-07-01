@@ -194,6 +194,17 @@ class CreateDeepNewsResponseStreamSource(BaseSchema):
     ]
 
 
+class CreateDeepNewsResponseStreamErrorDetails(BaseModel):
+    code: Annotated[int, Field(title="Code")]
+    message: Annotated[str, Field(title="Message")]
+
+
+class CreateDeepNewsResponseStreamError(BaseSchema):
+    __content_type__ = "text/event-stream"
+
+    error: Annotated[CreateDeepNewsResponseStreamErrorDetails, Field(title="Error")]
+
+
 CreateDeepNewsResponseStream: TypeAlias = Annotated[
     Union[
         Annotated[CreateDeepNewsResponseStreamChunk, Tag("chat.completion.chunk")],

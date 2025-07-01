@@ -97,6 +97,17 @@ class CreateChatCompletionResponseStream(BaseSchema):
     choices: Annotated[List[CreateChatCompletionResponseStreamChoice], Field(title="Choices")]
 
 
+class CreateChatCompletionResponseStreamErrorDetails(BaseModel):
+    message: Annotated[str, Field(title="Message")]
+    code: Annotated[int, Field(title="Code")]
+
+
+class CreateChatCompletionResponseStreamError(BaseSchema):
+    __content_type__ = "text/event-stream"
+
+    error: Annotated[CreateChatCompletionResponseStreamErrorDetails, Field(title="Error")]
+
+
 class ModelItem(BaseModel):
     id: Annotated[str, Field(title="Id")]
     object: Annotated[Optional[str], Field("model", title="Object")]

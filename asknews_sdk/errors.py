@@ -49,6 +49,11 @@ class MethodNotAllowed(APIError):
     detail = "Method Not Allowed"
 
 
+class RequestTimeoutError(APIError):
+    code = 408000
+    detail = "Request Timeout"
+
+
 class RateLimitExceededError(APIError):
     code = 429000
     detail = "Rate Limit Exceeded"
@@ -87,6 +92,7 @@ ErrorMap = {
     403011: ForbiddenError,
     404000: ResourceNotFoundError,
     405000: MethodNotAllowed,
+    408000: RequestTimeoutError,
     422000: ValidationError,
     429000: RateLimitExceededError,
     429001: ConcurrencyLimitExceededError,
