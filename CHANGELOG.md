@@ -1,3 +1,9 @@
+## 0.11.17 (2025-07-01)
+
+### Fix
+
+- Correctly handle error tokens in chat and deepnews streams
+
 ## 0.11.16 (2025-06-24)
 
 ### Fix
