@@ -94,8 +94,8 @@ class CreateDeepNewsRequest(BaseSchema):
     sources: Annotated[
         Optional[
             Union[
-                Literal["asknews", "google", "graph"],
-                List[Literal["asknews", "google", "graph"]],
+                Literal["asknews", "google", "graph", "wiki"],
+                List[Literal["asknews", "google", "graph", "wiki"]],
             ]
         ],
         Field(title="Sources"),
