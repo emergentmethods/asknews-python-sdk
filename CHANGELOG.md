@@ -1,3 +1,9 @@
+## 0.11.19 (2025-07-29)
+
+### Fix
+
+- Add wiki tool to deep_research
+
 ## 0.11.18 (2025-07-29)
 
 ### Fix
