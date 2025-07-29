@@ -1,3 +1,9 @@
+## 0.11.18 (2025-07-29)
+
+### Fix
+
+- Add domain controls to live_web_search
+
 ## 0.11.17 (2025-07-01)
 
 ### Fix
