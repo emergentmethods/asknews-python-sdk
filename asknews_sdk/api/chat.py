@@ -124,13 +124,12 @@ class ChatAPI(BaseAPI):
                     if event.content == "[DONE]":
                         break
 
-                    token = (
-                        TypeAdapter(Union[
+                    token = TypeAdapter(
+                        Union[
                             CreateChatCompletionResponseStreamError,
-                            CreateChatCompletionResponseStream
-                        ])
-                        .validate_json(event.content)
-                    )
+                            CreateChatCompletionResponseStream,
+                        ]
+                    ).validate_json(event.content)
 
                     if isinstance(token, CreateChatCompletionResponseStreamError):
                         raise APIError(
@@ -242,6 +241,7 @@ class ChatAPI(BaseAPI):
         self,
         queries: List[str],
         lookback: Optional[int] = None,
+        domains: Optional[List[str]] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> WebSearchResponse:
@@ -255,10 +255,7 @@ class ChatAPI(BaseAPI):
             method="GET",
             endpoint="/v1/chat/websearch",
             headers=http_headers,
-            query={
-                "queries": queries,
-                "lookback": lookback,
-            },
+            query={"queries": queries, "lookback": lookback, "domains": domains},
         )
         return WebSearchResponse.model_validate(response.content)
 
@@ -543,13 +540,9 @@ class ChatAPI(BaseAPI):
                     if event.content == "[DONE]":
                         break
 
-                    token = (
-                        TypeAdapter(Union[
-                            CreateDeepNewsResponseStreamError,
-                            CreateDeepNewsResponseStream
-                        ])
-                        .validate_json(event.content)
-                    )
+                    token = TypeAdapter(
+                        Union[CreateDeepNewsResponseStreamError, CreateDeepNewsResponseStream]
+                    ).validate_json(event.content)
 
                     if isinstance(token, CreateDeepNewsResponseStreamError):
                         raise APIError(
@@ -660,13 +653,12 @@ class AsyncChatAPI(BaseAPI):
                     if event.content == "[DONE]":
                         break
 
-                    token = (
-                        TypeAdapter(Union[
+                    token = TypeAdapter(
+                        Union[
                             CreateChatCompletionResponseStreamError,
-                            CreateChatCompletionResponseStream
-                        ])
-                        .validate_json(event.content)
-                    )
+                            CreateChatCompletionResponseStream,
+                        ]
+                    ).validate_json(event.content)
 
                     if isinstance(token, CreateChatCompletionResponseStreamError):
                         raise APIError(
@@ -777,6 +769,7 @@ class AsyncChatAPI(BaseAPI):
         self,
         queries: List[str],
         lookback: Optional[int] = None,
+        domains: Optional[List[str]] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> WebSearchResponse:
@@ -790,10 +783,7 @@ class AsyncChatAPI(BaseAPI):
             method="GET",
             endpoint="/v1/chat/websearch",
             headers=http_headers,
-            query={
-                "queries": queries,
-                "lookback": lookback,
-            },
+            query={"queries": queries, "lookback": lookback, "domains": domains},
         )
         return WebSearchResponse.model_validate(response.content)
 
@@ -1072,18 +1062,15 @@ class AsyncChatAPI(BaseAPI):
         )
 
         if stream:
+
             async def _stream():
                 async for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
                         break
 
-                    token = (
-                        TypeAdapter(Union[
-                            CreateDeepNewsResponseStreamError,
-                            CreateDeepNewsResponseStream
-                        ])
-                        .validate_json(event.content)
-                    )
+                    token = TypeAdapter(
+                        Union[CreateDeepNewsResponseStreamError, CreateDeepNewsResponseStream]
+                    ).validate_json(event.content)
 
                     if isinstance(token, CreateDeepNewsResponseStreamError):
                         raise APIError(
