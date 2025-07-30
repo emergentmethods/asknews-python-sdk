@@ -1,3 +1,9 @@
+## 0.11.20 (2025-07-30)
+
+### Fix
+
+- Add X (twitter) tool to DeepNews
+
 ## 0.11.19 (2025-07-29)
 
 ### Fix
