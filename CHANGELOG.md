@@ -1,3 +1,9 @@
+## 0.11.21 (2025-08-03)
+
+### Fix
+
+- Get multiple articles by their uuid
+
 ## 0.11.20 (2025-07-30)
 
 ### Fix
