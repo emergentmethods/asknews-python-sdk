@@ -1,6 +1,6 @@
 [project]
 name = "asknews"
-version = "0.11.21"
+version = "0.11.22"
 description = "Python SDK for AskNews"
 readme = "README.md"
 authors = [

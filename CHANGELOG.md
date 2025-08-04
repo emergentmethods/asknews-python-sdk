@@ -1,3 +1,9 @@
+## 0.11.22 (2025-08-04)
+
+### Fix
+
+- Use query for article_ids and add async
+
 ## 0.11.21 (2025-08-03)
 
 ### Fix
