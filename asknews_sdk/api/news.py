@@ -60,11 +60,11 @@ class NewsAPI(BaseAPI):
         response = self.client.request(
             method="GET",
             endpoint="/v1/news",
-            params={"article_ids": article_ids},
+            query={"article_ids": article_ids},
             headers=http_headers,
             accept=[(ArticleResponse.__content_type__, 1.0)],
         )
-        return ArticleResponse.model_validate(response.content)
+        return [ArticleResponse.model_validate(item) for item in response.content]
 
     def search_news(
         self,
@@ -369,6 +369,30 @@ class AsyncNewsAPI(BaseAPI):
             accept=[(ArticleResponse.__content_type__, 1.0)],
         )
         return ArticleResponse.model_validate(response.content)
+
+    async def get_articles(
+        self, article_ids: Union[List[str], List[UUID]], *, http_headers: Optional[Dict] = None
+    ) -> List[ArticleResponse]:
+        """
+        Get news articles by their UUIDs.
+
+        https://docs.asknews.app/en/reference#get-/v1/news
+
+        :param article_ids: The UUIDs of the articles.
+        :type article_ids: Union[List[str], List[UUID]]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The articles response.
+        :rtype: List[ArticleResponse]
+        """
+        response = await self.client.request(
+            method="GET",
+            endpoint="/v1/news",
+            query={"article_ids": article_ids},
+            headers=http_headers,
+            accept=[(ArticleResponse.__content_type__, 1.0)],
+        )
+        return [ArticleResponse.model_validate(item) for item in response.content]
 
     async def search_news(
         self,
