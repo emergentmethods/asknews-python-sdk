@@ -1,3 +1,9 @@
+## 0.11.23 (2025-08-06)
+
+### Fix
+
+- Add pagination to live web search
+
 ## 0.11.22 (2025-08-04)
 
 ### Fix
