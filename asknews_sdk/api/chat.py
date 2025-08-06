@@ -242,6 +242,8 @@ class ChatAPI(BaseAPI):
         queries: List[str],
         lookback: Optional[int] = None,
         domains: Optional[List[str]] = None,
+        strict: Optional[bool] = False,
+        offset: Optional[int] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> WebSearchResponse:
@@ -255,7 +257,13 @@ class ChatAPI(BaseAPI):
             method="GET",
             endpoint="/v1/chat/websearch",
             headers=http_headers,
-            query={"queries": queries, "lookback": lookback, "domains": domains},
+            query={
+                "queries": queries,
+                "lookback": lookback,
+                "domains": domains,
+                "strict": strict,
+                "offset": offset,
+            },
         )
         return WebSearchResponse.model_validate(response.content)
 
@@ -770,6 +778,8 @@ class AsyncChatAPI(BaseAPI):
         queries: List[str],
         lookback: Optional[int] = None,
         domains: Optional[List[str]] = None,
+        strict: Optional[bool] = False,
+        offset: Optional[int] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> WebSearchResponse:
@@ -783,7 +793,13 @@ class AsyncChatAPI(BaseAPI):
             method="GET",
             endpoint="/v1/chat/websearch",
             headers=http_headers,
-            query={"queries": queries, "lookback": lookback, "domains": domains},
+            query={
+                "queries": queries,
+                "lookback": lookback,
+                "domains": domains,
+                "strict": strict,
+                "offset": offset,
+            },
         )
         return WebSearchResponse.model_validate(response.content)
 
