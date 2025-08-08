@@ -1,3 +1,9 @@
+## 0.11.24 (2025-08-08)
+
+### Fix
+
+- Update package classifiers and requires python
+
 ## 0.11.23 (2025-08-06)
 
 ### Fix
