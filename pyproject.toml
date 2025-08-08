@@ -3,11 +3,20 @@ name = "asknews"
 version = "0.11.23"
 description = "Python SDK for AskNews"
 readme = "README.md"
+requires-python = ">=3.8"
 authors = [
     {name = "Emergent Methods", email = "contact@emergentmethods.ai"},
 ]
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 license = {text = "MIT"}
-requires-python = ">=3.8.1,<4.0"
 dependencies = [
     "orjson>=3.9.10",
     "httpx>=0.27.2,<0.29.0",

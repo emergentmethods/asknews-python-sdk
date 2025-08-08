@@ -1,6 +1,7 @@
 # AskNews Python SDK
 
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/asknews?style=flat-square)
+![Static Badge](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue?style=flat-square)
+
 
 Python SDK for the AskNews API.
 
