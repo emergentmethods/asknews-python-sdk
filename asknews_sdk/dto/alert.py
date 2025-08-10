@@ -13,6 +13,8 @@ from asknews_sdk.types import CronStr, HttpUrlString
 CheckAlertModel = Literal[
     "meta-llama/Meta-Llama-3.1-8B-Instruct",
     "gpt-4o-mini",
+    # "gpt-5-mini",
+    # "gpt-5-nano",
     "gpt-4o",
     "o3-mini",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
@@ -22,15 +24,45 @@ CheckAlertModel = Literal[
 ]
 
 ReportModel = Literal[
+    # "gpt-5",
     "gpt-4o",
-    "gpt-4o-mini",
+    "gpt-4.1-2025-04-14",
+    "gpt-4.1-mini-2025-04-14" "gpt-4o-mini",
     "o3-mini",
     "claude-3-5-sonnet-latest",
+    "claude-sonnet-4-20250514",
     "meta-llama/Meta-Llama-3.1-405B-Instruct",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
-    "gpt-4.1-2025-04-14",
-    "gpt-4.1-mini-2025-04-14",
 ]
+
+
+class WebSourceParams(BaseModel):
+    queries: List[str] = Field(
+        ...,
+        description="The queries to use for the web search. This is a list of strings.",
+    )
+    domains: Optional[List[str]] = Field(
+        None, description="The domains to restrict the web search to."
+    )
+    strict: bool = Field(
+        True,
+        description=(
+            "If true, the web search will only return results that have "
+            "a known publication date and are within the lookback period."
+        ),
+    )
+    lookback: int = Field(
+        24,
+        description=(
+            "The number of hours back to accept for the web search. "
+            "If not provided, no lookback will be applied."
+        ),
+    )
+
+
+class WebSource(BaseModel):
+    identifier: Literal["web"]
+    params: WebSourceParams
 
 
 class AskNewsSource(BaseModel):
@@ -57,7 +89,8 @@ class BlueskySource(BaseModel):
 
 
 Source = Annotated[
-    Union[AskNewsSource, TelegramSource, BlueskySource], Field(discriminator="identifier")
+    Union[AskNewsSource, TelegramSource, BlueskySource, WebSource],
+    Field(discriminator="identifier"),
 ]
 
 

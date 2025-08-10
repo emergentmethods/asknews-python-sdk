@@ -152,7 +152,7 @@ class WebSearchResult(BaseModel):
 class WebSearchResponse(BaseModel):
     as_string: str
     as_dicts: List[WebSearchResult]
-    offset: Optional[int] = None
+    offset: Optional[int | str] = None
 
 
 class ForecastResponse(BaseModel):

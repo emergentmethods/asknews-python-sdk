@@ -481,6 +481,7 @@ class ChatAPI(BaseAPI):
         self,
         messages: List[Dict[str, str]],
         model: Literal[
+            "gpt-5",
             "claude-3-7-sonnet-latest",
             "deepseek",
             "deepseek-basic",
@@ -1017,6 +1018,7 @@ class AsyncChatAPI(BaseAPI):
         self,
         messages: List[Dict[str, str]],
         model: Literal[
+            "gpt-5",
             "claude-3-7-sonnet-latest",
             "deepseek",
             "deepseek-basic",
