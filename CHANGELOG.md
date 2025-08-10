@@ -1,3 +1,9 @@
+## 0.11.25 (2025-08-10)
+
+### Fix
+
+- Add websource option for alert tracking
+
 ## 0.11.24 (2025-08-08)
 
 ### Fix
