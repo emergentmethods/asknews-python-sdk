@@ -1,3 +1,9 @@
+## 0.11.28 (2025-08-21)
+
+### Fix
+
+- Ensure o3-mini is available to forecast
+
 ## 0.11.27 (2025-08-20)
 
 ### Fix
