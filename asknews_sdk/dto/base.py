@@ -106,6 +106,29 @@ class Article(BaseModel):
     ] = None
     assets: Optional[Assets] = None
     social_embeds: Optional[SocialEmbeds] = None
+    bias: Optional[
+        Literal[
+            "Political",
+            "Gender",
+            "Cultural",
+            "Age",
+            "Religious",
+            "Statement",
+            "Illogical Claims",
+            "Slant",
+            "Source Selection",
+            "Omission of Source Attribution",
+            "Spin",
+            "Sensationalism",
+            "Negativity",
+            "Subjective Adjectives",
+            "Ad Hominem",
+            "Mind Reading",
+            "Opinion-as-Fact",
+            "None",
+            "Unknown",
+        ]
+    ] = None
 
 
 class PingResponse(BaseSchema):
