@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from asknews_sdk.response import APIResponse, AsyncAPIResponse
 
@@ -101,7 +101,7 @@ ErrorMap = {
 }
 
 
-def raise_from_response(response: APIResponse | AsyncAPIResponse) -> None:
+def raise_from_response(response: Union[APIResponse, AsyncAPIResponse]) -> None:
     json: Dict = response.content
     code = json.get("code", json.get("status_code", 500) * 1000)
     detail = json.get("detail")
