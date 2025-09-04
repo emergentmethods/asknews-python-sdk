@@ -37,9 +37,9 @@ class TokenInfo(TypedDict):
     expires_in: int
 
 
-TokenLoadHook = Callable[..., TokenInfo | None]
+TokenLoadHook = Callable[..., Optional[TokenInfo]]
 TokenSaveHook = Callable[[TokenInfo], None]
-AsyncTokenLoadHook = Callable[..., Awaitable[TokenInfo | None]]
+AsyncTokenLoadHook = Callable[..., Awaitable[Optional[TokenInfo]]]
 AsyncTokenSaveHook = Callable[[TokenInfo], Awaitable[None]]
 
 
@@ -47,7 +47,7 @@ class OAuthToken:
     def __init__(self, token_info: Optional[TokenInfo] = None) -> None:  # type: ignore
         self.set_token(token_info)
 
-    def set_token(self, token_info: TokenInfo | None) -> None:
+    def set_token(self, token_info: Optional[TokenInfo]) -> None:
         self.token_info = token_info
         self._expires_at = datetime.now(timezone.utc) + timedelta(
             seconds=(
@@ -109,7 +109,7 @@ class OAuth2ClientCredentials(Auth):
         client_secret: str,
         token_url: str,
         scopes: Optional[Set[str]] = None,
-        token: OAuthToken | None = None,
+        token: Optional[OAuthToken] = None,
         *,
         _token_load_hook: Optional[Union[TokenLoadHook, AsyncTokenLoadHook]] = None,
         _token_save_hook: Optional[Union[TokenSaveHook, AsyncTokenSaveHook]] = None,
@@ -285,7 +285,7 @@ def _load_token_disk(file_path: Path, client_id: str, client_secret: str) -> Tok
     if not isinstance(file_path, Path):
         file_path = Path(file_path)
 
-    def _load_token() -> TokenInfo | None:
+    def _load_token() -> Optional[TokenInfo]:
         if not file_path.exists():
             return None
 
@@ -330,7 +330,7 @@ def _load_token_disk_async(
     if not isinstance(file_path, AsyncPath):
         file_path = AsyncPath(file_path)
 
-    async def _load_token() -> TokenInfo | None:
+    async def _load_token() -> Optional[TokenInfo]:
         if not await file_path.exists():
             return None
 
