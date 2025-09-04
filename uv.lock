@@ -1,5 +1,5 @@
 version = 1
-requires-python = ">=3.8.1, <4.0"
+requires-python = ">=3.8"
 
 [[package]]
 name = "annotated-types"
@@ -92,7 +92,7 @@ dev = [
 requires-dist = [
     { name = "asgiref", specifier = ">=3.7.2" },
     { name = "crontab", specifier = ">=1.0.1" },
-    { name = "cryptography", specifier = ">=40.0.0,<43.0.4" },
+    { name = "cryptography", specifier = ">=40.0.0,<45.0.5" },
     { name = "httpx", specifier = ">=0.27.2,<0.29.0" },
     { name = "orjson", specifier = ">=3.9.10" },
     { name = "pydantic", extras = ["email"], specifier = ">=2.10.4" },

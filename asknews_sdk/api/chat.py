@@ -1,9 +1,10 @@
-from typing import Any, AsyncIterator, Dict, Iterator, List, Literal, Optional, Union
+from typing import Any, AsyncIterator, Dict, Iterator, List, Literal, Optional, Union, overload
 from uuid import UUID
 
 from pydantic import TypeAdapter
 
 from asknews_sdk.api.base import BaseAPI
+from asknews_sdk.client import APIClient, AsyncAPIClient
 from asknews_sdk.dto.alert import AlertLog, AlertResponse, CreateAlertRequest, UpdateAlertRequest
 from asknews_sdk.dto.chat import (
     CreateChatCompletionRequest,
@@ -26,32 +27,80 @@ from asknews_sdk.dto.deepnews import (
     CreateDeepNewsResponseStreamSource,
 )
 from asknews_sdk.errors import APIError
-from asknews_sdk.response import EventSource
+from asknews_sdk.response import AsyncEventSource, EventSource
 
 
-class ChatAPI(BaseAPI):
+ChatModel = Literal[
+    "gpt-4o-mini",
+    "gpt-4-1106-preview",
+    "open-mixtral-8x7b",
+    "meta-llama/Meta-Llama-3-70B-Instruct",
+    "meta-llama/Meta-Llama-3.1-70B-Instruct",
+    "meta-llama/Meta-Llama-3.3-70B-Instruct",
+    "meta-llama/Meta-Llama-3.1-405B-Instruct",
+    "claude-3-5-sonnet-20240620",
+    "claude-3-5-sonnet-latest",
+    "gpt-4o",
+    "o3-mini",
+]
+DeepNewsModel = Literal[
+    "gpt-5",
+    "claude-3-7-sonnet-latest",
+    "deepseek",
+    "deepseek-basic",
+    "deepseek-r1-0528",
+    "o3-mini",
+    "claude-sonnet-4-20250514",
+    "claude-opus-4-20250514",
+    "gemini-2.5-pro",
+    "o3",
+]
+
+
+class ChatAPI(BaseAPI[APIClient]):
     """
     Chat API
 
     https://add-docs.review.docs.asknews.app/en/reference#tag--chat
     """
+    @overload
+    def get_chat_completions(
+        self,
+        messages: List[Dict[str, str]],
+        model: ChatModel = "gpt-4o-mini",
+        stream: Literal[False] = False,
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
+        append_references: bool = True,
+        asknews_watermark: bool = True,
+        journalist_mode: bool = True,
+        conversational_awareness: bool = False,
+        filter_params: Optional[Dict] = None,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> CreateChatCompletionResponse:
+        ...
+
+    @overload
+    def get_chat_completions(
+        self,
+        messages: List[Dict[str, str]],
+        model: ChatModel = "gpt-4o-mini",
+        stream: bool = False,
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
+        append_references: bool = True,
+        asknews_watermark: bool = True,
+        journalist_mode: bool = True,
+        conversational_awareness: bool = False,
+        filter_params: Optional[Dict] = None,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> Iterator[CreateChatCompletionResponseStream]:
+        ...
 
     def get_chat_completions(
         self,
         messages: List[Dict[str, str]],
-        model: Literal[
-            "gpt-4o-mini",
-            "gpt-4-1106-preview",
-            "open-mixtral-8x7b",
-            "meta-llama/Meta-Llama-3-70B-Instruct",
-            "meta-llama/Meta-Llama-3.1-70B-Instruct",
-            "meta-llama/Meta-Llama-3.3-70B-Instruct",
-            "meta-llama/Meta-Llama-3.1-405B-Instruct",
-            "claude-3-5-sonnet-20240620",
-            "claude-3-5-sonnet-latest",
-            "gpt-4o",
-            "o3-mini",
-        ] = "gpt-4o-mini",
+        model: ChatModel = "gpt-4o-mini",
         stream: bool = False,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -70,10 +119,7 @@ class ChatAPI(BaseAPI):
         :param messages: List of messages in the conversation.
         :type messages: List[Dict[str, str]]
         :param model: Model to use for chat completion, defaults to "gpt-3.5-turbo-16k"
-        :type model: Literal[
-            "gpt-3.5-turbo-16k", "gpt-4-1106-preview", "mistral-small",
-            "mixtral-8x7b-32768"
-        ]
+        :type model: ChatModel
         :param stream: Whether to stream the response, defaults to False
         :type stream: bool
         :param inline_citations: Inline citations format, defaults to "markdown_link"
@@ -118,7 +164,6 @@ class ChatAPI(BaseAPI):
         )
 
         if stream:
-
             def _stream():
                 for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
@@ -479,21 +524,52 @@ class ChatAPI(BaseAPI):
         )
         return PaginatedResponse[AlertLog].model_validate(response.content)
 
+    @overload
     def get_deep_news(
         self,
         messages: List[Dict[str, str]],
-        model: Literal[
-            "gpt-5",
-            "claude-3-7-sonnet-latest",
-            "deepseek",
-            "deepseek-basic",
-            "deepseek-r1-0528",
-            "o3-mini",
-            "claude-sonnet-4-20250514",
-            "claude-opus-4-20250514",
-            "gemini-2.5-pro",
-            "o3",
-        ] = "deepseek",
+        model: DeepNewsModel = "deepseek",
+        stream: Literal[False] = False,
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
+        append_references: bool = True,
+        asknews_watermark: bool = True,
+        journalist_mode: bool = True,
+        conversational_awareness: bool = False,
+        filter_params: Optional[Dict] = None,
+        sources: Optional[List[str]] = None,
+        search_depth: int = 3,
+        max_depth: int = 5,
+        return_sources: bool = True,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> CreateDeepNewsResponse:
+        ...
+
+    @overload
+    def get_deep_news(
+        self,
+        messages: List[Dict[str, str]],
+        model: DeepNewsModel = "deepseek",
+        stream: Literal[True] = True,
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
+        append_references: bool = True,
+        asknews_watermark: bool = True,
+        journalist_mode: bool = True,
+        conversational_awareness: bool = False,
+        filter_params: Optional[Dict] = None,
+        sources: Optional[List[str]] = None,
+        search_depth: int = 3,
+        max_depth: int = 5,
+        return_sources: bool = True,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> Iterator[CreateDeepNewsResponseStream]:
+        ...
+
+    def get_deep_news(
+        self,
+        messages: List[Dict[str, str]],
+        model: DeepNewsModel = "deepseek",
         stream: bool = False,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -545,7 +621,6 @@ class ChatAPI(BaseAPI):
         )
 
         if stream:
-
             def _stream():
                 for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
@@ -569,28 +644,50 @@ class ChatAPI(BaseAPI):
             return CreateDeepNewsResponse.model_validate(response.content)
 
 
-class AsyncChatAPI(BaseAPI):
+class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
     """
     Chat API
 
     https://api.asknews.app/docs#tag/chat
     """
+    @overload
+    async def get_chat_completions(
+        self,
+        messages: List[Dict[str, str]],
+        model: ChatModel = "gpt-4o-mini",
+        stream: Literal[False] = False,
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
+        append_references: bool = True,
+        asknews_watermark: bool = True,
+        journalist_mode: bool = True,
+        conversational_awareness: bool = False,
+        filter_params: Optional[Dict] = None,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> CreateChatCompletionResponse:
+        ...
+
+    @overload
+    async def get_chat_completions(
+        self,
+        messages: List[Dict[str, str]],
+        model: ChatModel = "gpt-4o-mini",
+        stream: Literal[True] = True,
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
+        append_references: bool = True,
+        asknews_watermark: bool = True,
+        journalist_mode: bool = True,
+        conversational_awareness: bool = False,
+        filter_params: Optional[Dict] = None,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> AsyncIterator[CreateChatCompletionResponseStream]:
+        ...
 
     async def get_chat_completions(
         self,
         messages: List[Dict[str, str]],
-        model: Literal[
-            "gpt-4o-mini",
-            "gpt-4-1106-preview",
-            "open-mixtral-8x7b",
-            "meta-llama/Meta-Llama-3-70B-Instruct",
-            "meta-llama/Meta-Llama-3.1-70B-Instruct",
-            "meta-llama/Meta-Llama-3.3-70B-Instruct",
-            "meta-llama/Meta-Llama-3.1-405B-Instruct",
-            "claude-3-5-sonnet-20240620",
-            "claude-3-5-sonnet-latest",
-            "gpt-4o",
-        ] = "gpt-4o-mini",
+        model: ChatModel = "gpt-4o-mini",
         stream: bool = False,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -660,7 +757,7 @@ class AsyncChatAPI(BaseAPI):
         if stream:
 
             async def _stream():
-                async for event in EventSource.from_api_response(response):
+                async for event in AsyncEventSource.from_api_response(response):
                     if event.content == "[DONE]":
                         break
 
@@ -1018,21 +1115,52 @@ class AsyncChatAPI(BaseAPI):
         )
         return PaginatedResponse[AlertLog].model_validate(response.content)
 
+    @overload
     async def get_deep_news(
         self,
         messages: List[Dict[str, str]],
-        model: Literal[
-            "gpt-5",
-            "claude-3-7-sonnet-latest",
-            "deepseek",
-            "deepseek-basic",
-            "deepseek-r1-0528",
-            "o3-mini",
-            "claude-sonnet-4-20250514",
-            "claude-opus-4-20250514",
-            "gemini-2.5-pro",
-            "o3",
-        ] = "deepseek",
+        model: DeepNewsModel = "deepseek",
+        stream: Literal[False] = False,
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
+        append_references: bool = True,
+        asknews_watermark: bool = True,
+        journalist_mode: bool = True,
+        conversational_awareness: bool = False,
+        filter_params: Optional[Dict] = None,
+        sources: Optional[List[str]] = None,
+        return_sources: bool = True,
+        search_depth: int = 3,
+        max_depth: int = 5,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> CreateDeepNewsResponse:
+        ...
+
+    @overload
+    async def get_deep_news(
+        self,
+        messages: List[Dict[str, str]],
+        model: DeepNewsModel = "deepseek",
+        stream: Literal[True] = True,
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
+        append_references: bool = True,
+        asknews_watermark: bool = True,
+        journalist_mode: bool = True,
+        conversational_awareness: bool = False,
+        filter_params: Optional[Dict] = None,
+        sources: Optional[List[str]] = None,
+        return_sources: bool = True,
+        search_depth: int = 3,
+        max_depth: int = 5,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> AsyncIterator[CreateDeepNewsResponseStream]:
+        ...
+
+    async def get_deep_news(
+        self,
+        messages: List[Dict[str, str]],
+        model: DeepNewsModel = "deepseek",
         stream: bool = False,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -1084,9 +1212,8 @@ class AsyncChatAPI(BaseAPI):
         )
 
         if stream:
-
             async def _stream():
-                async for event in EventSource.from_api_response(response):
+                async for event in AsyncEventSource.from_api_response(response):
                     if event.content == "[DONE]":
                         break
 

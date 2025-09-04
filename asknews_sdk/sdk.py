@@ -27,7 +27,7 @@ from asknews_sdk.types import CLIENT_DEFAULT, RequestAuth, Sentinel
 
 DEFAULT_API_BASE_URL = "https://api.asknews.app"
 DEFAULT_TOKEN_URL = "https://auth.asknews.app/oauth2/token"
-DEFAULT_SCOPES = ["news", "stories", "chat", "analytics"]
+DEFAULT_SCOPES = {"news", "stories", "chat", "analytics"}
 
 
 class AskNewsSDK:

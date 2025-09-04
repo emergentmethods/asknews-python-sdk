@@ -2,10 +2,11 @@ from datetime import datetime
 from typing import Dict, Literal, Optional, Union
 
 from asknews_sdk.api.base import BaseAPI
+from asknews_sdk.client import APIClient, AsyncAPIClient
 from asknews_sdk.dto.sentiment import FinanceResponse
 
 
-class AnalyticsAPI(BaseAPI):
+class AnalyticsAPI(BaseAPI[APIClient]):
     """
     Analytics API
 
@@ -85,7 +86,7 @@ class AnalyticsAPI(BaseAPI):
         return FinanceResponse.model_validate(response.content)
 
 
-class AsyncAnalyticsAPI(BaseAPI):
+class AsyncAnalyticsAPI(BaseAPI[AsyncAPIClient]):
     """
     Analytics API
 

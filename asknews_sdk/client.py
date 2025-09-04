@@ -3,17 +3,19 @@ from __future__ import annotations
 from typing import (
     Any,
     Dict,
+    Generic,
     List,
     Optional,
     Set,
     Type,
+    TypeVar,
     Union,
 )
 
 from httpx import AsyncClient, Client, HTTPStatusError, Request, Response
 
 from asknews_sdk.errors import raise_from_response
-from asknews_sdk.response import APIResponse
+from asknews_sdk.response import APIResponse, AsyncAPIResponse
 from asknews_sdk.security import (
     AsyncTokenLoadHook,
     AsyncTokenSaveHook,
@@ -33,9 +35,13 @@ from asknews_sdk.version import __version__
 
 USER_AGENT = f"asknews-sdk-python/{__version__}"
 
+TClient = TypeVar("TClient", Client, AsyncClient)
+TResponse = TypeVar("TResponse", APIResponse, AsyncAPIResponse)
 
+class BaseAPIClient(Generic[TClient, TResponse]):
+    client_cls: Type[TClient]
+    response_cls: Type[TResponse]
 
-class BaseAPIClient:
     def __init__(
         self,
         client_id: Optional[str],
@@ -47,10 +53,7 @@ class BaseAPIClient:
         retries: int,
         timeout: Optional[float],
         follow_redirects: bool,
-        client: Union[
-            Union[Type[Client], Client],
-            Union[Type[AsyncClient], AsyncClient],
-        ],
+        client: Union[Type[TClient], TClient],
         user_agent: str,
         auth: Optional[RequestAuth | Sentinel],
         *,
@@ -67,11 +70,11 @@ class BaseAPIClient:
         self.retries = retries
         self.timeout = timeout
         self.follow_redirects = follow_redirects
-        self._client_auth = None
+        self._client_auth: Optional[RequestAuth] = None
 
         if auth:
             if auth is CLIENT_DEFAULT:
-                assert client_id and client_secret, (
+                assert self.client_id and self.client_secret, (
                     "client_id and client_secret are required for client credentials"
                 )
 
@@ -84,8 +87,10 @@ class BaseAPIClient:
                     _token_save_hook=_token_save_hook,
                 )
             else:
+                assert not isinstance(auth, Sentinel)
                 self._client_auth = auth
 
+        self._client: TClient
         if isinstance(client, type):
             self._client = client(
                 base_url=self.base_url,
@@ -130,7 +135,7 @@ class BaseAPIClient:
         )
 
 
-class APIClient(BaseAPIClient):
+class APIClient(BaseAPIClient[Client, APIResponse]):
     """
     Sync HTTP API Client
 
@@ -153,6 +158,8 @@ class APIClient(BaseAPIClient):
     :param follow_redirects: Follow redirects
     :type follow_redirects: bool
     """
+    client_cls = Client
+    response_cls = APIResponse
 
     def __init__(
         self,
@@ -261,22 +268,20 @@ class APIClient(BaseAPIClient):
                 response.read()
 
             raise_from_response(
-                APIResponse.from_httpx_response(
+                self.response_cls.from_httpx_response(
                     response=e.response,
                     stream=False,
-                    sync=True,
                 )
             )
 
-        return APIResponse.from_httpx_response(
+        return self.response_cls.from_httpx_response(
             response=response,
             stream=stream,
             stream_type=stream_type,
-            sync=True,
         )
 
 
-class AsyncAPIClient(BaseAPIClient):
+class AsyncAPIClient(BaseAPIClient[AsyncClient, AsyncAPIResponse]):
     """
     Base Async HTTP API Client
 
@@ -299,6 +304,8 @@ class AsyncAPIClient(BaseAPIClient):
     :param follow_redirects: Follow redirects
     :type follow_redirects: bool
     """
+    client_cls = AsyncClient
+    response_cls = AsyncAPIResponse
 
     def __init__(
         self,
@@ -363,7 +370,7 @@ class AsyncAPIClient(BaseAPIClient):
         accept: Optional[List[tuple[str, float]]] = None,
         stream: bool = False,
         stream_type: StreamType = "bytes",
-    ) -> APIResponse:
+    ) -> AsyncAPIResponse:
         """
         Send an HTTP request.
 
@@ -385,7 +392,7 @@ class AsyncAPIClient(BaseAPIClient):
         :type stream: bool
         :param stream_type: Stream type
         :type stream_type: StreamType
-        :return: APIResponse object
+        :return: AsyncAPIResponse object
         :rtype: APIResponse
         """
         response: Response = await self._client.send(
@@ -408,16 +415,14 @@ class AsyncAPIClient(BaseAPIClient):
                 await response.aread()
 
             raise_from_response(
-                APIResponse.from_httpx_response(
+                await self.response_cls.from_httpx_response(
                     response=e.response,
                     stream=False,
-                    sync=False,
                 )
             )
 
-        return APIResponse.from_httpx_response(
+        return await self.response_cls.from_httpx_response(
             response=response,
             stream=stream,
             stream_type=stream_type,
-            sync=False,
         )

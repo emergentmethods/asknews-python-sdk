@@ -2,6 +2,7 @@ from typing import Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from asknews_sdk.api.base import BaseAPI
+from asknews_sdk.client import APIClient, AsyncAPIClient
 from asknews_sdk.dto.news import (
     ArticleResponse,
     GraphResponse,
@@ -11,7 +12,7 @@ from asknews_sdk.dto.news import (
 )
 
 
-class NewsAPI(BaseAPI):
+class NewsAPI(BaseAPI[APIClient]):
     """
     News API
 
@@ -339,7 +340,7 @@ class NewsAPI(BaseAPI):
         return GraphResponse.model_validate(response.content)
 
 
-class AsyncNewsAPI(BaseAPI):
+class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
     """
     News API
 
