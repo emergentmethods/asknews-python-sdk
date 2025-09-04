@@ -166,7 +166,7 @@ class ReportRequest(BaseModel):
             "If not provided, the default report prompt will be used. You can use {summaries} "
             "to insert the prompt optimized summaries into your report query."
         ),
-        example=[
+        examples=[
             [
                 "system",
                 "You are a helpful AI bot. Write a report based on summaries provided by the user.",
@@ -175,7 +175,7 @@ class ReportRequest(BaseModel):
         ],
     )
     model: Optional[ReportModel] = Field(
-        None, description="The model to use for the report", example="gpt-4o"
+        None, description="The model to use for the report", examples=["gpt-4o"]
     )
     logo_url: Optional[HttpUrlString] = Field(
         None, description="The logo URL to use for the report"
@@ -189,7 +189,9 @@ class CreateAlertRequest(BaseSchema):
             "The query to run for the alert. For example you ask for "
             '"I want to be alerted if there is a protest in paris"'
         ),
-        example="I want to be alerted if the president of the US says something about the economy",
+        examples=[
+            "I want to be alerted if the president of the US says something about the economy",
+        ],
     )
     cron: CronStr = Field(
         ...,
@@ -197,12 +199,16 @@ class CreateAlertRequest(BaseSchema):
             "The cron schedule for the alert. For example hourly is '0 * * * *'."
             " See https://crontab.run/ for more examples"
         ),
-        example="*/15 * * * *",
+        examples=[
+            "*/15 * * * *",
+        ],
     )
     model: Optional[CheckAlertModel] = Field(
         ...,
         description="The model to use for the alert check",
-        example="meta-llama/Meta-Llama-3.1-8B-Instruct",
+        examples=[
+            "meta-llama/Meta-Llama-3.1-8B-Instruct",
+        ],
     )
     share_link: Optional[HttpUrlString] = Field(
         None, description="The newsplunker share link to update when the alert triggers"
@@ -243,7 +249,9 @@ class UpdateAlertRequest(BaseSchema):
             "The query to run for the alert. For example you ask for "
             '"I want to be alerted if there is a protest in paris"'
         ),
-        example="I want to be alerted if the president of the US says something about the economy",
+        examples=[
+            "I want to be alerted if the president of the US says something about the economy",
+        ],
     )
     cron: Optional[CronStr] = Field(
         None,
@@ -251,12 +259,16 @@ class UpdateAlertRequest(BaseSchema):
             "The cron schedule for the alert. For example hourly is '0 * * * *'."
             " See https://crontab.run/ for more examples"
         ),
-        example="*/15 * * * *",
+        examples=[
+            "*/15 * * * *",
+        ],
     )
     model: Optional[CheckAlertModel] = Field(
         None,
         description="The model to use for the alert check",
-        example="meta-llama/Meta-Llama-3.1-8B-Instruct",
+        examples=[
+            "meta-llama/Meta-Llama-3.1-8B-Instruct",
+        ],
     )
     share_link: Optional[HttpUrlString] = Field(
         None, description="The newsplunker share link to update when the alert triggers"

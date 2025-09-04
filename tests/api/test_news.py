@@ -8,7 +8,7 @@ from asknews_sdk.api.news import AsyncNewsAPI, NewsAPI
 from asknews_sdk.client import APIClient, AsyncAPIClient
 from asknews_sdk.dto.news import ArticleResponse, SearchResponse, SourceReportResponse
 from asknews_sdk.errors import ResourceNotFoundError
-from asknews_sdk.response import APIResponse
+from asknews_sdk.response import APIResponse, AsyncAPIResponse
 
 
 class MockArticleResponse(ModelFactory[ArticleResponse]):
@@ -108,7 +108,7 @@ async def test_async_news_api_get_article(async_news_api: AsyncNewsAPI, response
     with pytest.raises(ResourceNotFoundError) as exc_info:
         await async_news_api.get_article(article_id)
 
-    assert isinstance(exc_info.value.response, APIResponse)
+    assert isinstance(exc_info.value.response, AsyncAPIResponse)
     assert exc_info.value.code == ResourceNotFoundError.code
     assert exc_info.value.detail == ResourceNotFoundError.detail
 

@@ -1,4 +1,4 @@
-from typing import Callable, List, Literal, Tuple, Union
+from typing import AsyncIterator, Callable, Iterator, List, Literal, Tuple, Union
 
 from crontab import CronTab
 from httpx import Auth, Request
@@ -21,6 +21,11 @@ RequestAuth = Union[
 ]
 
 StreamType = Literal["bytes", "lines", "raw"]
+
+ResponseBodyStream = Union[Iterator[str], Iterator[bytes]]
+AsyncResponseBodyStream = Union[AsyncIterator[str], AsyncIterator[bytes]]
+ResponseBody = Union[bytes, ResponseBodyStream]
+AsyncResponseBody = Union[bytes, AsyncResponseBodyStream]
 
 
 class ServerSentEvent(BaseModel):

@@ -1,6 +1,6 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
-from asknews_sdk.response import APIResponse
+from asknews_sdk.response import APIResponse, AsyncAPIResponse
 
 
 class APIError(Exception):
@@ -65,7 +65,7 @@ class ConcurrencyLimitExceededError(APIError):
 
 class ValidationError(APIError):
     code = 422000
-    detail: Dict = {}
+    detail: Dict = {}  # type: ignore[assignment]
 
     def __init__(
         self,
@@ -101,7 +101,7 @@ ErrorMap = {
 }
 
 
-def raise_from_response(response: APIResponse) -> None:
+def raise_from_response(response: Union[APIResponse, AsyncAPIResponse]) -> None:
     json: Dict = response.content
     code = json.get("code", json.get("status_code", 500) * 1000)
     detail = json.get("detail")

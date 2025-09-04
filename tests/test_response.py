@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncByteStream, Request, Response, SyncByteStream
 
-from asknews_sdk.response import APIResponse, EventSource
+from asknews_sdk.response import APIResponse, AsyncAPIResponse, AsyncEventSource, EventSource
 
 
 def test_api_response():
@@ -149,7 +149,7 @@ async def test_event_source_async():
         yield b"retry: incorrect\n"
         yield b"\n"
 
-    event_source = EventSource(sse_events())
+    event_source = AsyncEventSource(sse_events())
     events = [event async for event in event_source]
 
     assert len(events) == 3
@@ -183,11 +183,11 @@ async def test_event_source_async():
         headers={"content-type": "text/event-stream"},
         stream=SSEResponseStream(),
     )
-    api_response = APIResponse.from_httpx_response(
-        response, stream=True, stream_type="lines", sync=False
+    api_response = await AsyncAPIResponse.from_httpx_response(
+        response, stream=True, stream_type="lines"
     )
 
-    event_source = EventSource.from_api_response(api_response)
+    event_source = AsyncEventSource.from_api_response(api_response)
     events = [event async for event in event_source]
 
     assert len(events) == 2
