@@ -70,7 +70,7 @@ class AsyncWikiAPI(BaseAPI):
         full_articles: bool = False,
         hybrid_search: bool = False,
         diversify: bool = False,
-        string_guarantee: list[str] = None,
+        string_guarantee: List[str] = None,
         include_main_section: bool = False,
         *,
         http_headers: Optional[Dict] = None,
