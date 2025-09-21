@@ -1,3 +1,9 @@
+## 0.11.32 (2025-09-21)
+
+### Fix
+
+- Pander to ancient python versions
+
 ## 0.11.31 (2025-09-21)
 
 ### Fix
