@@ -10,9 +10,11 @@ from asknews_sdk.api import (
     AsyncChatAPI,
     AsyncNewsAPI,
     AsyncStoriesAPI,
+    AsyncWikiAPI,
     ChatAPI,
     NewsAPI,
     StoriesAPI,
+    WikiAPI,
 )
 from asknews_sdk.client import APIClient, AsyncAPIClient
 from asknews_sdk.dto.base import PingResponse
@@ -104,6 +106,7 @@ class AskNewsSDK:
         self.stories = StoriesAPI(self.client)
         self.news = NewsAPI(self.client)
         self.chat = ChatAPI(self.client)
+        self.wiki = WikiAPI(self.client)
 
     def __enter__(self) -> AskNewsSDK:
         return self
@@ -202,6 +205,7 @@ class AsyncAskNewsSDK:
         self.stories = AsyncStoriesAPI(self.client)
         self.news = AsyncNewsAPI(self.client)
         self.chat = AsyncChatAPI(self.client)
+        self.wiki = AsyncWikiAPI(self.client)
 
     async def __aenter__(self) -> AsyncAskNewsSDK:
         return self

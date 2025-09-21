@@ -19,6 +19,7 @@ from asknews_sdk.dto.sentiment import (
     FinanceResponseTimeSeriesData,
 )
 from asknews_sdk.dto.stories import StoriesResponse, StoryResponse, StoryResponseUpdate
+from asknews_sdk.dto.wiki import WikiSearchResponse
 
 
 __all__ = (
@@ -44,4 +45,5 @@ __all__ = (
     "StoryResponseUpdate",
     "SearchResponse",
     "SearchResponseDictItem",
+    "WikiSearchResponse",
 )
