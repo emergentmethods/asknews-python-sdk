@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from asknews_sdk.api.base import BaseAPI
 from asknews_sdk.dto.wiki import WikiSearchResponse
@@ -19,7 +19,7 @@ class WikiAPI(BaseAPI):
         full_articles: bool = False,
         hybrid_search: bool = False,
         diversify: bool = False,
-        string_guarantee: list[str] = None,
+        string_guarantee: List[str] = None,
         include_main_section: bool = False,
         *,
         http_headers: Optional[Dict] = None,

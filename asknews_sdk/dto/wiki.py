@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -19,14 +19,14 @@ class WikiResponseDictItem(BaseModel):
     content: str
     title: str
     url: str
-    categories: list[str]
+    categories: List[str]
     timestamp: datetime
     cirrus_metadata: Optional[CirrusMetadata] = None
     point_id: Optional[str] = None
 
 
 class WikiSearchResponse(BaseSchema):
-    documents: list[WikiResponseDictItem]
+    documents: List[WikiResponseDictItem]
 
     # @classmethod
     # def from_qdrant_records(
