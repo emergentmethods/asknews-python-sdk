@@ -1,3 +1,14 @@
+## 0.12.0 (2025-10-07)
+
+### Feat
+
+- Add API key support as alternative authentication method
+
+### Fix
+
+- Fix unit tests
+- Fix typing throughout clients for better async, sync, and stream handling
+
 ## 0.11.32 (2025-09-21)
 
 ### Fix
