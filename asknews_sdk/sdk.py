@@ -29,7 +29,7 @@ from asknews_sdk.types import CLIENT_DEFAULT, RequestAuth, Sentinel
 
 DEFAULT_API_BASE_URL = "https://api.asknews.app"
 DEFAULT_TOKEN_URL = "https://auth.asknews.app/oauth2/token"
-DEFAULT_SCOPES = ["news", "stories", "chat", "analytics"]
+DEFAULT_SCOPES = {"news", "stories", "chat", "analytics"}
 
 
 class AskNewsSDK:
@@ -39,20 +39,29 @@ class AskNewsSDK:
     Usage:
 
     ```python
+    >>> with AskNewsSDK(api_key=...) as sdk:
+    >>>    stories_response = sdk.stories.get_stories(...)
+    ```
+
+    Or
+
+    ```python
     >>> with AskNewsSDK(client_id=..., client_secret=...) as sdk:
     >>>    stories_response = sdk.stories.get_stories(...)
     ```
 
-    :param client_id: The client ID for your AskNews API application.
-    :type client_id: str
-    :param client_secret: The client secret for your AskNews API application.
-    :type client_secret: str
-    :param scopes: The scopes to request for your AskNews API application.
+    :param client_id: The client ID for the AskNews API credentials.
+    :type client_id: Optional[str]
+    :param client_secret: The client secret for the AskNews API credentials.
+    :type client_secret: Optional[str]
+    :param scopes: The scopes to request for the AskNews API credentials.
     :type scopes: Optional[Set[str]]
     :param base_url: The base URL for the AskNews API.
     :type base_url: str
     :param token_url: The token URL for the AskNews API.
     :type token_url: str
+    :param api_key: An API key for the AskNews API.
+    :type api_key: Optional[str]
     :param verify_ssl: Whether or not to verify SSL certificates.
     :type verify_ssl: bool
     :param retries: The number of retries to attempt on connection errors.
@@ -74,12 +83,13 @@ class AskNewsSDK:
         scopes: Optional[Set[str]] = DEFAULT_SCOPES,
         base_url: str = DEFAULT_API_BASE_URL,
         token_url: str = DEFAULT_TOKEN_URL,
+        api_key: Optional[str] = None,
         verify_ssl: bool = True,
         retries: int = 3,
         timeout: Optional[float] = None,
         follow_redirects: bool = True,
         client: Union[Type[Client], Client] = Client,
-        auth: Optional[RequestAuth | Sentinel] = CLIENT_DEFAULT,
+        auth: Optional[Union[RequestAuth, Sentinel]] = CLIENT_DEFAULT,
         *,
         _token_load_hook: Optional[TokenLoadHook] = None,
         _token_save_hook: Optional[TokenSaveHook] = None,
@@ -89,6 +99,7 @@ class AskNewsSDK:
             client_id=client_id,
             client_secret=client_secret,
             scopes=scopes,
+            api_key=api_key,
             base_url=base_url,
             token_url=token_url,
             verify_ssl=verify_ssl,
@@ -138,20 +149,29 @@ class AsyncAskNewsSDK:
     Usage:
 
     ```python
+    >>> async with AskNewsSDK(api_key=...) as sdk:
+    >>>    stories_response = await sdk.stories.get_stories(...)
+    ```
+
+    Or
+
+    ```python
     >>> async with AskNewsSDK(client_id=..., client_secret=...) as sdk:
     >>>    stories_response = await sdk.stories.get_stories(...)
     ```
 
-    :param client_id: The client ID for your AskNews API application.
-    :type client_id: str
-    :param client_secret: The client secret for your AskNews API application.
-    :type client_secret: str
-    :param scopes: The scopes to request for your AskNews API application.
+    :param client_id: The client ID for the AskNews API credentials.
+    :type client_id: Optional[str]
+    :param client_secret: The client secret for the AskNews API credentials.
+    :type client_secret: Optional[str]
+    :param scopes: The scopes to request for the AskNews API credentials.
     :type scopes: Optional[Set[str]]
     :param base_url: The base URL for the AskNews API.
     :type base_url: str
     :param token_url: The token URL for the AskNews API.
     :type token_url: str
+    :param api_key: An API key for the AskNews API.
+    :type api_key: Optional[str]
     :param verify_ssl: Whether or not to verify SSL certificates.
     :type verify_ssl: bool
     :param retries: The number of retries to attempt on connection errors.
@@ -173,12 +193,13 @@ class AsyncAskNewsSDK:
         scopes: Optional[Set[str]] = DEFAULT_SCOPES,
         base_url: str = DEFAULT_API_BASE_URL,
         token_url: str = DEFAULT_TOKEN_URL,
+        api_key: Optional[str] = None,
         verify_ssl: bool = True,
         retries: int = 3,
         timeout: Optional[float] = None,
         follow_redirects: bool = True,
         client: Union[Type[AsyncClient], AsyncClient] = AsyncClient,
-        auth: Optional[RequestAuth | Sentinel] = CLIENT_DEFAULT,
+        auth: Optional[Union[RequestAuth, Sentinel]] = CLIENT_DEFAULT,
         *,
         _token_load_hook: Optional[AsyncTokenLoadHook] = None,
         _token_save_hook: Optional[AsyncTokenSaveHook] = None,
@@ -188,6 +209,7 @@ class AsyncAskNewsSDK:
             client_id=client_id,
             client_secret=client_secret,
             scopes=scopes,
+            api_key=api_key,
             base_url=base_url,
             token_url=token_url,
             verify_ssl=verify_ssl,

@@ -37,24 +37,28 @@ class TokenInfo(TypedDict):
     expires_in: int
 
 
-TokenLoadHook = Callable[..., TokenInfo]
+TokenLoadHook = Callable[..., Optional[TokenInfo]]
 TokenSaveHook = Callable[[TokenInfo], None]
-AsyncTokenLoadHook = Callable[..., Awaitable[TokenInfo]]
+AsyncTokenLoadHook = Callable[..., Awaitable[Optional[TokenInfo]]]
 AsyncTokenSaveHook = Callable[[TokenInfo], Awaitable[None]]
 
 
 class OAuthToken:
     def __init__(self, token_info: Optional[TokenInfo] = None) -> None:  # type: ignore
-        self.set_token(token_info if token_info is not None else {})
+        self.set_token(token_info)
 
-    def set_token(self, token_info: TokenInfo) -> None:
+    def set_token(self, token_info: Optional[TokenInfo]) -> None:
         self.token_info = token_info
         self._expires_at = datetime.now(timezone.utc) + timedelta(
-            seconds=token_info.get("expires_in", 0)
+            seconds=(
+                self.token_info.get("expires_in", 0)
+                if self.token_info
+                else 0
+            )
         )
 
     def reset_token(self):
-        self.token_info = TokenInfo()
+        self.token_info = None
 
     @property
     def is_expired(self) -> bool:
@@ -83,6 +87,21 @@ class OAuthToken:
         return self._expires_at
 
 
+class APIKey(Auth):
+    def __init__(self, api_key: str) -> None:
+        self.api_key = api_key
+
+    def inject_headers(self, request: Request) -> Request:
+        request.headers["Authorization"] = f"Bearer {self.api_key}"
+        return request
+
+    def auth_flow(self, request: Request) -> Generator[Request, Response, None]:
+        yield self.inject_headers(request)
+
+    async def async_auth_flow(self, request: Request) -> AsyncGenerator[Request, Response]:
+        yield self.inject_headers(request)
+
+
 class OAuth2ClientCredentials(Auth):
     def __init__(
         self,
@@ -90,7 +109,7 @@ class OAuth2ClientCredentials(Auth):
         client_secret: str,
         token_url: str,
         scopes: Optional[Set[str]] = None,
-        token: OAuthToken | None = None,
+        token: Optional[OAuthToken] = None,
         *,
         _token_load_hook: Optional[Union[TokenLoadHook, AsyncTokenLoadHook]] = None,
         _token_save_hook: Optional[Union[TokenSaveHook, AsyncTokenSaveHook]] = None,
@@ -100,6 +119,14 @@ class OAuth2ClientCredentials(Auth):
         self.token_url = token_url
         self.scope = " ".join({"offline", "openid", *(scopes or set())})
         self.token = token or OAuthToken()
+
+        if _token_load_hook or _token_save_hook:
+            warnings.warn(
+                "Using _token_load_hook and _token_save_hook is deprecated and will be "
+                "removed in a future version.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         self._token_load_hook = _token_load_hook
         self._token_save_hook = _token_save_hook
@@ -200,7 +227,11 @@ class OAuth2ClientCredentials(Auth):
             else:
                 break
 
-        if self._token_save_hook and inspect.iscoroutinefunction(self._token_save_hook):
+        if (
+            self._token_save_hook
+            and self.token.token_info
+            and inspect.iscoroutinefunction(self._token_save_hook)
+        ):
             async with self._atoken_lock:
                 await self._token_save_hook(self.token.token_info)
 
@@ -230,7 +261,8 @@ def _save_token_disk(
     file_path: Union[Path, str], client_id: str, client_secret: str
 ) -> TokenSaveHook:
     warnings.warn(
-        "Saving access tokens to disk is dangerous and should be avoided. " "Use at your own risk.",
+        "Saving access tokens to disk is dangerous and should be avoided. "
+        "Use at your own risk.",
         SecurityWarning,
         stacklevel=2,
     )
@@ -253,9 +285,9 @@ def _load_token_disk(file_path: Path, client_id: str, client_secret: str) -> Tok
     if not isinstance(file_path, Path):
         file_path = Path(file_path)
 
-    def _load_token() -> TokenInfo:
+    def _load_token() -> Optional[TokenInfo]:
         if not file_path.exists():
-            return {}
+            return None
 
         data = file_path.read_bytes()
         salt, token_info = data.split(b"::", 1)
@@ -272,7 +304,8 @@ def _save_token_disk_async(
     file_path: Union[Path, AsyncPath, str], client_id: str, client_secret: str
 ) -> AsyncTokenSaveHook:
     warnings.warn(
-        "Saving access tokens to disk is dangerous and should be avoided. " "Use at your own risk.",
+        "Saving access tokens to disk is dangerous and should be avoided. "
+        "Use at your own risk.",
         SecurityWarning,
         stacklevel=2,
     )
@@ -297,9 +330,9 @@ def _load_token_disk_async(
     if not isinstance(file_path, AsyncPath):
         file_path = AsyncPath(file_path)
 
-    async def _load_token() -> TokenInfo:
+    async def _load_token() -> Optional[TokenInfo]:
         if not await file_path.exists():
-            return {}
+            return None
 
         data = await file_path.read_bytes()
         salt, token_info = data.split(b"::", 1)

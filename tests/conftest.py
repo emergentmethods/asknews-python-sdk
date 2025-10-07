@@ -28,6 +28,7 @@ def sync_api_client():
         client_id=None,
         client_secret=None,
         scopes=None,
+        api_key=None,
         base_url=BASE_URL,
         token_url=TOKEN_URL,
         auth=None,
@@ -41,6 +42,7 @@ def sync_api_client_with_auth():
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
         scopes=SCOPES,
+        api_key=None,
         base_url=BASE_URL,
         token_url=TOKEN_URL,
     ) as client:
@@ -53,6 +55,7 @@ async def async_api_client():
         client_id=None,
         client_secret=None,
         scopes=None,
+        api_key=None,
         base_url=BASE_URL,
         token_url=TOKEN_URL,
         auth=None,
@@ -66,6 +69,7 @@ async def async_api_client_with_auth():
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
         scopes=SCOPES,
+        api_key=None,
         base_url=BASE_URL,
         token_url=TOKEN_URL,
     ) as client:

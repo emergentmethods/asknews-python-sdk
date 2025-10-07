@@ -2,8 +2,9 @@ import pytest
 from httpx import Request
 from respx.router import MockRouter
 
-from asknews_sdk.client import APIClient, APIResponse, AsyncAPIClient
+from asknews_sdk.client import APIClient, AsyncAPIClient
 from asknews_sdk.errors import APIError
+from asknews_sdk.response import APIResponse, AsyncAPIResponse
 from tests.conftest import BASE_URL
 
 
@@ -113,7 +114,7 @@ async def test_async_client_request(async_api_client: AsyncAPIClient, response_m
 
     response = await async_api_client.request("GET", "/test")
 
-    assert isinstance(response, APIResponse)
+    assert isinstance(response, AsyncAPIResponse)
     assert response.content == {"status": "ok"}
     assert response.status_code == 200
     assert response.content_type == "application/json"
@@ -128,7 +129,7 @@ async def test_async_client_request(async_api_client: AsyncAPIClient, response_m
 
     response = await async_api_client.request("GET", "/stream", stream=True)
 
-    assert isinstance(response, APIResponse)
+    assert isinstance(response, AsyncAPIResponse)
 
     async for chunk in response.content:
         assert isinstance(chunk, bytes)
@@ -166,7 +167,7 @@ async def test_async_client_request_with_auth(
 
     response = await async_api_client_with_auth.request("GET", "/test")
 
-    assert isinstance(response, APIResponse)
+    assert isinstance(response, AsyncAPIResponse)
     assert response.content == {"status": "ok"}
     assert response.status_code == 200
     assert response.content_type == "application/json"

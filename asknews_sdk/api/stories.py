@@ -2,10 +2,11 @@ from typing import Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from asknews_sdk.api.base import BaseAPI
+from asknews_sdk.client import APIClient, AsyncAPIClient
 from asknews_sdk.dto.stories import StoriesResponse, StoryResponse
 
 
-class StoriesAPI(BaseAPI):
+class StoriesAPI(BaseAPI[APIClient]):
     """
     Stories API
 
@@ -194,7 +195,7 @@ class StoriesAPI(BaseAPI):
         return StoryResponse.model_validate(response.content)
 
 
-class AsyncStoriesAPI(BaseAPI):
+class AsyncStoriesAPI(BaseAPI[AsyncAPIClient]):
     """
     Stories API
 

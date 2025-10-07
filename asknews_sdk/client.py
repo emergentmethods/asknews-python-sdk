@@ -3,18 +3,21 @@ from __future__ import annotations
 from typing import (
     Any,
     Dict,
+    Generic,
     List,
     Optional,
     Set,
     Type,
+    TypeVar,
     Union,
 )
 
 from httpx import AsyncClient, Client, HTTPStatusError, Request, Response
 
 from asknews_sdk.errors import raise_from_response
-from asknews_sdk.response import APIResponse
+from asknews_sdk.response import APIResponse, AsyncAPIResponse
 from asknews_sdk.security import (
+    APIKey,
     AsyncTokenLoadHook,
     AsyncTokenSaveHook,
     OAuth2ClientCredentials,
@@ -33,26 +36,28 @@ from asknews_sdk.version import __version__
 
 USER_AGENT = f"asknews-sdk-python/{__version__}"
 
+TClient = TypeVar("TClient", Client, AsyncClient)
+TResponse = TypeVar("TResponse", APIResponse, AsyncAPIResponse)
 
+class BaseAPIClient(Generic[TClient, TResponse]):
+    client_cls: Type[TClient]
+    response_cls: Type[TResponse]
 
-class BaseAPIClient:
     def __init__(
         self,
         client_id: Optional[str],
         client_secret: Optional[str],
         scopes: Optional[Set[str]],
+        api_key: Optional[str],
         base_url: str,
         token_url: str,
         verify_ssl: bool,
         retries: int,
         timeout: Optional[float],
         follow_redirects: bool,
-        client: Union[
-            Union[Type[Client], Client],
-            Union[Type[AsyncClient], AsyncClient],
-        ],
+        client: Union[Type[TClient], TClient],
         user_agent: str,
-        auth: Optional[RequestAuth | Sentinel],
+        auth: Optional[Union[RequestAuth, Sentinel]],
         *,
         _token_save_hook: Optional[Union[TokenSaveHook, AsyncTokenSaveHook]] = None,
         _token_load_hook: Optional[Union[TokenLoadHook, AsyncTokenLoadHook]] = None,
@@ -61,31 +66,41 @@ class BaseAPIClient:
         self.client_id = client_id
         self.client_secret = client_secret
         self.scopes = {"offline", "openid", *(scopes or set())}
+        self.api_key = api_key
         self.base_url = base_url
         self.token_url = token_url
         self.verify_ssl = verify_ssl
         self.retries = retries
         self.timeout = timeout
         self.follow_redirects = follow_redirects
-        self._client_auth = None
+        self._client_auth: Optional[RequestAuth] = None
 
         if auth:
             if auth is CLIENT_DEFAULT:
-                assert client_id and client_secret, (
-                    "client_id and client_secret are required for client credentials"
-                )
-
-                self._client_auth = OAuth2ClientCredentials(
-                    client_id=self.client_id,
-                    client_secret=self.client_secret,
-                    token_url=self.token_url,
-                    scopes=self.scopes,
-                    _token_load_hook=_token_load_hook,
-                    _token_save_hook=_token_save_hook,
-                )
+                if self.api_key is not None:
+                    self._client_auth = APIKey(
+                        api_key=self.api_key,
+                    )
+                elif self.client_id is not None and self.client_secret is not None:
+                    self._client_auth = OAuth2ClientCredentials(
+                        client_id=self.client_id,
+                        client_secret=self.client_secret,
+                        token_url=self.token_url,
+                        scopes=self.scopes,
+                        _token_load_hook=_token_load_hook,
+                        _token_save_hook=_token_save_hook,
+                    )
+                else:
+                    raise ValueError(
+                        "Either api_key or client_id and client_secret are "
+                        "required for authentication. To explicitly disable "
+                        "authentication, set auth=None.",
+                    )
             else:
+                assert not isinstance(auth, Sentinel)
                 self._client_auth = auth
 
+        self._client: TClient
         if isinstance(client, type):
             self._client = client(
                 base_url=self.base_url,
@@ -130,16 +145,18 @@ class BaseAPIClient:
         )
 
 
-class APIClient(BaseAPIClient):
+class APIClient(BaseAPIClient[Client, APIResponse]):
     """
     Sync HTTP API Client
 
     :param client_id: Client ID
-    :type client_id: str
+    :type client_id: Optional[str]
     :param client_secret: Client secret
-    :type client_secret: str
+    :type client_secret: Optional[str]
     :param scopes: OAuth scopes
-    :type scopes: Set[str]
+    :type scopes: Optional[Set[str]]
+    :param api_key: API key
+    :type api_key: Optional[str]
     :param base_url: Base URL
     :type base_url: str
     :param token_url: Token URL
@@ -153,12 +170,15 @@ class APIClient(BaseAPIClient):
     :param follow_redirects: Follow redirects
     :type follow_redirects: bool
     """
+    client_cls = Client
+    response_cls = APIResponse
 
     def __init__(
         self,
         client_id: Optional[str],
         client_secret: Optional[str],
         scopes: Optional[Set[str]],
+        api_key: Optional[str],
         base_url: str,
         token_url: str,
         verify_ssl: bool = True,
@@ -167,7 +187,7 @@ class APIClient(BaseAPIClient):
         follow_redirects: bool = True,
         client: Union[Type[Client], Client] = Client,
         user_agent: str = USER_AGENT,
-        auth: Optional[RequestAuth | Sentinel] = CLIENT_DEFAULT,
+        auth: Optional[Union[RequestAuth, Sentinel]] = CLIENT_DEFAULT,
         *,
         _token_save_hook: Optional[TokenSaveHook] = None,
         _token_load_hook: Optional[TokenLoadHook] = None,
@@ -177,6 +197,7 @@ class APIClient(BaseAPIClient):
             client_id=client_id,
             client_secret=client_secret,
             scopes=scopes,
+            api_key=api_key,
             base_url=base_url,
             token_url=token_url,
             verify_ssl=verify_ssl,
@@ -261,31 +282,31 @@ class APIClient(BaseAPIClient):
                 response.read()
 
             raise_from_response(
-                APIResponse.from_httpx_response(
+                self.response_cls.from_httpx_response(
                     response=e.response,
                     stream=False,
-                    sync=True,
                 )
             )
 
-        return APIResponse.from_httpx_response(
+        return self.response_cls.from_httpx_response(
             response=response,
             stream=stream,
             stream_type=stream_type,
-            sync=True,
         )
 
 
-class AsyncAPIClient(BaseAPIClient):
+class AsyncAPIClient(BaseAPIClient[AsyncClient, AsyncAPIResponse]):
     """
     Base Async HTTP API Client
 
     :param client_id: Client ID
-    :type client_id: str
+    :type client_id: Optional[str]
     :param client_secret: Client secret
-    :type client_secret: str
+    :type client_secret: Optional[str]
     :param scopes: OAuth scopes
-    :type scopes: Set[str]
+    :type scopes: Optional[Set[str]]
+    :param api_key: API key
+    :type api_key: Optional[str]
     :param base_url: Base URL
     :type base_url: str
     :param token_url: Token URL
@@ -299,12 +320,15 @@ class AsyncAPIClient(BaseAPIClient):
     :param follow_redirects: Follow redirects
     :type follow_redirects: bool
     """
+    client_cls = AsyncClient
+    response_cls = AsyncAPIResponse
 
     def __init__(
         self,
         client_id: Optional[str],
         client_secret: Optional[str],
         scopes: Optional[Set[str]],
+        api_key: Optional[str],
         base_url: str,
         token_url: str,
         verify_ssl: bool = True,
@@ -313,7 +337,7 @@ class AsyncAPIClient(BaseAPIClient):
         follow_redirects: bool = True,
         client: Union[Type[AsyncClient], AsyncClient] = AsyncClient,
         user_agent: str = USER_AGENT,
-        auth: Optional[RequestAuth | Sentinel] = CLIENT_DEFAULT,
+        auth: Optional[Union[RequestAuth, Sentinel]] = CLIENT_DEFAULT,
         *,
         _token_save_hook: Optional[AsyncTokenSaveHook] = None,
         _token_load_hook: Optional[AsyncTokenLoadHook] = None,
@@ -323,6 +347,7 @@ class AsyncAPIClient(BaseAPIClient):
             client_id=client_id,
             client_secret=client_secret,
             scopes=scopes,
+            api_key=api_key,
             base_url=base_url,
             token_url=token_url,
             verify_ssl=verify_ssl,
@@ -363,7 +388,7 @@ class AsyncAPIClient(BaseAPIClient):
         accept: Optional[List[tuple[str, float]]] = None,
         stream: bool = False,
         stream_type: StreamType = "bytes",
-    ) -> APIResponse:
+    ) -> AsyncAPIResponse:
         """
         Send an HTTP request.
 
@@ -385,8 +410,8 @@ class AsyncAPIClient(BaseAPIClient):
         :type stream: bool
         :param stream_type: Stream type
         :type stream_type: StreamType
-        :return: APIResponse object
-        :rtype: APIResponse
+        :return: AsyncAPIResponse object
+        :rtype: AsyncAPIResponse
         """
         response: Response = await self._client.send(
             self.build_api_request(
@@ -408,16 +433,14 @@ class AsyncAPIClient(BaseAPIClient):
                 await response.aread()
 
             raise_from_response(
-                APIResponse.from_httpx_response(
+                await self.response_cls.from_httpx_response(
                     response=e.response,
                     stream=False,
-                    sync=False,
                 )
             )
 
-        return APIResponse.from_httpx_response(
+        return await self.response_cls.from_httpx_response(
             response=response,
             stream=stream,
             stream_type=stream_type,
-            sync=False,
         )
