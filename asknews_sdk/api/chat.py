@@ -52,6 +52,7 @@ DeepNewsModel = Literal[
     "o3-mini",
     "claude-sonnet-4-20250514",
     "claude-opus-4-20250514",
+    "claude-sonnet-4-5-20250929",
     "gemini-2.5-pro",
     "o3",
 ]
@@ -63,6 +64,7 @@ class ChatAPI(BaseAPI[APIClient]):
 
     https://add-docs.review.docs.asknews.app/en/reference#tag--chat
     """
+
     @overload
     def get_chat_completions(
         self,
@@ -77,8 +79,7 @@ class ChatAPI(BaseAPI[APIClient]):
         filter_params: Optional[Dict] = None,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> CreateChatCompletionResponse:
-        ...
+    ) -> CreateChatCompletionResponse: ...
 
     @overload
     def get_chat_completions(
@@ -94,8 +95,7 @@ class ChatAPI(BaseAPI[APIClient]):
         filter_params: Optional[Dict] = None,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> Iterator[CreateChatCompletionResponseStream]:
-        ...
+    ) -> Iterator[CreateChatCompletionResponseStream]: ...
 
     def get_chat_completions(
         self,
@@ -164,6 +164,7 @@ class ChatAPI(BaseAPI[APIClient]):
         )
 
         if stream:
+
             def _stream():
                 for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
@@ -542,8 +543,7 @@ class ChatAPI(BaseAPI[APIClient]):
         return_sources: bool = True,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> CreateDeepNewsResponse:
-        ...
+    ) -> CreateDeepNewsResponse: ...
 
     @overload
     def get_deep_news(
@@ -563,8 +563,7 @@ class ChatAPI(BaseAPI[APIClient]):
         return_sources: bool = True,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> Iterator[CreateDeepNewsResponseStream]:
-        ...
+    ) -> Iterator[CreateDeepNewsResponseStream]: ...
 
     def get_deep_news(
         self,
@@ -621,6 +620,7 @@ class ChatAPI(BaseAPI[APIClient]):
         )
 
         if stream:
+
             def _stream():
                 for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
@@ -650,6 +650,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
 
     https://api.asknews.app/docs#tag/chat
     """
+
     @overload
     async def get_chat_completions(
         self,
@@ -664,8 +665,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         filter_params: Optional[Dict] = None,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> CreateChatCompletionResponse:
-        ...
+    ) -> CreateChatCompletionResponse: ...
 
     @overload
     async def get_chat_completions(
@@ -681,8 +681,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         filter_params: Optional[Dict] = None,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> AsyncIterator[CreateChatCompletionResponseStream]:
-        ...
+    ) -> AsyncIterator[CreateChatCompletionResponseStream]: ...
 
     async def get_chat_completions(
         self,
@@ -1133,8 +1132,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         max_depth: int = 5,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> CreateDeepNewsResponse:
-        ...
+    ) -> CreateDeepNewsResponse: ...
 
     @overload
     async def get_deep_news(
@@ -1154,8 +1152,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         max_depth: int = 5,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> AsyncIterator[CreateDeepNewsResponseStream]:
-        ...
+    ) -> AsyncIterator[CreateDeepNewsResponseStream]: ...
 
     async def get_deep_news(
         self,
@@ -1212,6 +1209,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         )
 
         if stream:
+
             async def _stream():
                 async for event in AsyncEventSource.from_api_response(response):
                     if event.content == "[DONE]":
