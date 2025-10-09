@@ -1,3 +1,9 @@
+## 0.12.2 (2025-10-09)
+
+### Fix
+
+- Diversify should be a float, not a bool
+
 ## 0.12.1 (2025-10-08)
 
 ### Fix
