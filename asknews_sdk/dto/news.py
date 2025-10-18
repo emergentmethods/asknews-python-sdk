@@ -50,3 +50,13 @@ class GraphResponse(BaseSchema):
     docs_enhanced: Optional[List[Dict]] = None
     triples_url: Optional[str] = None
     visualize_url: Optional[str] = None
+
+
+class IndexCountItem(BaseModel):
+    start: datetime
+    end: datetime
+    count: int
+
+
+class IndexCountsResponse(BaseSchema, RootModel[List[IndexCountItem]]):
+    root: Annotated[List[IndexCountItem], Field(title="IndexCountsResponse")]

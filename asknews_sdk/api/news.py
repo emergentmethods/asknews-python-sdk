@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, List, Literal, Optional, Union
 from uuid import UUID
 
@@ -6,6 +7,7 @@ from asknews_sdk.client import APIClient, AsyncAPIClient
 from asknews_sdk.dto.news import (
     ArticleResponse,
     GraphResponse,
+    IndexCountsResponse,
     RedditResponse,
     SearchResponse,
     SourceReportResponse,
@@ -229,6 +231,87 @@ class NewsAPI(BaseAPI[APIClient]):
             accept=[(SearchResponse.__content_type__, 1.0)],
         )
         return SearchResponse.model_validate(response.content)
+
+    def get_index_counts(
+        self,
+        start_datetime: datetime,
+        end_datetime: datetime,
+        sampling: Literal["5m", "1h", "12h", "1d", "1w", "1m"] = "1d",
+        time_filter: Literal["crawl_date", "pub_date"] = "pub_date",
+        categories: Optional[
+            List[
+                Literal[
+                    "All",
+                    "Business",
+                    "Crime",
+                    "Politics",
+                    "Science",
+                    "Sports",
+                    "Technology",
+                    "Military",
+                    "Health",
+                    "Entertainment",
+                    "Finance",
+                    "Culture",
+                    "Climate",
+                    "Environment",
+                    "World",
+                ]
+            ]
+        ] = None,
+        provocative: Optional[str] = "all",
+        reporting_voice: Optional[Union[List[str], str]] = None,
+        domains: Optional[Union[List[str], str]] = None,
+        bad_domain_url: Optional[Union[List[str], str]] = None,
+        page_rank: Optional[int] = None,
+        string_guarantee: Optional[List[str]] = None,
+        string_guarantee_op: Optional[str] = "OR",
+        reverse_string_guarantee: Optional[List[str]] = None,
+        entity_guarantee: Optional[List[str]] = None,
+        entity_guarantee_op: Optional[str] = "OR",
+        return_graphs: Optional[bool] = False,
+        return_geo: Optional[bool] = False,
+        countries: Optional[List[str]] = None,
+        countries_blacklist: Optional[List[str]] = None,
+        languages: Optional[List[str]] = None,
+        continents: Optional[List[str]] = None,
+        sentiment: Optional[Literal["negative", "neutral", "positive"]] = None,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> SearchResponse:
+        """ """
+        response = self.client.request(
+            method="GET",
+            endpoint="/v1/news/index_counts",
+            query={
+                "start_datetime": start_datetime,
+                "end_datetime": end_datetime,
+                "time_filter": time_filter,
+                "categories": categories if categories is not None else ["All"],
+                "provocative": provocative,
+                "reporting_voice": reporting_voice,
+                "sampling": sampling,
+                "domains": domains,
+                "bad_domain_url": bad_domain_url,
+                "page_rank": page_rank,
+                "string_guarantee": string_guarantee,
+                "string_guarantee_op": string_guarantee_op,
+                "reverse_string_guarantee": reverse_string_guarantee,
+                "entity_guarantee": entity_guarantee,
+                "entity_guarantee_op": entity_guarantee_op,
+                "return_graphs": return_graphs,
+                "return_geo": return_geo,
+                "countries": countries,
+                "countries_blacklist": countries_blacklist,
+                "languages": languages,
+                "continents": continents,
+                "sentiment": sentiment,
+                "premium": True,
+            },
+            headers=http_headers,
+            accept=[(IndexCountsResponse.__content_type__, 1.0)],
+        )
+        return IndexCountsResponse.model_validate(response.content)
 
     def get_sources_report(
         self,
@@ -557,6 +640,87 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
             accept=[(SearchResponse.__content_type__, 1.0)],
         )
         return SearchResponse.model_validate(response.content)
+
+    async def get_index_counts(
+        self,
+        start_datetime: datetime,
+        end_datetime: datetime,
+        time_filter: Literal["crawl_date", "pub_date"] = "pub_date",
+        categories: Optional[
+            List[
+                Literal[
+                    "All",
+                    "Business",
+                    "Crime",
+                    "Politics",
+                    "Science",
+                    "Sports",
+                    "Technology",
+                    "Military",
+                    "Health",
+                    "Entertainment",
+                    "Finance",
+                    "Culture",
+                    "Climate",
+                    "Environment",
+                    "World",
+                ]
+            ]
+        ] = None,
+        sampling: Literal["5m", "1h", "12h", "1d", "1w", "1m"] = "1d",
+        provocative: Optional[str] = "all",
+        reporting_voice: Optional[Union[List[str], str]] = None,
+        domains: Optional[Union[List[str], str]] = None,
+        bad_domain_url: Optional[Union[List[str], str]] = None,
+        page_rank: Optional[int] = None,
+        string_guarantee: Optional[List[str]] = None,
+        string_guarantee_op: Optional[str] = "OR",
+        reverse_string_guarantee: Optional[List[str]] = None,
+        entity_guarantee: Optional[List[str]] = None,
+        entity_guarantee_op: Optional[str] = "OR",
+        return_graphs: Optional[bool] = False,
+        return_geo: Optional[bool] = False,
+        countries: Optional[List[str]] = None,
+        countries_blacklist: Optional[List[str]] = None,
+        languages: Optional[List[str]] = None,
+        continents: Optional[List[str]] = None,
+        sentiment: Optional[Literal["negative", "neutral", "positive"]] = None,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> SearchResponse:
+        """ """
+        response = await self.client.request(
+            method="GET",
+            endpoint="/v1/news/index_counts",
+            query={
+                "sampling": sampling,
+                "start_datetime": start_datetime,
+                "end_datetime": end_datetime,
+                "time_filter": time_filter,
+                "categories": categories if categories is not None else ["All"],
+                "provocative": provocative,
+                "reporting_voice": reporting_voice,
+                "domains": domains,
+                "bad_domain_url": bad_domain_url,
+                "page_rank": page_rank,
+                "string_guarantee": string_guarantee,
+                "string_guarantee_op": string_guarantee_op,
+                "reverse_string_guarantee": reverse_string_guarantee,
+                "entity_guarantee": entity_guarantee,
+                "entity_guarantee_op": entity_guarantee_op,
+                "return_graphs": return_graphs,
+                "return_geo": return_geo,
+                "countries": countries,
+                "countries_blacklist": countries_blacklist,
+                "languages": languages,
+                "continents": continents,
+                "sentiment": sentiment,
+                "premium": True,
+            },
+            headers=http_headers,
+            accept=[(IndexCountsResponse.__content_type__, 1.0)],
+        )
+        return IndexCountsResponse.model_validate(response.content)
 
     async def get_sources_report(
         self,
