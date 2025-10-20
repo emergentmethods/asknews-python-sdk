@@ -280,14 +280,15 @@ class NewsAPI(BaseAPI[APIClient]):
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
         """ """
+        print(f" Datetimes {start_datetime.isoformat()}, {end_datetime.isoformat()}")
         response = self.client.request(
             method="GET",
-            endpoint="/v1/news/index_counts",
+            endpoint="/v1/index_counts",
             query={
-                "start_datetime": start_datetime,
-                "end_datetime": end_datetime,
+                "start_datetime": start_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
+                "end_datetime": end_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
                 "time_filter": time_filter,
-                "categories": categories if categories is not None else ["All"],
+                "categories": categories,
                 "provocative": provocative,
                 "reporting_voice": reporting_voice,
                 "sampling": sampling,
@@ -691,13 +692,13 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         """ """
         response = await self.client.request(
             method="GET",
-            endpoint="/v1/news/index_counts",
+            endpoint="/v1/index_counts",
             query={
+                "start_datetime": start_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
+                "end_datetime": end_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
                 "sampling": sampling,
-                "start_datetime": start_datetime,
-                "end_datetime": end_datetime,
                 "time_filter": time_filter,
-                "categories": categories if categories is not None else ["All"],
+                "categories": categories,
                 "provocative": provocative,
                 "reporting_voice": reporting_voice,
                 "domains": domains,
