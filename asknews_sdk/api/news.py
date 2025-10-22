@@ -269,8 +269,6 @@ class NewsAPI(BaseAPI[APIClient]):
         reverse_string_guarantee: Optional[List[str]] = None,
         entity_guarantee: Optional[List[str]] = None,
         entity_guarantee_op: Optional[str] = "OR",
-        return_graphs: Optional[bool] = False,
-        return_geo: Optional[bool] = False,
         countries: Optional[List[str]] = None,
         countries_blacklist: Optional[List[str]] = None,
         languages: Optional[List[str]] = None,
@@ -335,8 +333,6 @@ class NewsAPI(BaseAPI[APIClient]):
                 "reverse_string_guarantee": reverse_string_guarantee,
                 "entity_guarantee": entity_guarantee,
                 "entity_guarantee_op": entity_guarantee_op,
-                "return_graphs": return_graphs,
-                "return_geo": return_geo,
                 "countries": countries,
                 "countries_blacklist": countries_blacklist,
                 "languages": languages,
@@ -562,8 +558,6 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         reverse_string_guarantee: Optional[List[str]] = None,
         entity_guarantee: Optional[List[str]] = None,
         entity_guarantee_op: Optional[str] = "OR",
-        return_graphs: Optional[bool] = False,
-        return_geo: Optional[bool] = False,
         countries: Optional[List[str]] = None,
         countries_blacklist: Optional[List[str]] = None,
         languages: Optional[List[str]] = None,
@@ -574,64 +568,9 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
         """
-        Search for news articles given a query.
+        Get time-series counts for a filter
 
-        https://docs.asknews.app/en/reference#get-/v1/news/search
-
-        :param query: Query string that can be any phrase, keyword, question, or
-            paragraph.
-            If method='nl', then this will be used as a natural language query.
-            If method='kw', then this will be used as a direct keyword query.
-        :type query: str
-        :param n_articles: Number of articles to return, defaults to 10
-        :type n_articles: Optional[int]
-        :param start_timestamp: Start timestamp to search from, defaults to None
-        :type start_timestamp: Optional[int]
-        :param end_timestamp: End timestamp to search to, defaults to None
-        :type end_timestamp: Optional[int]
-        :param return_type: Type of return value. 'string' means that the return is
-            prompt-optimized and ready to be immediately injected into any prompt.
-            'dicts' means that the return is a structured dictionary, containing more
-            information such as full article content, and additional metadata (like a
-            classic news api). Can be 'string' or 'dicts', or 'both', defaults to
-            "dicts".
-        :type return_type: Literal["string", "dicts", "both"]
-        :param historical: Search on archive of historical news. Defaults to False,
-            meaning that the search will only look through the most recent news
-            (48 hours)
-        :type historical: bool
-        :param method: Method to use for searching. Both `kw` and `nl`
-            support natural language queries. `kw` tries to match keywords,
-            while `nl` tries to match the meaning of the query.
-        :type method: Literal["nl", "kw"]
-        :param similarity_score_threshold: Similarity score threshold, defaults to 0.5
-        :type similarity_score_threshold: float
-        :param offset: Offset for pagination
-        :type offset: int
-        :param categories: Categories of news to filter on, defaults to ["All"]
-        :type categories: Optional[List[
-            Literal[
-                "All", "Business", "Crime", "Politics", "Science", "Sports",
-                "Technology", "Military", "Health", "Entertainment", "Finance",
-                "Culture", "Climate", "Environment", "World"
-            ]
-        ]]
-        :param doc_start_delimiter: Document start delimiter, defaults to "<doc>"
-        :type doc_start_delimiter: str
-        :param doc_end_delimiter: Document end delimiter, defaults to "</doc>"
-        :type doc_end_delimiter: str
-        :param provocative: Provocative, defaults to "all"
-        :type provocative: Optional[str]
-        :param reporting_voice: Reporting voice, defaults to "all"
-        :type reporting_voice: Optional[str]
-        :param domain_url: Domain URL, defaults to None
-        :type domain_url: Optional[str]
-        :param page_rank: Page rank, defaults to None
-        :type page_rank: Optional[int]
-        :param http_headers: Additional HTTP headers.
-        :type http_headers: Optional[Dict]
-        :return: The search response.
-        :rtype: SearchResponse
+        https://docs.asknews.app/en/reference#get-/v1/index_counts
         """
         response = await self.client.request(
             method="GET",
@@ -663,8 +602,6 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
                 "reverse_string_guarantee": reverse_string_guarantee,
                 "entity_guarantee": entity_guarantee,
                 "entity_guarantee_op": entity_guarantee_op,
-                "return_graphs": return_graphs,
-                "return_geo": return_geo,
                 "countries": countries,
                 "countries_blacklist": countries_blacklist,
                 "languages": languages,
@@ -714,8 +651,6 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         reverse_string_guarantee: Optional[List[str]] = None,
         entity_guarantee: Optional[List[str]] = None,
         entity_guarantee_op: Optional[str] = "OR",
-        return_graphs: Optional[bool] = False,
-        return_geo: Optional[bool] = False,
         countries: Optional[List[str]] = None,
         countries_blacklist: Optional[List[str]] = None,
         languages: Optional[List[str]] = None,
@@ -779,8 +714,6 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
                 "reverse_string_guarantee": reverse_string_guarantee,
                 "entity_guarantee": entity_guarantee,
                 "entity_guarantee_op": entity_guarantee_op,
-                "return_graphs": return_graphs,
-                "return_geo": return_geo,
                 "countries": countries,
                 "countries_blacklist": countries_blacklist,
                 "languages": languages,
