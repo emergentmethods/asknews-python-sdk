@@ -1,3 +1,9 @@
+## 0.12.5 (2025-10-22)
+
+### Fix
+
+- Remove unnecessary params
+
 ## 0.12.4 (2025-10-22)
 
 ### Fix
