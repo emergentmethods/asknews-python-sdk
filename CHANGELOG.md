@@ -1,3 +1,10 @@
+## 0.12.4 (2025-10-22)
+
+### Fix
+
+- Fix return type on index counts method
+- Use correct path, handle datetimes correctly
+
 ## 0.12.3 (2025-10-18)
 
 ### Fix
