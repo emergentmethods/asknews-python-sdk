@@ -278,8 +278,43 @@ class NewsAPI(BaseAPI[APIClient]):
         sentiment: Optional[Literal["negative", "neutral", "positive"]] = None,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> SearchResponse:
-        """ """
+    ) -> IndexCountsResponse:
+        """
+        Get index counts over time.
+
+        https://docs.asknews.app/en/reference#get-/v1/index_counts
+
+        :param start_datetime: The start datetime.
+        :type start_datetime: datetime
+        :param end_datetime: The end datetime.
+        :type end_datetime: datetime
+        :param time_filter: The time filter.
+        :type time_filter: Literal["crawl_date", "pub_date"]
+        :param categories: The categories.
+        :type categories: Optional[List[
+            Literal[
+                "All", "Business", "Crime", "Politics", "Science", "Sports",
+                "Technology", "Military", "Health", "Entertainment", "Finance",
+                "Culture", "Climate", "Environment", "World"
+            ]
+        ]]
+        :param sampling: The sampling.
+        :type sampling: Literal["5m", "1h", "12h", "1d", "1w", "1m"]
+        :param provocative: The provocative filter.
+        :type provocative: Optional[str]
+        :param reporting_voice: The reporting voice filter.
+        :type reporting_voice: Optional[Union[List[str], str]]
+        :param domains: The domains filter.
+        :type domains: Optional[Union[List[str], str]]
+        :param bad_domain_url: The bad domain URL filter.
+        :type bad_domain_url: Optional[Union[List[str], str]]
+        :param page_rank: The page rank filter.
+        :type page_rank: Optional[int]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The index counts response.
+        :rtype: IndexCountsResponse
+        """
         print(f" Datetimes {start_datetime.isoformat()}, {end_datetime.isoformat()}")
         response = self.client.request(
             method="GET",
@@ -688,8 +723,43 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         sentiment: Optional[Literal["negative", "neutral", "positive"]] = None,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> SearchResponse:
-        """ """
+    ) -> IndexCountsResponse:
+        """
+        Get index counts over time.
+
+        https://docs.asknews.app/en/reference#get-/v1/index_counts
+
+        :param start_datetime: The start datetime.
+        :type start_datetime: datetime
+        :param end_datetime: The end datetime.
+        :type end_datetime: datetime
+        :param time_filter: The time filter.
+        :type time_filter: Literal["crawl_date", "pub_date"]
+        :param categories: The categories.
+        :type categories: Optional[List[
+            Literal[
+                "All", "Business", "Crime", "Politics", "Science", "Sports",
+                "Technology", "Military", "Health", "Entertainment", "Finance",
+                "Culture", "Climate", "Environment", "World"
+            ]
+        ]]
+        :param sampling: The sampling.
+        :type sampling: Literal["5m", "1h", "12h", "1d", "1w", "1m"]
+        :param provocative: The provocative filter.
+        :type provocative: Optional[str]
+        :param reporting_voice: The reporting voice filter.
+        :type reporting_voice: Optional[Union[List[str], str]]
+        :param domains: The domains filter.
+        :type domains: Optional[Union[List[str], str]]
+        :param bad_domain_url: The bad domain URL filter.
+        :type bad_domain_url: Optional[Union[List[str], str]]
+        :param page_rank: The page rank filter.
+        :type page_rank: Optional[int]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The index counts response.
+        :rtype: IndexCountsResponse
+        """
         response = await self.client.request(
             method="GET",
             endpoint="/v1/index_counts",
