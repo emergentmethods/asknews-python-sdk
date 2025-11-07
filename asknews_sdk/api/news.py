@@ -313,7 +313,6 @@ class NewsAPI(BaseAPI[APIClient]):
         :return: The index counts response.
         :rtype: IndexCountsResponse
         """
-        print(f" Datetimes {start_datetime.isoformat()}, {end_datetime.isoformat()}")
         response = self.client.request(
             method="GET",
             endpoint="/v1/index_counts",

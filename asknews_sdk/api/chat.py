@@ -7,6 +7,8 @@ from asknews_sdk.api.base import BaseAPI
 from asknews_sdk.client import APIClient, AsyncAPIClient
 from asknews_sdk.dto.alert import AlertLog, AlertResponse, CreateAlertRequest, UpdateAlertRequest
 from asknews_sdk.dto.chat import (
+    ChartResponse,
+    CreateChartRequest,
     CreateChatCompletionRequest,
     CreateChatCompletionResponse,
     CreateChatCompletionResponseStream,
@@ -643,6 +645,32 @@ class ChatAPI(BaseAPI[APIClient]):
         else:
             return CreateDeepNewsResponse.model_validate(response.content)
 
+    def create_chart(
+        self,
+        payload: CreateChartRequest,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> ChartResponse:
+        """
+        Create a chart based on news data using a natural language query
+        """
+
+        response = self.client.request(
+            method="POST",
+            endpoint="/v1/chat/charts",
+            body=payload.model_dump(mode="json")
+            if isinstance(payload, CreateChartRequest)
+            else payload,
+            headers={
+                **(http_headers or {}),
+                "Content-Type": CreateChartRequest.__content_type__,
+            },
+            accept=[
+                (ChartResponse.__content_type__, 1.0),
+            ],
+        )
+        return ChartResponse.model_validate(response.content)
+
 
 class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
     """
@@ -1231,3 +1259,29 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
             return _stream()
         else:
             return CreateDeepNewsResponse.model_validate(response.content)
+
+    async def create_chart(
+        self,
+        payload: CreateChartRequest,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> ChartResponse:
+        """
+        Create a chart based on news data using a natural language query
+        """
+
+        response = await self.client.request(
+            method="POST",
+            endpoint="/v1/chat/charts",
+            body=payload.model_dump(mode="json")
+            if isinstance(payload, CreateChartRequest)
+            else payload,
+            headers={
+                **(http_headers or {}),
+                "Content-Type": CreateChartRequest.__content_type__,
+            },
+            accept=[
+                (ChartResponse.__content_type__, 1.0),
+            ],
+        )
+        return ChartResponse.model_validate(response.content)

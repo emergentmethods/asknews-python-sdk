@@ -31,6 +31,7 @@ ReportModel = Literal[
     "o3-mini",
     "claude-3-5-sonnet-latest",
     "claude-sonnet-4-20250514",
+    "claude-sonnet-4-5-20250929",
     "meta-llama/Meta-Llama-3.1-405B-Instruct",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
 ]
