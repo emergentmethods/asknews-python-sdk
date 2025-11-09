@@ -1,3 +1,9 @@
+## 0.13.2 (2025-11-09)
+
+### Fix
+
+- Charts and Reddit tools :tada: [+bug fix]
+
 ## 0.13.1 (2025-11-08)
 
 ### Fix
