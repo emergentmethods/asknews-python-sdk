@@ -6,7 +6,7 @@ from pydantic import AnyUrl, BaseModel, ConfigDict, Discriminator, Field, Tag
 from typing_extensions import Annotated, TypeAlias
 
 from asknews_sdk.dto.base import BaseSchema
-from asknews_sdk.dto.chat import WebSearchResult
+from asknews_sdk.dto.chat import ChartResponse, WebSearchResult
 from asknews_sdk.dto.news import SearchResponseDictItem
 
 
@@ -25,6 +25,7 @@ def kind_discriminator(v: Any) -> str:
 class DeepNewsSources(BaseModel):
     news: Annotated[List[SearchResponseDictItem], Field(title="News")]
     web: Annotated[List[WebSearchResult], Field(title="Web")]
+    charts: Annotated[List[ChartResponse], Field(title="Charts")]
 
 
 class CreateDeepNewsRequestMessage(BaseModel):
@@ -94,8 +95,8 @@ class CreateDeepNewsRequest(BaseSchema):
     sources: Annotated[
         Optional[
             Union[
-                Literal["asknews", "google", "graph", "wiki", "x"],
-                List[Literal["asknews", "google", "graph", "wiki", "x"]],
+                Literal["asknews", "google", "graph", "wiki", "x", "reddit", "charts"],
+                List[Literal["asknews", "google", "graph", "wiki", "x", "reddit", "charts"]],
             ]
         ],
         Field(title="Sources"),
@@ -177,6 +178,11 @@ class CreateDeepNewsResponseStreamSourcesGraphSource(BaseModel):
     data: AnyUrl
 
 
+class CreateDeepNewsResponseStreamSourcesChartSource(BaseModel):
+    kind: Literal["chart"] = "chart"
+    data: ChartResponse
+
+
 class CreateDeepNewsResponseStreamSource(BaseSchema):
     __content_type__ = "text/event-stream"
 
@@ -188,6 +194,7 @@ class CreateDeepNewsResponseStreamSource(BaseSchema):
             Annotated[CreateDeepNewsResponseStreamSourcesNewsSource, Tag("news")],
             Annotated[CreateDeepNewsResponseStreamSourcesWebSource, Tag("web")],
             Annotated[CreateDeepNewsResponseStreamSourcesGraphSource, Tag("graph")],
+            Annotated[CreateDeepNewsResponseStreamSourcesChartSource, Tag("chart")],
         ],
         Field(title="Source"),
         Discriminator(kind_discriminator),
