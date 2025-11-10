@@ -1,3 +1,9 @@
+## 0.13.3 (2025-11-10)
+
+### Fix
+
+- Add png_url to chart response
+
 ## 0.13.2 (2025-11-09)
 
 ### Fix
