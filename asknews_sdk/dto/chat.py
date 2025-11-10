@@ -375,3 +375,6 @@ class ChartResponse(BaseSchema):
     iterations_used: Optional[int] = None
     last_reasoning: Optional[str] = None
     last_parameters: Optional[ChartParameters] = None
+    png_data: Optional[str] = Field(None, description="Base64-encoded PNG image data of the chart")
+    png_url: Optional[str] = Field(None, description="URL to the PNG image of the chart")
+    chart_url: Optional[str] = Field(None, description="URL to the chart JSON object in S3")
