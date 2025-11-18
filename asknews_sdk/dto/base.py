@@ -69,6 +69,12 @@ class Entities(BaseModel):
     Science: Annotated[Optional[List[str]], Field([], title="Science")]
 
 
+class Author(BaseModel):
+    email: Optional[str] = None
+    name: Optional[str] = None
+    url: Optional[str] = None
+
+
 class Article(BaseModel):
     article_url: Annotated[AnyUrl, Field(title="Article Url")]
     article_id: Annotated[UUID, Field(title="Article Id")]
@@ -129,6 +135,7 @@ class Article(BaseModel):
             "Unknown",
         ]
     ] = None
+    authors: Optional[List[Author]] = None
 
 
 class PingResponse(BaseSchema):

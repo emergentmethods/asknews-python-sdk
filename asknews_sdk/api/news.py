@@ -125,6 +125,7 @@ class NewsAPI(BaseAPI[APIClient]):
         continents: Optional[List[str]] = None,
         sentiment: Optional[Literal["negative", "neutral", "positive"]] = None,
         premium: Optional[bool] = False,
+        authors: Optional[List[str]] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
@@ -226,6 +227,7 @@ class NewsAPI(BaseAPI[APIClient]):
                 "continents": continents,
                 "sentiment": sentiment,
                 "premium": premium,
+                "authors": authors,
             },
             headers=http_headers,
             accept=[(SearchResponse.__content_type__, 1.0)],
@@ -565,6 +567,7 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         continents: Optional[List[str]] = None,
         sentiment: Optional[Literal["negative", "neutral", "positive"]] = None,
         premium: Optional[bool] = False,
+        authors: Optional[List[str]] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
@@ -611,6 +614,7 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
                 "continents": continents,
                 "sentiment": sentiment,
                 "premium": premium,
+                "authors": authors,
             },
             headers=http_headers,
             accept=[(SearchResponse.__content_type__, 1.0)],
