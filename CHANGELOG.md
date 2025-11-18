@@ -1,3 +1,9 @@
+## 0.13.4 (2025-11-18)
+
+### Fix
+
+- Add ability to filter on author name
+
 ## 0.13.3 (2025-11-10)
 
 ### Fix
