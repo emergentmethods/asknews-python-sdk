@@ -56,6 +56,9 @@ DeepNewsModel = Literal[
     "claude-opus-4-20250514",
     "claude-sonnet-4-5-20250929",
     "gemini-2.5-pro",
+    "gemini-3-pro",
+    "claude-opus-4-5-20251101",
+    "gemini-2.5-flash",
     "o3",
 ]
 
