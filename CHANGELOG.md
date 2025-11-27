@@ -1,3 +1,9 @@
+## 0.13.5 (2025-11-27)
+
+### Fix
+
+- Add claude 4.5 opus and gemini-2.5-flash
+
 ## 0.13.4 (2025-11-18)
 
 ### Fix
