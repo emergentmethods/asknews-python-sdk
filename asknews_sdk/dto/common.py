@@ -216,6 +216,13 @@ class FilterParams(BaseModel):
         "colon. The first element is the entity type and the second element is "
         "the entity value. For example ['Location:Paris', 'Person:John']",
     )
+    reverse_entity_guarantee: Optional[List[str]] = Field(
+        None,
+        description="Reverse entity guarantee to filter by. This is a list of strings, "
+        "where each string includes entity type and entity value separated by a "
+        "colon. The first element is the entity type and the second element is "
+        "the entity value. For example ['Location:Paris', 'Person:John']",
+    )
     entity_guarantee_op: Literal["AND", "OR"] = Field(
         "OR", description="Operator to use for entity guarantee list."
     )

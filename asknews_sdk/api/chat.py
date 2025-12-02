@@ -596,7 +596,7 @@ class ChatAPI(BaseAPI[APIClient]):
         """
         response = self.client.request(
             method="POST",
-            endpoint="/v1/chat/deepnews",
+            endpoint="/v1/chat/deepnews/agent",
             body=CreateDeepNewsRequest(
                 messages=messages,
                 model=model,
