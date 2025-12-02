@@ -1,3 +1,9 @@
+## 0.13.6 (2025-12-02)
+
+### Fix
+
+- Add reverse_entity_guarantee
+
 ## 0.13.5 (2025-11-27)
 
 ### Fix
