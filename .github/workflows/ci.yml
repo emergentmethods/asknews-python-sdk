@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
         with:
@@ -33,7 +33,7 @@ jobs:
       - name: Install the latest version of uv
         uses: astral-sh/setup-uv@v6
       - name: Cache uv
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MIN: "15"
         with:
