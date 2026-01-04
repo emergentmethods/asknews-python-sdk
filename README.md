@@ -17,8 +17,7 @@ pip install asknews
 from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK(
-    client_id=<"YOUR_CLIENT_ID>",
-    client_secret="<YOUR_CLIENT_SECRET>",
+    api_key="<YOUR API KEY>"
     scopes=["news", "chat", "stories", "analytics"]
 )
 
@@ -33,7 +32,7 @@ And you will have a prompt-optimized string ready to go for any LLM. The API doe
 - /stories, high level event tracking and state of the art article clustering
 - /forecasts, industry leading forecasting on any real-time event
 - /analytics, time-series data on finance and politics
-- /chat, an OpenAI compatible endpoint infused with news
+- /deepnews, a deep research agent that can explore the new knowledge graph, X, Reddit, Google, Wikipedia and more to build forecasts, reports, analytics, and anything else your system may need.
 - /graph, build any news knowledge graph imaginable from the largest news graph on the planet
 - /websearch, search the web and get back an LLM distillation of all the relevant web pages
 
