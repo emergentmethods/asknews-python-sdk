@@ -136,6 +136,7 @@ class Article(BaseModel):
         ]
     ] = None
     authors: Optional[List[Author]] = None
+    full_text: Optional[str] = None
 
 
 class PingResponse(BaseSchema):
