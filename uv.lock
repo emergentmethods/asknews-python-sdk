@@ -63,7 +63,7 @@ wheels = [
 
 [[package]]
 name = "asknews"
-version = "0.13.7"
+version = "0.13.8"
 source = { editable = "." }
 dependencies = [
     { name = "asgiref" },
