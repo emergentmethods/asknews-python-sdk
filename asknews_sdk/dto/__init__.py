@@ -12,7 +12,16 @@ from asknews_sdk.dto.alert import (
 )
 from asknews_sdk.dto.common import FilterParams
 from asknews_sdk.dto.error import APIErrorModel, HTTPValidationError, ValidationError
-from asknews_sdk.dto.news import SearchResponse, SearchResponseDictItem
+from asknews_sdk.dto.news import (
+    ReferralItem,
+    ScrapeDataItem,
+    ScrapedURLItem,
+    ScrapeItem,
+    SearchResponse,
+    SearchResponseDictItem,
+    URLIndexingRequest,
+    URLIndexingResponse,
+)
 from asknews_sdk.dto.sentiment import (
     FinanceResponse,
     FinanceResponseTimeSeries,
@@ -43,7 +52,13 @@ __all__ = (
     "StoriesResponse",
     "StoryResponse",
     "StoryResponseUpdate",
+    "ReferralItem",
+    "ScrapedURLItem",
+    "ScrapeDataItem",
+    "ScrapeItem",
     "SearchResponse",
     "SearchResponseDictItem",
+    "URLIndexingRequest",
+    "URLIndexingResponse",
     "WikiSearchResponse",
 )

@@ -60,3 +60,37 @@ class IndexCountItem(BaseModel):
 
 class IndexCountsResponse(BaseSchema, RootModel[List[IndexCountItem]]):
     root: Annotated[List[IndexCountItem], Field(title="IndexCountsResponse")]
+
+
+class ScrapeItem(BaseModel):
+    user_agent: Annotated[str, Field(title="User Agent")]
+    count: Annotated[int, Field(title="Count")]
+
+
+class ReferralItem(BaseModel):
+    site: Annotated[str, Field(title="Site")]
+    count: Annotated[int, Field(title="Count")]
+
+
+class ScrapeDataItem(BaseModel):
+    scrapes: Annotated[List[ScrapeItem], Field(title="Scrapes")]
+    referrals: Annotated[List[ReferralItem], Field(title="Referrals")]
+
+
+class ScrapedURLItem(BaseModel):
+    url: Annotated[str, Field(title="URL")]
+    data: Annotated[Optional[ScrapeDataItem], Field(title="Data")] = None
+    metadata: Annotated[Optional[Dict], Field(title="Metadata")] = None
+    enrichments: Annotated[Optional[Dict], Field(title="Enrichments")] = None
+
+
+class URLIndexingRequest(BaseModel):
+    start_time: Annotated[datetime, Field(title="Start Time")]
+    end_time: Annotated[datetime, Field(title="End Time")]
+    urls: Annotated[List[ScrapedURLItem], Field(title="URLs")]
+
+
+class URLIndexingResponse(BaseSchema):
+    status: Annotated[str, Field(title="Status")]
+    message: Annotated[Optional[str], Field(None, title="Message")]
+    indexed_count: Annotated[Optional[int], Field(None, title="Indexed Count")]

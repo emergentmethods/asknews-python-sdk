@@ -11,6 +11,8 @@ from asknews_sdk.dto.news import (
     RedditResponse,
     SearchResponse,
     SourceReportResponse,
+    URLIndexingRequest,
+    URLIndexingResponse,
 )
 
 
@@ -457,6 +459,31 @@ class NewsAPI(BaseAPI[APIClient]):
         )
         return GraphResponse.model_validate(response.content)
 
+    def index_urls(
+        self,
+        request: URLIndexingRequest,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> URLIndexingResponse:
+        """
+        Index URLs with scrape data and enrichments.
+
+        :param request: The URL indexing request containing URLs and their data.
+        :type request: URLIndexingRequest
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The URL indexing response.
+        :rtype: URLIndexingResponse
+        """
+        response = self.client.request(
+            method="POST",
+            endpoint="/v1/news/index_urls",
+            body=request.model_dump(mode="json"),
+            headers=http_headers,
+            accept=[(URLIndexingResponse.__content_type__, 1.0)],
+        )
+        return URLIndexingResponse.model_validate(response.content)
+
 
 class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
     """
@@ -845,3 +872,28 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
             accept=[(GraphResponse.__content_type__, 1.0)],
         )
         return GraphResponse.model_validate(response.content)
+
+    async def index_urls(
+        self,
+        request: URLIndexingRequest,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> URLIndexingResponse:
+        """
+        Index URLs with scrape data and enrichments.
+
+        :param request: The URL indexing request containing URLs and their data.
+        :type request: URLIndexingRequest
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The URL indexing response.
+        :rtype: URLIndexingResponse
+        """
+        response = await self.client.request(
+            method="POST",
+            endpoint="/v1/news/index_urls",
+            body=request.model_dump(mode="json"),
+            headers=http_headers,
+            accept=[(URLIndexingResponse.__content_type__, 1.0)],
+        )
+        return URLIndexingResponse.model_validate(response.content)
