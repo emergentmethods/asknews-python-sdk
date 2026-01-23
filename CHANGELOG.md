@@ -1,3 +1,9 @@
+## 0.13.10 (2026-01-23)
+
+### Fix
+
+- Add opus as a report writing option
+
 ## 0.13.9 (2026-01-16)
 
 ### Fix
