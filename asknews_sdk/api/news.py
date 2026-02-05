@@ -129,6 +129,7 @@ class NewsAPI(BaseAPI[APIClient]):
         sentiment: Optional[Literal["negative", "neutral", "positive"]] = None,
         premium: Optional[bool] = False,
         authors: Optional[List[str]] = None,
+        try_cache: Optional[Literal["1h", "6h", "12h", "24h", "3d", "7d"]] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
@@ -232,11 +233,14 @@ class NewsAPI(BaseAPI[APIClient]):
                 "sentiment": sentiment,
                 "premium": premium,
                 "authors": authors,
+                "try_cache": try_cache,
             },
             headers=http_headers,
             accept=[(SearchResponse.__content_type__, 1.0)],
         )
-        return SearchResponse.model_validate(response.content)
+        result = SearchResponse.model_validate(response.content)
+        result.hit_cache = response.headers.get("x-cache", "").lower() == "hit"
+        return result
 
     def get_index_counts(
         self,
@@ -598,6 +602,7 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         sentiment: Optional[Literal["negative", "neutral", "positive"]] = None,
         premium: Optional[bool] = False,
         authors: Optional[List[str]] = None,
+        try_cache: Optional[Literal["1h", "6h", "12h", "24h", "3d", "7d"]] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
@@ -646,11 +651,14 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
                 "sentiment": sentiment,
                 "premium": premium,
                 "authors": authors,
+                "try_cache": try_cache,
             },
             headers=http_headers,
             accept=[(SearchResponse.__content_type__, 1.0)],
         )
-        return SearchResponse.model_validate(response.content)
+        result = SearchResponse.model_validate(response.content)
+        result.hit_cache = response.headers.get("x-cache", "").lower() == "hit"
+        return result
 
     async def get_index_counts(
         self,

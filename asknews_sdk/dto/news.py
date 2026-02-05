@@ -18,6 +18,7 @@ class SearchResponse(BaseSchema):
     as_dicts: Annotated[Optional[List[SearchResponseDictItem]], Field(None, title="As Dicts")]
     as_string: Annotated[Optional[str], Field(None, title="As String")]
     offset: Annotated[Optional[Union[int, str]], Field(None, title="Offset")]
+    hit_cache: Annotated[Optional[bool], Field(None, title="Hit Cache")]
 
 
 class SourceReportItem(BaseModel):
