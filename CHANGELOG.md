@@ -1,3 +1,9 @@
+## 0.13.12 (2026-02-11)
+
+### Fix
+
+- Tests and bump cryptography
+
 ## 0.13.11 (2026-02-05)
 
 ### Fix
