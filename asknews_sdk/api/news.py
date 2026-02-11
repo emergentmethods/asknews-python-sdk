@@ -239,7 +239,8 @@ class NewsAPI(BaseAPI[APIClient]):
             accept=[(SearchResponse.__content_type__, 1.0)],
         )
         result = SearchResponse.model_validate(response.content)
-        result.hit_cache = response.headers.get("x-cache", "").lower() == "hit"
+        if "x-cache" in response.headers:
+            result.hit_cache = response.headers["x-cache"].lower() == "hit"
         return result
 
     def get_index_counts(
@@ -657,7 +658,8 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
             accept=[(SearchResponse.__content_type__, 1.0)],
         )
         result = SearchResponse.model_validate(response.content)
-        result.hit_cache = response.headers.get("x-cache", "").lower() == "hit"
+        if "x-cache" in response.headers:
+            result.hit_cache = response.headers["x-cache"].lower() == "hit"
         return result
 
     async def get_index_counts(

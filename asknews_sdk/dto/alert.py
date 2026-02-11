@@ -33,6 +33,7 @@ ReportModel = Literal[
     "claude-sonnet-4-20250514",
     "claude-sonnet-4-5-20250929",
     "claude-opus-4-5-20251101",
+    "claude-opuse-4-6",
     "meta-llama/Meta-Llama-3.1-405B-Instruct",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
 ]
