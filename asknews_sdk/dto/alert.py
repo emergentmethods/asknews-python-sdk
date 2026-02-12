@@ -318,7 +318,7 @@ class CreateAlertRequest(BaseSchema):
         ...,
         description=(
             "Configuration for actions to trigger for the alert. Available actions are: "
-            f"{', '.join([arg.__name__ for arg in get_args(get_args(Triggers)[0])])}"
+            f"{', '.join([arg.__name__ for arg in get_args(get_args(Trigger)[0])])}"
         ),
     )
     always_trigger: Optional[bool] = Field(
@@ -413,7 +413,7 @@ class UpdateAlertRequest(BaseSchema):
         None,
         description=(
             "Configuration for actions to trigger for the alert. Available actions are: "
-            f"{', '.join([arg.__name__ for arg in get_args(get_args(Triggers)[0])])}"
+            f"{', '.join([arg.__name__ for arg in get_args(get_args(Trigger)[0])])}"
         ),
     )
     always_trigger: Optional[bool] = Field(
