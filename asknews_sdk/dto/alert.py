@@ -276,7 +276,7 @@ class CreateAlertRequest(BaseSchema):
             f"{', '.join([arg.__name__ for arg in get_args(get_args(Source)[0])])}"
         ),
     )
-    alert_type: AlertType | None = Field(
+    alert_type: Optional[AlertType] = Field(
         None,
         description=(
             "The type of alert. If specified, overrides 'repeat'. "
