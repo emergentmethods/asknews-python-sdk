@@ -1,3 +1,9 @@
+## 0.13.13 (2026-02-13)
+
+### Fix
+
+- Add DeepNews response options
+
 ## 0.13.12 (2026-02-11)
 
 ### Fix
