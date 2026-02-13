@@ -331,7 +331,7 @@ class AlertResponse(BaseSchema):
     user_id: UUID
     query: Optional[str] = None
     cron: str
-    model: Optional[str]
+    model: Optional[str] = None
     share_link: Optional[str] = None
     sources: List[Dict[str, Any]]
     report: Optional[Dict[str, Any]] = None
@@ -339,3 +339,5 @@ class AlertResponse(BaseSchema):
     always_trigger: bool = False
     repeat: bool = True
     active: bool = True
+    alert_type: Optional[AlertType] = None
+    title: Optional[str] = None
