@@ -70,11 +70,13 @@ class WebSource(BaseModel):
 
 class AskNewsSource(BaseModel):
     identifier: Literal["asknews"]
-    params: Optional[FilterParams] = Field(None, description="The filter params to use")
+    params: Optional[FilterParams] = Field(
+        None, description="The filter params to use")
 
 
 class TelegramSourceParams(BaseModel):
-    channel_name: str = Field(..., description="The channel name to use as a source")
+    channel_name: str = Field(...,
+                              description="The channel name to use as a source")
 
 
 class TelegramSource(BaseModel):
@@ -88,10 +90,12 @@ class BlueskySourceParams(BaseModel):
 
 class BlueskySource(BaseModel):
     identifier: Literal["bluesky"]
-    params: Optional[BlueskySourceParams] = Field(None, description="Bluesky source parameters")
+    params: Optional[BlueskySourceParams] = Field(
+        None, description="Bluesky source parameters")
 
 
-DeepNewsSourceType = Literal["asknews", "google", "graph", "wiki", "x", "reddit", "charts"]
+DeepNewsSourceType = Literal["asknews", "google",
+                             "graph", "wiki", "x", "reddit", "charts"]
 DeepNewsSourceTypeDefault: DeepNewsSourceType = "asknews"
 
 DeepNewsInlineCitationType = Literal["markdown_link", "numbered", "none"]
@@ -101,7 +105,8 @@ DeepNewsInlineCitationTypeDefault: DeepNewsInlineCitationType = "markdown_link"
 class DeepNewsSourceParams(BaseModel):
     model: Optional[str] = Field(
         default=None,
-        description=("The model to use for DeepNews. Check API reference for default model."),
+        description=(
+            "The model to use for DeepNews. Check API reference for default model."),
     )
     filter_params: Optional[Dict[str, Any]] = Field(
         default=None, description="Any filter param available on the /news endpoint."
@@ -112,7 +117,8 @@ class DeepNewsSourceParams(BaseModel):
             "The search depth for deep research. Higher values mean more " "thorough research."
         ),
     )
-    max_depth: Optional[int] = Field(default=4, description="The maximum research depth allowed.")
+    max_depth: Optional[int] = Field(
+        default=4, description="The maximum research depth allowed.")
     sources: Optional[Union[DeepNewsSourceType, List[DeepNewsSourceType]]] = Field(
         default=DeepNewsSourceTypeDefault,
         description=(
@@ -155,11 +161,13 @@ class DeepNewsSourceParams(BaseModel):
 
 class DeepNewsSource(BaseModel):
     identifier: Literal["deepnews"]
-    params: Optional[DeepNewsSourceParams] = Field(None, description="DeepNews source parameters")
+    params: Optional[DeepNewsSourceParams] = Field(
+        None, description="DeepNews source parameters")
 
 
 Source = Annotated[
-    Union[AskNewsSource, TelegramSource, BlueskySource, WebSource, DeepNewsSource],
+    Union[AskNewsSource, TelegramSource,
+          BlueskySource, WebSource, DeepNewsSource],
     Field(discriminator="identifier"),
 ]
 
@@ -181,7 +189,8 @@ class WebhookParams(BaseModel):
 
 
 class EmailParams(BaseModel):
-    to: EmailStr = Field(..., description="The email to send the alert to when it triggers")
+    to: EmailStr = Field(...,
+                         description="The email to send the alert to when it triggers")
     subject: Optional[str] = Field(
         None,
         description="The subject of the email. If not provided, the default subject will be used.",
@@ -197,7 +206,8 @@ class GoogleDocsParams(BaseModel):
             "account's google drive and shared with the user."
         ),
     )
-    emails: Optional[List[EmailStr]] = Field(None, description="The emails to share the doc with")
+    emails: Optional[List[EmailStr]] = Field(
+        None, description="The emails to share the doc with")
 
 
 class WebhookAction(BaseModel):
@@ -262,9 +272,11 @@ AlertType = Literal["AlwaysAlertWhen", "AlertOnceIf", "ReportAbout"]
 
 
 class CreateAlertRequest(BaseSchema):
-    query: str = Field(
-        ...,
-        description=("The query to run for the alert."),
+    query: Optional[str] = Field(
+        None,
+        description=(
+            "The query to run for the alert."
+        ),
         examples=[
             "I want to be alerted if the president of the US says something about the economy",
         ],
@@ -479,7 +491,7 @@ class AlertResponse(BaseSchema):
     user_id: UUID
     query: Optional[str] = None
     cron: str
-    model: Optional[str]
+    model: Optional[str] = None
     share_link: Optional[str] = None
     sources: List[Dict[str, Any]]
     report: Optional[Dict[str, Any]] = None
@@ -487,3 +499,5 @@ class AlertResponse(BaseSchema):
     always_trigger: bool = False
     repeat: bool = True
     active: bool = True
+    alert_type: Optional[AlertType] = None
+    title: Optional[str] = None
