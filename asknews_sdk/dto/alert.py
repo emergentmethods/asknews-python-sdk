@@ -185,12 +185,14 @@ class ReportRequest(BaseModel):
     )
 
 
+AlertType = Literal["AlwaysAlertWhen", "AlertOnceIf", "ReportAbout"]
+
+
 class CreateAlertRequest(BaseSchema):
     query: Optional[str] = Field(
         None,
         description=(
-            "The query to run for the alert. For example you ask for "
-            '"I want to be alerted if there is a protest in paris"'
+            "The query to run for the alert."
         ),
         examples=[
             "I want to be alerted if the president of the US says something about the economy",
@@ -207,8 +209,9 @@ class CreateAlertRequest(BaseSchema):
         ],
     )
     model: Optional[CheckAlertModel] = Field(
-        ...,
-        description="The model to use for the alert check",
+        None,
+        description=("The model that is used to check if the alert conditions are satisfied by "
+                     "sources (this is not the same as the model used to write the report.)"),
         examples=[
             "meta-llama/Meta-Llama-3.1-8B-Instruct",
         ],
@@ -243,14 +246,29 @@ class CreateAlertRequest(BaseSchema):
             "If set, the alert will be disabled after this date."
         ),
     )
+    alert_type: Optional[AlertType] = Field(
+        None,
+        description=("The type of alert. If specified, overrides 'repeat' and 'always_trigger'. "
+                     "'AlwaysAlertWhen': trigger alert actions any time the alert query is "
+                     "satisfied. Add Report model if you want a report when this is triggered. "
+                     "'AlertOnceIf': trigger alert actions when the alert query is satisfied "
+                     "and then disable the alert. Add Report model if you want a report when this "
+                     "is triggered. "
+                     "'ReportAbout': always trigger alert actions according to cron schedule "
+                     "and write a report. The default report model is used."),
+    )
+    title: Optional[str] = Field(
+        None,
+        description="The title of the alert. If not provided, no title will be used.",
+        examples=["Alert for US President's statements on the economy"],
+    )
 
 
 class UpdateAlertRequest(BaseSchema):
     query: Optional[str] = Field(
         None,
         description=(
-            "The query to run for the alert. For example you ask for "
-            '"I want to be alerted if there is a protest in paris"'
+            "The query to run for the alert."
         ),
         examples=[
             "I want to be alerted if the president of the US says something about the economy",
@@ -268,7 +286,8 @@ class UpdateAlertRequest(BaseSchema):
     )
     model: Optional[CheckAlertModel] = Field(
         None,
-        description="The model to use for the alert check",
+        description=("The model that is used to check if the alert conditions are satisfied by "
+                     "sources (this is not the same as the model used to write the report.)"),
         examples=[
             "meta-llama/Meta-Llama-3.1-8B-Instruct",
         ],
@@ -307,6 +326,22 @@ class UpdateAlertRequest(BaseSchema):
             "The expiration date for the alert. Default is None. "
             "If set, the alert will be disabled after this date."
         ),
+    )
+    alert_type: Optional[AlertType] = Field(
+        None,
+        description=("The type of alert. If specified, overrides 'repeat' and 'always_trigger'. "
+                     "'AlwaysAlertWhen': trigger alert actions any time the alert query is "
+                     "satisfied. Add Report model if you want a report when this is triggered. "
+                     "'AlertOnceIf': trigger alert actions when the alert query is satisfied "
+                     "and then disable the alert. Add Report model if you want a report when this "
+                     "is triggered. "
+                     "'ReportAbout': always trigger alert actions according to cron schedule "
+                     "and write a report. The default report model is used."),
+    )
+    title: Optional[str] = Field(
+        None,
+        description="The title of the alert. If not provided, no title will be used.",
+        examples=["Alert for US President's statements on the economy"],
     )
 
 
