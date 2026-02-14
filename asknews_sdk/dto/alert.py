@@ -290,17 +290,17 @@ class CreateAlertRequest(BaseSchema):
     )
     alert_type: Optional[AlertType] = Field(
         None,
-        description=(
-            "The type of alert. If specified, overrides 'repeat'. "
-            "'AlwaysAlertWhen': trigger alert actions any time the alert query is "
-            "satisfied. Add Report model if you want a report when this is triggered. "
-            "'AlertOnceIf': trigger alert actions when the alert query is satisfied "
-            "and then disable the alert. Add Report model if you want a report when this "
-            "is triggered. "
-            "'ReportAbout': always trigger alert actions according to cron schedule "
-            "and write a report. If not specified, the default report model (see API "
-            "reference) is used."
-        ),
+        description=("The type of alert. If specified, overrides `repeat` and `always_trigger`. "
+                     "'AlwaysAlertWhen': trigger alert actions any time the alert query is "
+                     "satisfied (`repeat=True`, `always_trigger=False`). "
+                     "Add Report model if you want a report when this is triggered. "
+                     "'AlertOnceIf': trigger alert actions when the alert query is satisfied "
+                     "and then disable the alert (`repeat=False`, `always_trigger=False`). "
+                     "Add Report model if you want a report when this is triggered. "
+                     "'ReportAbout': always trigger alert actions according to cron schedule "
+                     "and write a report (`repeat=True`, `always_trigger=True`). "
+                     "Unless a Report model is specified, the default report model "
+                    "(see API reference) is used."),
     )
     model: Optional[CheckAlertModel] = Field(
         None,
@@ -391,17 +391,17 @@ class UpdateAlertRequest(BaseSchema):
     )
     alert_type: Optional[AlertType] = Field(
         None,
-        description=(
-            "The type of alert. If specified, overrides 'repeat'. "
-            "'AlwaysAlertWhen': trigger alert actions any time the alert query is "
-            "satisfied. Add Report model if you want a report when this is triggered. "
-            "'AlertOnceIf': trigger alert actions when the alert query is satisfied "
-            "and then disable the alert. Add Report model if you want a report when this "
-            "is triggered. "
-            "'ReportAbout': always trigger alert actions according to cron schedule "
-            "and write a report. If not specified, the default report model (see API "
-            "reference) is used."
-        ),
+        description=("The type of alert. If specified, overrides `repeat` and `always_trigger`. "
+                     "'AlwaysAlertWhen': trigger alert actions any time the alert query is "
+                     "satisfied (`repeat=True`, `always_trigger=False`). "
+                     "Add Report model if you want a report when this is triggered. "
+                     "'AlertOnceIf': trigger alert actions when the alert query is satisfied "
+                     "and then disable the alert (`repeat=False`, `always_trigger=False`). "
+                     "Add Report model if you want a report when this is triggered. "
+                     "'ReportAbout': always trigger alert actions according to cron schedule "
+                     "and write a report (`repeat=True`, `always_trigger=True`). "
+                     "Unless a Report model is specified, the default report model "
+                    "(see API reference) is used."),
     )
     model: Optional[CheckAlertModel] = Field(
         None,
