@@ -266,6 +266,10 @@ class ReportRequest(BaseModel):
     logo_url: Optional[HttpUrlString] = Field(
         None, description="The logo URL to use for the report"
     )
+    include_appendix: Optional[bool] = Field(
+        False,
+        description="Whether to append thinking and search traces as an appendix to the report."
+    )
 
 
 AlertType = Literal["AlwaysAlertWhen", "AlertOnceIf", "ReportAbout"]
