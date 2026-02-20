@@ -118,6 +118,15 @@ class CreateDeepNewsRequest(BaseSchema):
             )
         ),
     ] = DeepNewsInlineCitationTypeDefault
+    start_source_number:  Annotated[
+        Optional[int],
+        Field(
+            title=(
+                "Starting number for inline citations. Offsets fetched source citation keys. "
+                "Useful if you are providing the agent outside sources with numbered citation keys."
+            )
+        ),
+    ] = 1
     return_sources: Annotated[
         Optional[bool],
         Field(title="Return all collected sources as objects as the last token of the stream."),

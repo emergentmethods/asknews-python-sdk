@@ -126,6 +126,13 @@ class DeepNewsSourceParams(BaseModel):
             f"Available sources are: {', '.join(get_args(DeepNewsSourceType))}"
         ),
     )
+    start_source_number: Optional[int] = Field(
+        default=1,
+        description=(
+            "Starting number for inline citations. Offsets fetched source citation keys. "
+            "Useful if you are providing the agent outside sources with numbered citation keys."
+        )
+    )
     journalist_mode: Optional[bool] = Field(
         default=True,
         description=(
@@ -304,7 +311,7 @@ class CreateAlertRequest(BaseSchema):
                      "'ReportAbout': always trigger alert actions according to cron schedule "
                      "and write a report (`repeat=True`, `always_trigger=True`). "
                      "Unless a Report model is specified, the default report model "
-                    "(see API reference) is used."),
+                     "(see API reference) is used."),
     )
     model: Optional[CheckAlertModel] = Field(
         None,
