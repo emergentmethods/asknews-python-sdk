@@ -1,3 +1,10 @@
+## 0.13.15 (2026-02-18)
+
+### Fix
+
+- Add apendix param to alert report
+- Add DeepNews as Alert source
+
 ## 0.13.14 (2026-02-13)
 
 ### Fix
