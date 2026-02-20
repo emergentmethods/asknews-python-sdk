@@ -1,3 +1,9 @@
+## 0.13.16 (2026-02-20)
+
+### Fix
+
+- Pass start_source_number to offset DeepNews citation keys
+
 ## 0.13.15 (2026-02-18)
 
 ### Fix
