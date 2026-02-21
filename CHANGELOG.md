@@ -1,3 +1,9 @@
+## 0.13.17 (2026-02-21)
+
+### Fix
+
+- Add claude sonnet 4.6 and set it as default model
+
 ## 0.13.16 (2026-02-20)
 
 ### Fix
