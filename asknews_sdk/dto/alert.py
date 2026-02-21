@@ -34,6 +34,7 @@ AlertReportModel = Literal[
     "claude-sonnet-4-5-20250929",
     "claude-opus-4-5-20251101",
     "claude-opus-4-6",
+    "claude-sonnet-4-6",
     "meta-llama/Meta-Llama-3.1-405B-Instruct",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
 ]
@@ -70,13 +71,11 @@ class WebSource(BaseModel):
 
 class AskNewsSource(BaseModel):
     identifier: Literal["asknews"]
-    params: Optional[FilterParams] = Field(
-        None, description="The filter params to use")
+    params: Optional[FilterParams] = Field(None, description="The filter params to use")
 
 
 class TelegramSourceParams(BaseModel):
-    channel_name: str = Field(...,
-                              description="The channel name to use as a source")
+    channel_name: str = Field(..., description="The channel name to use as a source")
 
 
 class TelegramSource(BaseModel):
@@ -90,12 +89,10 @@ class BlueskySourceParams(BaseModel):
 
 class BlueskySource(BaseModel):
     identifier: Literal["bluesky"]
-    params: Optional[BlueskySourceParams] = Field(
-        None, description="Bluesky source parameters")
+    params: Optional[BlueskySourceParams] = Field(None, description="Bluesky source parameters")
 
 
-DeepNewsSourceType = Literal["asknews", "google",
-                             "graph", "wiki", "x", "reddit", "charts"]
+DeepNewsSourceType = Literal["asknews", "google", "graph", "wiki", "x", "reddit", "charts"]
 DeepNewsSourceTypeDefault: DeepNewsSourceType = "asknews"
 
 DeepNewsInlineCitationType = Literal["markdown_link", "numbered", "none"]
@@ -105,8 +102,7 @@ DeepNewsInlineCitationTypeDefault: DeepNewsInlineCitationType = "markdown_link"
 class DeepNewsSourceParams(BaseModel):
     model: Optional[str] = Field(
         default=None,
-        description=(
-            "The model to use for DeepNews. Check API reference for default model."),
+        description=("The model to use for DeepNews. Check API reference for default model."),
     )
     filter_params: Optional[Dict[str, Any]] = Field(
         default=None, description="Any filter param available on the /news endpoint."
@@ -117,8 +113,7 @@ class DeepNewsSourceParams(BaseModel):
             "The search depth for deep research. Higher values mean more " "thorough research."
         ),
     )
-    max_depth: Optional[int] = Field(
-        default=4, description="The maximum research depth allowed.")
+    max_depth: Optional[int] = Field(default=4, description="The maximum research depth allowed.")
     sources: Optional[Union[DeepNewsSourceType, List[DeepNewsSourceType]]] = Field(
         default=DeepNewsSourceTypeDefault,
         description=(
@@ -126,12 +121,12 @@ class DeepNewsSourceParams(BaseModel):
             f"Available sources are: {', '.join(get_args(DeepNewsSourceType))}"
         ),
     )
-    start_source_number: Optional[int] = Field(
+    start_citation_number: Optional[int] = Field(
         default=1,
         description=(
             "Starting number for inline citations. Offsets fetched source citation keys. "
             "Useful if you are providing the agent outside sources with numbered citation keys."
-        )
+        ),
     )
     journalist_mode: Optional[bool] = Field(
         default=True,
@@ -168,13 +163,11 @@ class DeepNewsSourceParams(BaseModel):
 
 class DeepNewsSource(BaseModel):
     identifier: Literal["deepnews"]
-    params: Optional[DeepNewsSourceParams] = Field(
-        None, description="DeepNews source parameters")
+    params: Optional[DeepNewsSourceParams] = Field(None, description="DeepNews source parameters")
 
 
 Source = Annotated[
-    Union[AskNewsSource, TelegramSource,
-          BlueskySource, WebSource, DeepNewsSource],
+    Union[AskNewsSource, TelegramSource, BlueskySource, WebSource, DeepNewsSource],
     Field(discriminator="identifier"),
 ]
 
@@ -196,8 +189,7 @@ class WebhookParams(BaseModel):
 
 
 class EmailParams(BaseModel):
-    to: EmailStr = Field(...,
-                         description="The email to send the alert to when it triggers")
+    to: EmailStr = Field(..., description="The email to send the alert to when it triggers")
     subject: Optional[str] = Field(
         None,
         description="The subject of the email. If not provided, the default subject will be used.",
@@ -213,8 +205,7 @@ class GoogleDocsParams(BaseModel):
             "account's google drive and shared with the user."
         ),
     )
-    emails: Optional[List[EmailStr]] = Field(
-        None, description="The emails to share the doc with")
+    emails: Optional[List[EmailStr]] = Field(None, description="The emails to share the doc with")
 
 
 class WebhookAction(BaseModel):
@@ -275,7 +266,7 @@ class ReportRequest(BaseModel):
     )
     include_appendix: Optional[bool] = Field(
         False,
-        description="Whether to append thinking and search traces as an appendix to the report."
+        description="Whether to append thinking and search traces as an appendix to the report.",
     )
 
 
@@ -285,9 +276,7 @@ AlertType = Literal["AlwaysAlertWhen", "AlertOnceIf", "ReportAbout"]
 class CreateAlertRequest(BaseSchema):
     query: Optional[str] = Field(
         None,
-        description=(
-            "The query to run for the alert."
-        ),
+        description=("The query to run for the alert."),
         examples=[
             "I want to be alerted if the president of the US says something about the economy",
         ],
@@ -301,17 +290,19 @@ class CreateAlertRequest(BaseSchema):
     )
     alert_type: Optional[AlertType] = Field(
         None,
-        description=("The type of alert. If specified, overrides `repeat` and `always_trigger`. "
-                     "'AlwaysAlertWhen': trigger alert actions any time the alert query is "
-                     "satisfied (`repeat=True`, `always_trigger=False`). "
-                     "Add Report model if you want a report when this is triggered. "
-                     "'AlertOnceIf': trigger alert actions when the alert query is satisfied "
-                     "and then disable the alert (`repeat=False`, `always_trigger=False`). "
-                     "Add Report model if you want a report when this is triggered. "
-                     "'ReportAbout': always trigger alert actions according to cron schedule "
-                     "and write a report (`repeat=True`, `always_trigger=True`). "
-                     "Unless a Report model is specified, the default report model "
-                     "(see API reference) is used."),
+        description=(
+            "The type of alert. If specified, overrides `repeat` and `always_trigger`. "
+            "'AlwaysAlertWhen': trigger alert actions any time the alert query is "
+            "satisfied (`repeat=True`, `always_trigger=False`). "
+            "Add Report model if you want a report when this is triggered. "
+            "'AlertOnceIf': trigger alert actions when the alert query is satisfied "
+            "and then disable the alert (`repeat=False`, `always_trigger=False`). "
+            "Add Report model if you want a report when this is triggered. "
+            "'ReportAbout': always trigger alert actions according to cron schedule "
+            "and write a report (`repeat=True`, `always_trigger=True`). "
+            "Unless a Report model is specified, the default report model "
+            "(see API reference) is used."
+        ),
     )
     model: Optional[CheckAlertModel] = Field(
         None,
@@ -402,17 +393,19 @@ class UpdateAlertRequest(BaseSchema):
     )
     alert_type: Optional[AlertType] = Field(
         None,
-        description=("The type of alert. If specified, overrides `repeat` and `always_trigger`. "
-                     "'AlwaysAlertWhen': trigger alert actions any time the alert query is "
-                     "satisfied (`repeat=True`, `always_trigger=False`). "
-                     "Add Report model if you want a report when this is triggered. "
-                     "'AlertOnceIf': trigger alert actions when the alert query is satisfied "
-                     "and then disable the alert (`repeat=False`, `always_trigger=False`). "
-                     "Add Report model if you want a report when this is triggered. "
-                     "'ReportAbout': always trigger alert actions according to cron schedule "
-                     "and write a report (`repeat=True`, `always_trigger=True`). "
-                     "Unless a Report model is specified, the default report model "
-                    "(see API reference) is used."),
+        description=(
+            "The type of alert. If specified, overrides `repeat` and `always_trigger`. "
+            "'AlwaysAlertWhen': trigger alert actions any time the alert query is "
+            "satisfied (`repeat=True`, `always_trigger=False`). "
+            "Add Report model if you want a report when this is triggered. "
+            "'AlertOnceIf': trigger alert actions when the alert query is satisfied "
+            "and then disable the alert (`repeat=False`, `always_trigger=False`). "
+            "Add Report model if you want a report when this is triggered. "
+            "'ReportAbout': always trigger alert actions according to cron schedule "
+            "and write a report (`repeat=True`, `always_trigger=True`). "
+            "Unless a Report model is specified, the default report model "
+            "(see API reference) is used."
+        ),
     )
     model: Optional[CheckAlertModel] = Field(
         None,

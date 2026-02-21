@@ -118,7 +118,7 @@ class CreateDeepNewsRequest(BaseSchema):
             )
         ),
     ] = DeepNewsInlineCitationTypeDefault
-    start_source_number:  Annotated[
+    start_citation_number: Annotated[
         Optional[int],
         Field(
             title=(
