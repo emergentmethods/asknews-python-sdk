@@ -1,3 +1,9 @@
+## 0.13.18 (2026-02-23)
+
+### Fix
+
+- Add asknews_watermark attribute to alert triggers and report
+
 ## 0.13.17 (2026-02-21)
 
 ### Fix
