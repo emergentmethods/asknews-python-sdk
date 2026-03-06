@@ -330,7 +330,7 @@ def ReportRequest(**kwargs: Any) -> LegacyReportRequest | DeepNewsReportRequest:
         if "identifier" not in kwargs:
             kwargs["identifier"] = "legacy"
         return LegacyReportRequest(**kwargs)
-    
+
 
 AlertType = Literal["AlwaysAlertWhen", "AlertOnceIf", "ReportAbout"]
 
