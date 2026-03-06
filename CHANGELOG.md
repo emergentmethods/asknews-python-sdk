@@ -1,3 +1,9 @@
+## 0.13.20 (2026-03-06)
+
+### Fix
+
+- Support DeepNews source and report in alert
+
 ## 0.13.19 (2026-02-23)
 
 ### Fix

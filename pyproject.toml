@@ -1,6 +1,6 @@
 [project]
 name = "asknews"
-version = "0.13.19"
+version = "0.13.20"
 description = "Python SDK for AskNews"
 readme = "README.md"
 requires-python = ">=3.8"
