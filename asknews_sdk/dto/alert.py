@@ -305,6 +305,7 @@ class LegacyReportRequest(ReportRequestParams):
         examples=["gpt-4o"],
     )
 
+
 class DeepNewsReportRequest(ReportRequestParams):
     """DeepNews report configuration.
 
@@ -316,12 +317,12 @@ class DeepNewsReportRequest(ReportRequestParams):
 
 # Type alias for discriminated union (used in type hints)
 ReportRequestType = Annotated[
-    LegacyReportRequest | DeepNewsReportRequest,
+    Union[LegacyReportRequest, DeepNewsReportRequest],
     Field(discriminator="identifier")
 ]
 
 
-def ReportRequest(**kwargs: Any) -> LegacyReportRequest | DeepNewsReportRequest:
+def ReportRequest(**kwargs: Any) -> Union[LegacyReportRequest, DeepNewsReportRequest]:
     identifier = kwargs.get("identifier", "legacy")
 
     if identifier == "deepnews":
