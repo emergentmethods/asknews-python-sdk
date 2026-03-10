@@ -264,7 +264,7 @@ class CreateDeepNewsRequest(BaseSchema):
                 "or tools that the DeepNews agent might use during its research process."
             ),
         ),
-    ] = 5
+    ] = 1
 
 
 class CreateDeepNewsResponse(BaseSchema):
