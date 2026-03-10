@@ -1,3 +1,9 @@
+## 0.13.27 (2026-03-10)
+
+### Fix
+
+- Make sure default parallel tool call is 1
+
 ## 0.13.26 (2026-03-10)
 
 ### Fix
