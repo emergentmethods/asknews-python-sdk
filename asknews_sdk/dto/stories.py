@@ -15,6 +15,13 @@ class RedditPerspective(BaseModel):
     summary: Annotated[str, Field(title="Summary")]
 
 
+class RedditComment(BaseModel):
+    author: Annotated[str, Field(title="Author")]
+    body: Annotated[str, Field(title="Body")]
+    date: Annotated[AwareDatetime, Field(title="Date")]
+    upvotes: Annotated[int, Field(title="Upvotes")]
+
+
 class RedditThread(BaseModel):
     author: Annotated[str, Field(title="Author")]
     author_comment_karma: Annotated[int, Field(title="Author Comment Karma")]
@@ -37,13 +44,6 @@ class RedditThread(BaseModel):
     upvotes: Annotated[int, Field(title="Upvotes")]
     url: Annotated[str, Field(title="Url")]
     main_speculation: Annotated[str, Field(title="Main Speculation/conspiracy/discussion")]
-
-
-class RedditComment(BaseModel):
-    author: Annotated[str, Field(title="Author")]
-    body: Annotated[str, Field(title="Body")]
-    date: Annotated[AwareDatetime, Field(title="Date")]
-    upvotes: Annotated[int, Field(title="Upvotes")]
 
 
 class IntraClusterStatistics(BaseModel):

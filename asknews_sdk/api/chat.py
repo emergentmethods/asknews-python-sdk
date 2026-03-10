@@ -301,6 +301,7 @@ class ChatAPI(BaseAPI[APIClient]):
         domains: Optional[List[str]] = None,
         strict: Optional[bool] = False,
         offset: Optional[int] = None,
+        url: Optional[str] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> WebSearchResponse:
@@ -320,6 +321,7 @@ class ChatAPI(BaseAPI[APIClient]):
                 "domains": domains,
                 "strict": strict,
                 "offset": offset,
+                "url": url,
             },
         )
         return WebSearchResponse.model_validate(response.content)
@@ -562,6 +564,9 @@ class ChatAPI(BaseAPI[APIClient]):
         presence_penalty: Optional[int] = 0,
         frequency_penalty: Optional[int] = 0,
         user: Optional[str] = None,
+        engine: Literal["v1", "v1.5"] = "v1",
+        only_cited_sources: bool = True,
+        max_parallel_tool_calls: int = 1,
         *,
         http_headers: Optional[Dict] = None,
     ) -> CreateDeepNewsResponse: ...
@@ -594,6 +599,9 @@ class ChatAPI(BaseAPI[APIClient]):
         presence_penalty: Optional[int] = 0,
         frequency_penalty: Optional[int] = 0,
         user: Optional[str] = None,
+        engine: Literal["v1", "v1.5"] = "v1",
+        only_cited_sources: bool = True,
+        max_parallel_tool_calls: int = 1,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Iterator[CreateDeepNewsResponseStream]: ...
@@ -625,6 +633,9 @@ class ChatAPI(BaseAPI[APIClient]):
         presence_penalty: Optional[int] = 0,
         frequency_penalty: Optional[int] = 0,
         user: Optional[str] = None,
+        engine: Literal["v1", "v1.5"] = "v1",
+        only_cited_sources: bool = True,
+        max_parallel_tool_calls: int = 1,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Union[CreateDeepNewsResponse, Iterator[CreateDeepNewsResponseStream]]:
@@ -662,6 +673,9 @@ class ChatAPI(BaseAPI[APIClient]):
                 presence_penalty=presence_penalty,
                 frequency_penalty=frequency_penalty,
                 user=user,
+                engine=engine,
+                only_cited_sources=only_cited_sources,
+                max_parallel_tool_calls=max_parallel_tool_calls,
             ).model_dump(mode="json"),
             headers={
                 **(http_headers or {}),
@@ -967,6 +981,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         domains: Optional[List[str]] = None,
         strict: Optional[bool] = False,
         offset: Optional[int] = None,
+        url: Optional[str] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> WebSearchResponse:
@@ -986,6 +1001,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
                 "domains": domains,
                 "strict": strict,
                 "offset": offset,
+                "url": url,
             },
         )
         return WebSearchResponse.model_validate(response.content)

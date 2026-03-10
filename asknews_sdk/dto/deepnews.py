@@ -54,7 +54,7 @@ class CreateDeepNewsResponseUsage(BaseModel):
     total_tokens: Annotated[int, Field(title="Total Tokens")]
 
 
-DeepNewsSourceType = Literal["asknews", "google", "graph", "wiki", "x", "reddit", "charts"]
+DeepNewsSourceType = Literal["asknews", "google", "graph", "wiki", "x", "reddit", "charts", "email"]
 DeepNewsSourceTypeDefault: DeepNewsSourceType = "asknews"
 
 DeepNewsInlineCitationType = Literal["markdown_link", "numbered", "none"]
@@ -242,6 +242,29 @@ class CreateDeepNewsRequest(BaseSchema):
     thread_id: Annotated[
         Optional[UUID], Field(title="ID of an existing thread to continue the conversation.")
     ] = None
+    engine: Annotated[
+        Optional[Literal["v1", "v1.5"]],
+        Field(
+            title=(
+                "Which engine to use for the DeepNews response. 'v1' is the original engine, while "
+                "'v1.5' is an improved engine with better performance and capabilities. "
+                "Check API reference for more details on the differences between the engines."
+            )
+        ),
+    ] = "v1"
+    max_parallel_tool_calls: Annotated[
+        Optional[int],
+        Field(
+            default=1,
+            ge=1,
+            le=4,
+            title=(
+                "The maximum number of tool calls that can be executed in parallel. "
+                "This is useful to limit the number of concurrent calls to external APIs "
+                "or tools that the DeepNews agent might use during its research process."
+            ),
+        ),
+    ] = 5
 
 
 class CreateDeepNewsResponse(BaseSchema):

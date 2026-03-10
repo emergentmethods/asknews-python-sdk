@@ -92,7 +92,7 @@ class BlueskySource(BaseModel):
     params: Optional[BlueskySourceParams] = Field(None, description="Bluesky source parameters")
 
 
-DeepNewsSourceType = Literal["asknews", "google", "graph", "wiki", "x", "reddit", "charts"]
+DeepNewsSourceType = Literal["asknews", "google", "graph", "wiki", "x", "reddit", "charts", "email"]
 DeepNewsSourceTypeDefault: DeepNewsSourceType = "asknews"
 
 DeepNewsInlineCitationType = Literal["markdown_link", "numbered", "none"]
