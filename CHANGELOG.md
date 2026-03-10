@@ -1,3 +1,9 @@
+## 0.13.26 (2026-03-10)
+
+### Fix
+
+- Add engine param, max tool call param, and email tool
+
 ## 0.13.25 (2026-03-06)
 
 ### Fix
