@@ -306,25 +306,6 @@ class Triggers(RootModel):
 
 class ReportRequestParams(BaseModel):
     """Base parameters shared between legacy and DeepNews report configurations."""
-
-    prompt: Optional[List[List[str]]] = Field(
-        default=None,
-        description=(
-            "Optional prompt to use for report generation. The prompt should be a list of "
-            "tuples where the first element is the author of the prompt and the second element "
-            "is the prompt itself. For example, [['system', 'You are a helpful AI bot. Write a "
-            "report based on summaries provided by the user.'], ['human', '{summaries}']]. "
-            "If not provided, the default report prompt will be used. You can use {summaries} "
-            "to insert the prompt optimized summaries into your report query."
-        ),
-        examples=[
-            [
-                "system",
-                "You are a helpful AI bot. Write a report based on summaries provided by the user.",
-            ],
-            ["human", "{summaries}"],
-        ],
-    )
     logo_url: Optional[HttpUrlString] = Field(
         default=None, description="The logo URL to use for the report"
     )
@@ -351,16 +332,46 @@ class LegacyReportRequest(ReportRequestParams):
         description=f"The model to use for the report. Defaults to {AlertReportModelDefault}.",
         examples=["gpt-4o"],
     )
+    prompt: Optional[List[List[str]]] = Field(
+        default=None,
+        description=(
+            "Optional prompt to use for report generation. The prompt should be a list of "
+            "tuples where the first element is the author of the prompt and the second element "
+            "is the prompt itself. For example, [['system', 'You are a helpful AI bot. Write a "
+            "report based on summaries provided by the user.'], ['human', '{summaries}']]. "
+            "If not provided, the default report prompt will be used. You can use {summaries} "
+            "to insert the prompt optimized summaries into your report query."
+        ),
+        examples=[
+            [
+                "system",
+                "You are a helpful AI bot. Write a report based on summaries provided by the user.",
+            ],
+            ["human", "{summaries}"],
+        ],
+    )
 
 
 class DeepNewsReportRequest(ReportRequestParams):
     """DeepNews report configuration.
 
-    Uses DeepNews deep research capabilities for report generation.
+    Uses DeepNews deep research capabilities for information retrieval and report generation.
     """
-
     identifier: Literal["deepnews"] = "deepnews"
     params: DeepNewsReportParams = Field(default_factory=DeepNewsReportParams)
+    prompt: Optional[str] = Field(
+        default=None,
+        description=(
+            "Optional prompt to use for report generation instructions, such as specific "
+            "formatting requests, or, if you are providing a list of report requests, specify "
+            "both your query and any formatting instructions here."
+        ),
+        examples=[
+            "Format your findings as a bullet point list.",
+            "Analyze current trends in the crypto market and shoe industry. Give each sector "
+            "its own section."
+        ],
+    )
 
     @model_validator(mode="before")
     @classmethod
@@ -419,7 +430,11 @@ AlertType = Literal["AlwaysAlertWhen", "AlertOnceIf", "ReportAbout"]
 class CreateAlertRequest(BaseSchema):
     query: str = Field(
         ...,
-        description="The query to run for the alert.",
+        description=(
+            "The query to run for the alert. If you are providing a list of report requests, "
+            "specify each report's individual query in the report prompt and provide set this "
+            "field as an empty string."
+        ),
         examples=[
             "I want to be alerted if the president of the US says something about the economy",
         ],
@@ -508,7 +523,7 @@ class CreateAlertRequest(BaseSchema):
             "If not specified, no report is generated. Use ReportRequest(...) or "
             "ReportRequest(identifier='legacy', ...) for "
             "legacy reports or ReportRequest(identifier='deepnews', ...) for "
-            "DeepNews reports."
+            "DeepNews reports.Requests without identifier default to 'legacy'."
         ),
     )
     title: Optional[str] = Field(
@@ -524,7 +539,10 @@ class CreateAlertRequest(BaseSchema):
 class UpdateAlertRequest(BaseSchema):
     query: Optional[str] = Field(
         default=None,
-        description="The query to run for the alert.",
+        description=(
+            "The query to run for the alert. If you are providing a list of report requests, "
+            "specify each report's individual query in the report prompt."
+        ),
         examples=[
             "I want to be alerted if the president of the US says something about the economy",
         ],
@@ -610,7 +628,7 @@ class UpdateAlertRequest(BaseSchema):
             "If not specified, no report is generated. Use ReportRequest(...) or "
             "ReportRequest(identifier='legacy', ...) for "
             "legacy reports or ReportRequest(identifier='deepnews', ...) for "
-            "DeepNews reports."
+            "DeepNews reports. Requests without identifier default to 'legacy'."
         ),
     )
     title: Optional[str] = Field(
