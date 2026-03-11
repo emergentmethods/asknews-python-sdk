@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional, Union, get_args
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field, RootModel, model_validator
+from pydantic import BaseModel, EmailStr, Field, RootModel
 from typing_extensions import Annotated
 
 from asknews_sdk.dto.base import BaseSchema
@@ -372,15 +372,6 @@ class DeepNewsReportRequest(ReportRequestParams):
             "its own section."
         ],
     )
-
-    @model_validator(mode="before")
-    @classmethod
-    def handle_missing_params(cls, data: Any) -> Any:
-        """Add empty params dict if missing so default_factory kicks in."""
-        if isinstance(data, dict) and "params" not in data:
-            data = dict(data)
-            data["params"] = {}
-        return data
 
 
 # Type alias for discriminated union (used in type hints)
