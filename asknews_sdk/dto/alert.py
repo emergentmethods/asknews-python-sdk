@@ -199,12 +199,12 @@ class WebSourceParams(BaseModel):
 
 
 class WebSource(BaseModel):
-    identifier: Literal["web"]
+    identifier: Literal["web"] = "web"
     params: WebSourceParams
 
 
 class AskNewsSource(BaseModel):
-    identifier: Literal["asknews"]
+    identifier: Literal["asknews"] = "asknews"
     params: Optional[FilterParams] = Field(None, description="The filter params to use")
 
 
@@ -213,7 +213,7 @@ class TelegramSourceParams(BaseModel):
 
 
 class TelegramSource(BaseModel):
-    identifier: Literal["telegram"]
+    identifier: Literal["telegram"] = "telegram"
     params: TelegramSourceParams
 
 
@@ -222,12 +222,12 @@ class BlueskySourceParams(BaseModel):
 
 
 class BlueskySource(BaseModel):
-    identifier: Literal["bluesky"]
+    identifier: Literal["bluesky"] = "bluesky"
     params: Optional[BlueskySourceParams] = Field(None, description="Bluesky source parameters")
 
 
 class DeepNewsSource(BaseModel):
-    identifier: Literal["deepnews"]
+    identifier: Literal["deepnews"] = "deepnews"
     params: DeepNewsSourceParams = Field(default_factory=DeepNewsSourceParams)
 
 
@@ -656,7 +656,7 @@ class AlertResponse(BaseSchema):
     model: Optional[str] = None
     share_link: Optional[str] = None
     sources: List[Dict[str, Any]]
-    report: Optional[Dict[str, Any] | list[Dict[str, Any]]] = None
+    report: Optional[Dict[str, Any] | List[Dict[str, Any]]] = None
     triggers: List[Dict[str, Any]]
     always_trigger: bool = False
     repeat: bool = True
