@@ -1,3 +1,9 @@
+## 0.13.28 (2026-03-12)
+
+### Fix
+
+- Add original language summary and image_description to class Article
+
 ## 0.13.27 (2026-03-10)
 
 ### Fix
