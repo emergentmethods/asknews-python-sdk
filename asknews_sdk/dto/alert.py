@@ -66,7 +66,7 @@ AlertReportModel = Literal[
 AlertReportModelDefault: AlertReportModel = "claude-sonnet-4-5-20250929"
 
 DeepNewsSourceModelDefault: DeepNewsModel = "open-source-best"
-DeepNewsReportModelDefault: DeepNewsModel = "claude-sonnet-4-5-20250929"
+DeepNewsReportModelDefault: DeepNewsModel = "claude-sonnet-4-6"
 
 DeepNewsSourceTypeDefault: List[DeepNewsSourceType] = ["asknews", "google", "wiki", "x"]
 
@@ -105,7 +105,6 @@ class DeepNewsSourceParams(DeepNewsParams):
 
     DeepNews performs deep research using multiple tools.
     """
-
     model: Optional[DeepNewsModel] = Field(
         default=DeepNewsSourceModelDefault,
         description=(
@@ -135,7 +134,6 @@ class DeepNewsReportParams(DeepNewsParams):
 
     DeepNews performs deep research using multiple tools.
     """
-
     model: Optional[DeepNewsModel] = Field(
         default=DeepNewsReportModelDefault,
         description=(
@@ -309,7 +307,7 @@ class ReportRequestParams(BaseModel):
     logo_url: Optional[HttpUrlString] = Field(
         default=None, description="The logo URL to use for the report"
     )
-    include_appendix: Optional[bool] = Field(
+    include_appendix: bool = Field(
         default=False,
         description="Whether to append thinking and search traces as an appendix to the report.",
     )
@@ -320,35 +318,16 @@ class ReportRequestParams(BaseModel):
 
 
 class LegacyReportRequest(ReportRequestParams):
-    """Legacy report configuration (original format).
-
+    """DEPRECATED - Use DeepNewsReportRequest instead.
+    Legacy report configuration (original format).
     This is the original ReportRequest format that uses a simple model field
     for report generation without DeepNews capabilities.
     """
-
     identifier: Literal["legacy"] = "legacy"
     model: AlertReportModel = Field(
         default=AlertReportModelDefault,
         description=f"The model to use for the report. Defaults to {AlertReportModelDefault}.",
         examples=["gpt-4o"],
-    )
-    prompt: Optional[List[List[str]]] = Field(
-        default=None,
-        description=(
-            "Optional prompt to use for report generation. The prompt should be a list of "
-            "tuples where the first element is the author of the prompt and the second element "
-            "is the prompt itself. For example, [['system', 'You are a helpful AI bot. Write a "
-            "report based on summaries provided by the user.'], ['human', '{summaries}']]. "
-            "If not provided, the default report prompt will be used. You can use {summaries} "
-            "to insert the prompt optimized summaries into your report query."
-        ),
-        examples=[
-            [
-                "system",
-                "You are a helpful AI bot. Write a report based on summaries provided by the user.",
-            ],
-            ["human", "{summaries}"],
-        ],
     )
 
 
@@ -395,7 +374,7 @@ def ReportRequest(**kwargs: Any) -> Union[LegacyReportRequest, DeepNewsReportReq
         DeepNewsReportRequest if identifier is "deepnews"
 
     Usage:
-        # Legacy format (original API - still works)
+        # Legacy format (DEPRECATED)
         ReportRequest(model="gpt-4o", logo_url="https://...")
 
         # DeepNews format
@@ -423,8 +402,7 @@ class CreateAlertRequest(BaseSchema):
         ...,
         description=(
             "The query to run for the alert. If you are providing a list of report requests, "
-            "specify each report's individual query in the report prompt and provide set this "
-            "field as an empty string."
+            "specify each report's individual query in the report prompt."
         ),
         examples=[
             "I want to be alerted if the president of the US says something about the economy",
@@ -511,10 +489,10 @@ class CreateAlertRequest(BaseSchema):
             "Configuration for generating a written report when the alert triggers. "
             "If report is a list, the individual reports will be concatenated into "
             "one report in the order they are defined. "
-            "If not specified, no report is generated. Use ReportRequest(...) or "
-            "ReportRequest(identifier='legacy', ...) for "
-            "legacy reports or ReportRequest(identifier='deepnews', ...) for "
-            "DeepNews reports.Requests without identifier default to 'legacy'."
+            "Use ReportRequest(identifier='deepnews', ...) for DeepNews reports."
+            "Use ReportRequest(...) or ReportRequest(identifier='legacy', ...) for "
+            "legacy reports (DEPRECATED). Requests without identifier default to "
+            "'deepnews'. Only DeepNews reports can be used in list."
         ),
     )
     title: Optional[str] = Field(
@@ -616,10 +594,10 @@ class UpdateAlertRequest(BaseSchema):
             "Configuration for generating a written report when the alert triggers. "
             "If report is a list, the individual reports will be concatenated into "
             "one report in the order they are defined. "
-            "If not specified, no report is generated. Use ReportRequest(...) or "
-            "ReportRequest(identifier='legacy', ...) for "
-            "legacy reports or ReportRequest(identifier='deepnews', ...) for "
-            "DeepNews reports. Requests without identifier default to 'legacy'."
+            "Use ReportRequest(identifier='deepnews', ...) for DeepNews reports."
+            "Use ReportRequest(...) or ReportRequest(identifier='legacy', ...) for "
+            "legacy reports (DEPRECATED). Requests without identifier default to "
+            "'deepnews'. Only DeepNews reports can be used in list."
         ),
     )
     title: Optional[str] = Field(
