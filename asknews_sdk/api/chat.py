@@ -464,7 +464,7 @@ class ChatAPI(BaseAPI[APIClient]):
         response = self.client.request(
             method="PUT",
             endpoint=f"/v1/chat/alerts/{alert_id}",
-            body=payload.model_dump(mode="json", exclude_unset=True)
+            body=payload.model_dump(mode="json")
             if isinstance(payload, UpdateAlertRequest)
             else payload,
             headers={
