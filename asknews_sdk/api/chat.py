@@ -60,6 +60,7 @@ DeepNewsModel = Literal[
     "claude-sonnet-4-6",
     "claude-opus-4-6",
     "claude-opus-4-5-20251101",
+    "claude-sonnet-4-6",
     "gemini-2.5-flash",
     "o3",
 ]
@@ -1244,6 +1245,9 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         presence_penalty: Optional[int] = 0,
         frequency_penalty: Optional[int] = 0,
         user: Optional[str] = None,
+        engine: Literal["v1", "v1.5"] = "v1",
+        only_cited_sources: bool = True,
+        max_parallel_tool_calls: int = 1,
         *,
         http_headers: Optional[Dict] = None,
     ) -> CreateDeepNewsResponse: ...
@@ -1276,6 +1280,9 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         presence_penalty: Optional[int] = 0,
         frequency_penalty: Optional[int] = 0,
         user: Optional[str] = None,
+        engine: Literal["v1", "v1.5"] = "v1",
+        only_cited_sources: bool = True,
+        max_parallel_tool_calls: int = 1,
         *,
         http_headers: Optional[Dict] = None,
     ) -> AsyncIterator[CreateDeepNewsResponseStream]: ...
@@ -1307,6 +1314,9 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         presence_penalty: Optional[int] = 0,
         frequency_penalty: Optional[int] = 0,
         user: Optional[str] = None,
+        engine: Literal["v1", "v1.5"] = "v1",
+        only_cited_sources: bool = True,
+        max_parallel_tool_calls: int = 1,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Union[CreateDeepNewsResponse, AsyncIterator[CreateDeepNewsResponseStream]]:
@@ -1344,6 +1354,9 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
                 presence_penalty=presence_penalty,
                 frequency_penalty=frequency_penalty,
                 user=user,
+                engine=engine,
+                only_cited_sources=only_cited_sources,
+                max_parallel_tool_calls=max_parallel_tool_calls,
             ).model_dump(mode="json"),
             headers={
                 **(http_headers or {}),
