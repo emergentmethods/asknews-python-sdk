@@ -29,7 +29,8 @@ DeepNewsModel = Literal[
     "claude-opus-4-5-20251101",
     "gemini-2.5-flash",
     "o3",
-    "open-source-best"
+    "open-source-best",
+    "gemini-3-flash",
 ]
 
 
@@ -63,9 +64,9 @@ AlertReportModel = Literal[
     "meta-llama/Meta-Llama-3.1-405B-Instruct",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
 ]
-AlertReportModelDefault: AlertReportModel = "claude-sonnet-4-5-20250929"
+AlertReportModelDefault: AlertReportModel = "claude-sonnet-4-6"
 
-DeepNewsSourceModelDefault: DeepNewsModel = "open-source-best"
+DeepNewsSourceModelDefault: DeepNewsModel = "gemini-3-flash"
 DeepNewsReportModelDefault: DeepNewsModel = "claude-sonnet-4-6"
 
 DeepNewsSourceTypeDefault: List[DeepNewsSourceType] = ["asknews", "google", "wiki", "x"]
@@ -73,7 +74,6 @@ DeepNewsSourceTypeDefault: List[DeepNewsSourceType] = ["asknews", "google", "wik
 
 class DeepNewsParams(BaseModel):
     """Base parameters shared between DeepNews source and report configurations."""
-
     sources: Optional[Union[DeepNewsSourceType, List[DeepNewsSourceType]]] = Field(
         default=DeepNewsSourceTypeDefault,
         description=(
@@ -113,19 +113,19 @@ class DeepNewsSourceParams(DeepNewsParams):
         examples=["claude-sonnet-4-5-20250929"],
     )
     search_depth: Optional[int] = Field(
-        default=2,
+        default=1,
         ge=1,
         le=10,
         description=(
             "The search depth for deep research. Higher values mean more "
-            "thorough research. Defaults to 2."
+            "thorough research. Defaults to 1."
         ),
     )
     max_depth: Optional[int] = Field(
-        default=4,
+        default=2,
         ge=1,
         le=10,
-        description="The maximum research depth allowed. Defaults to 4.",
+        description="The maximum research depth allowed. Defaults to 2.",
     )
 
 
@@ -305,7 +305,8 @@ class Triggers(RootModel):
 class ReportRequestParams(BaseModel):
     """Base parameters shared between legacy and DeepNews report configurations."""
     logo_url: Optional[HttpUrlString] = Field(
-        default=None, description="The logo URL to use for the report"
+        default=None,
+        description="The logo URL to use for the report",
     )
     include_appendix: bool = Field(
         default=False,
@@ -341,14 +342,14 @@ class DeepNewsReportRequest(ReportRequestParams):
     prompt: Optional[str] = Field(
         default=None,
         description=(
-            "Optional prompt to use for report generation instructions, such as specific "
-            "formatting requests, or, if you are providing a list of report requests, specify "
-            "both your query and any formatting instructions here."
+            "The prompt to use for report generation instructions. This is similar "
+            "to the alert query but can contain additional instructions on how to "
+            "format the report."
         ),
         examples=[
-            "Format your findings as a bullet point list.",
-            "Analyze current trends in the crypto market and shoe industry. Give each sector "
-            "its own section."
+            "Monitor Tesla stock and summarize any major price movements with percentage changes",
+            "Track the current situation in the Middle East and give me a bullet point list of "
+            "recent events"
         ],
     )
 
@@ -398,20 +399,22 @@ AlertType = Literal["AlwaysAlertWhen", "AlertOnceIf", "ReportAbout"]
 
 
 class CreateAlertRequest(BaseSchema):
-    query: str = Field(
-        ...,
+    query: Optional[str] = Field(
+        default=None,
         description=(
-            "The query to run for the alert. If you are providing a list of report requests, "
-            "specify each report's individual query in the report prompt."
+            "The query to run for retrieving information from sources, and for checking the alert. "
+            "If you have defined one or more reports, specify each report's individual query in "
+            "the report prompt."
         ),
         examples=[
             "I want to be alerted if the president of the US says something about the economy",
         ],
     )
-    sources: Sources = Field(
-        ...,
+    sources: Optional[Sources] = Field(
+        default=None,
         description=(
-            "The sources to use for the alert query. Available sources are: "
+            "The sources to use for retrieving information related to the alert query. "
+            "Available sources are: "
             f"{', '.join([arg.__name__ for arg in get_args(get_args(Source)[0])])}"
         ),
     )
@@ -509,8 +512,9 @@ class UpdateAlertRequest(BaseSchema):
     query: Optional[str] = Field(
         default=None,
         description=(
-            "The query to run for the alert. If you are providing a list of report requests, "
-            "specify each report's individual query in the report prompt."
+            "The query to run for retrieving information from sources, and for checking the alert. "
+            "If you have defined one or more reports, specify each report's individual query in "
+            "the report prompt."
         ),
         examples=[
             "I want to be alerted if the president of the US says something about the economy",
@@ -519,7 +523,8 @@ class UpdateAlertRequest(BaseSchema):
     sources: Optional[Sources] = Field(
         default=None,
         description=(
-            "The sources to use for the alert query. Available sources are: "
+            "The sources to use for retrieving information related to the alert query. "
+            "Available sources are: "
             f"{', '.join([arg.__name__ for arg in get_args(get_args(Source)[0])])}"
         ),
     )
