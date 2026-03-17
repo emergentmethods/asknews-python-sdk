@@ -359,6 +359,8 @@ ReportRequestType = Annotated[
     Union[LegacyReportRequest, DeepNewsReportRequest], Field(discriminator="identifier")
 ]
 
+ReportRequestTypeNoDiscriminator = LegacyReportRequest | DeepNewsReportRequest
+
 
 def ReportRequest(**kwargs: Any) -> Union[LegacyReportRequest, DeepNewsReportRequest]:
     """Factory function for creating report configurations.
@@ -593,7 +595,8 @@ class UpdateAlertRequest(BaseSchema):
             "If set, the alert will be disabled after this date."
         ),
     )
-    report: Optional[Union[ReportRequestType, List[ReportRequestType]]] = Field(
+    report: Optional[Union[ReportRequestTypeNoDiscriminator,
+                           List[ReportRequestTypeNoDiscriminator]]] = Field(
         default=None,
         description=(
             "Configuration for generating a written report when the alert triggers. "
