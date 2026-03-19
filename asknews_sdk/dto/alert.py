@@ -98,6 +98,16 @@ class DeepNewsParams(BaseModel):
         default=False,
         description="Whether to provide geo coordinates to the agent. Defaults to False.",
     )
+    engine: Literal["v1", "v1.5"] = Field(
+        default="v1",
+        description=("Legacy vs new DeepNews engine"),
+    )
+    max_parallel_tool_calls: int = Field(
+        default=1,
+        ge=1,
+        le=4,
+        description=("The number of tool calls the agent can run in parallel."),
+    )
 
 
 class DeepNewsSourceParams(DeepNewsParams):
