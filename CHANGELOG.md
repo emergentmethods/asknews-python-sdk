@@ -1,3 +1,17 @@
+## 0.13.30 (2026-03-19)
+
+### Fix
+
+- Sources are nullable and use Union
+- Use exclude_unset=True for alert update
+- Add new DeepNews params
+- Allow update report without identifier
+- Update alert definitions and defaults
+- Change default deepnews report model, remove prompt from legacy report
+- Include unset in alert update to include defaults
+- Use different prompt structures for DeepNews and Legacy reports
+- Allow DeepNews alert report and list of reports
+
 ## 0.13.29 (2026-03-15)
 
 ### Fix
