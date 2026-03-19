@@ -652,7 +652,7 @@ class AlertResponse(BaseSchema):
     model: Optional[str] = None
     share_link: Optional[str] = None
     sources: Optional[List[Dict[str, Any]]] = None
-    report: Optional[Dict[str, Any] | List[Dict[str, Any]]] = None
+    report: Optional[Union[Dict[str, Any], List[Dict[str, Any]]]] = None
     triggers: List[Dict[str, Any]]
     always_trigger: bool = False
     repeat: bool = True
