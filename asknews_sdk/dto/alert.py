@@ -369,7 +369,7 @@ ReportRequestType = Annotated[
     Union[LegacyReportRequest, DeepNewsReportRequest], Field(discriminator="identifier")
 ]
 
-ReportRequestTypeNoDiscriminator = LegacyReportRequest | DeepNewsReportRequest
+ReportRequestTypeNoDiscriminator = Union[LegacyReportRequest, DeepNewsReportRequest]
 
 
 def ReportRequest(**kwargs: Any) -> Union[LegacyReportRequest, DeepNewsReportRequest]:
@@ -651,7 +651,7 @@ class AlertResponse(BaseSchema):
     cron: str
     model: Optional[str] = None
     share_link: Optional[str] = None
-    sources: List[Dict[str, Any]]
+    sources: Optional[List[Dict[str, Any]]] = None
     report: Optional[Dict[str, Any] | List[Dict[str, Any]]] = None
     triggers: List[Dict[str, Any]]
     always_trigger: bool = False
