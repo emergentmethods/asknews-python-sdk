@@ -502,6 +502,29 @@ class ChatAPI(BaseAPI[APIClient]):
             headers=http_headers,
         )
 
+    def run_alert(
+        self,
+        alert_id: Union[UUID, str],
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> AlertResponse:
+        """
+        Run an alert immediately.
+
+        :param alert_id: The alert ID.
+        :type alert_id: Union[UUID, str]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The alert response.
+        :rtype: AlertResponse
+        """
+        response = self.client.request(
+            method="GET",
+            endpoint=f"/v1/chat/alerts/{alert_id}/run",
+            headers=http_headers,
+        )
+        return AlertResponse.model_validate(response.content)
+
     def list_alert_logs(
         self,
         alert_id: Union[UUID, str],
@@ -1181,6 +1204,29 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
             endpoint=f"/v1/chat/alerts/{alert_id}",
             headers=http_headers,
         )
+
+    async def run_alert(
+        self,
+        alert_id: Union[UUID, str],
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> AlertResponse:
+        """
+        Run an alert immediately.
+
+        :param alert_id: The alert ID.
+        :type alert_id: Union[UUID, str]
+        :param http_headers: Additional HTTP headers.
+        :type http_headers: Optional[Dict]
+        :return: The alert response.
+        :rtype: AlertResponse
+        """
+        response = await self.client.request(
+            method="GET",
+            endpoint=f"/v1/chat/alerts/{alert_id}/run",
+            headers=http_headers,
+        )
+        return AlertResponse.model_validate(response.content)
 
     async def list_alert_logs(
         self,

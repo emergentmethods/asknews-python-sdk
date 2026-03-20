@@ -74,6 +74,7 @@ DeepNewsSourceTypeDefault: List[DeepNewsSourceType] = ["asknews", "google", "wik
 
 class DeepNewsParams(BaseModel):
     """Base parameters shared between DeepNews source and report configurations."""
+
     sources: Optional[Union[DeepNewsSourceType, List[DeepNewsSourceType]]] = Field(
         default=DeepNewsSourceTypeDefault,
         description=(
@@ -82,7 +83,7 @@ class DeepNewsParams(BaseModel):
             f"Defaults to {DeepNewsSourceTypeDefault}."
         ),
     )
-    filter_params: Optional[FilterParams] = Field(
+    filter_params: Optional[dict] = Field(
         default=None,
         description="Filter parameters to apply to the AskNews search within DeepNews.",
     )
@@ -115,6 +116,7 @@ class DeepNewsSourceParams(DeepNewsParams):
 
     DeepNews performs deep research using multiple tools.
     """
+
     model: Optional[DeepNewsModel] = Field(
         default=DeepNewsSourceModelDefault,
         description=(
@@ -144,6 +146,7 @@ class DeepNewsReportParams(DeepNewsParams):
 
     DeepNews performs deep research using multiple tools.
     """
+
     model: Optional[DeepNewsModel] = Field(
         default=DeepNewsReportModelDefault,
         description=(
@@ -314,6 +317,7 @@ class Triggers(RootModel):
 
 class ReportRequestParams(BaseModel):
     """Base parameters shared between legacy and DeepNews report configurations."""
+
     logo_url: Optional[HttpUrlString] = Field(
         default=None,
         description="The logo URL to use for the report",
@@ -334,6 +338,7 @@ class LegacyReportRequest(ReportRequestParams):
     This is the original ReportRequest format that uses a simple model field
     for report generation without DeepNews capabilities.
     """
+
     identifier: Literal["legacy"] = "legacy"
     model: AlertReportModel = Field(
         default=AlertReportModelDefault,
@@ -347,6 +352,7 @@ class DeepNewsReportRequest(ReportRequestParams):
 
     Uses DeepNews deep research capabilities for information retrieval and report generation.
     """
+
     identifier: Literal["deepnews"] = "deepnews"
     params: DeepNewsReportParams = Field(default_factory=DeepNewsReportParams)
     prompt: Optional[str] = Field(
@@ -359,7 +365,7 @@ class DeepNewsReportRequest(ReportRequestParams):
         examples=[
             "Monitor Tesla stock and summarize any major price movements with percentage changes",
             "Track the current situation in the Middle East and give me a bullet point list of "
-            "recent events"
+            "recent events",
         ],
     )
 
@@ -605,8 +611,9 @@ class UpdateAlertRequest(BaseSchema):
             "If set, the alert will be disabled after this date."
         ),
     )
-    report: Optional[Union[ReportRequestTypeNoDiscriminator,
-                           List[ReportRequestTypeNoDiscriminator]]] = Field(
+    report: Optional[
+        Union[ReportRequestTypeNoDiscriminator, List[ReportRequestTypeNoDiscriminator]]
+    ] = Field(
         default=None,
         description=(
             "Configuration for generating a written report when the alert triggers. "
