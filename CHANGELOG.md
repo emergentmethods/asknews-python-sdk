@@ -1,3 +1,9 @@
+## 0.13.34 (2026-03-26)
+
+### Fix
+
+- Use end_datetime instead of stop_datetime
+
 ## 0.13.33 (2026-03-26)
 
 ### Fix
