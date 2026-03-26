@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, AsyncIterator, Dict, Iterator, List, Literal, Optional, Union, overload
 from uuid import UUID
 
@@ -299,10 +300,13 @@ class ChatAPI(BaseAPI[APIClient]):
         self,
         queries: List[str],
         lookback: Optional[int] = None,
+        start_datetime: Optional[datetime] = None,
+        stop_datetime: Optional[datetime] = None,
         domains: Optional[List[str]] = None,
         strict: Optional[bool] = False,
         offset: Optional[int] = None,
         url: Optional[str] = None,
+        engine: Literal["v1", "v1.5"] = "v1",
         *,
         http_headers: Optional[Dict] = None,
     ) -> WebSearchResponse:
@@ -319,10 +323,13 @@ class ChatAPI(BaseAPI[APIClient]):
             query={
                 "queries": queries,
                 "lookback": lookback,
+                "start_datetime": start_datetime,
+                "stop_datetime": stop_datetime,
                 "domains": domains,
                 "strict": strict,
                 "offset": offset,
                 "url": url,
+                "engine": engine,
             },
         )
         return WebSearchResponse.model_validate(response.content)
@@ -1002,10 +1009,13 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         self,
         queries: List[str],
         lookback: Optional[int] = None,
+        start_datetime: Optional[datetime] = None,
+        stop_datetime: Optional[datetime] = None,
         domains: Optional[List[str]] = None,
         strict: Optional[bool] = False,
         offset: Optional[int] = None,
         url: Optional[str] = None,
+        engine: Literal["v1", "v1.5"] = "v1",
         *,
         http_headers: Optional[Dict] = None,
     ) -> WebSearchResponse:
@@ -1022,10 +1032,13 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
             query={
                 "queries": queries,
                 "lookback": lookback,
+                "start_datetime": start_datetime,
+                "stop_datetime": stop_datetime,
                 "domains": domains,
                 "strict": strict,
                 "offset": offset,
                 "url": url,
+                "engine": engine,
             },
         )
         return WebSearchResponse.model_validate(response.content)
