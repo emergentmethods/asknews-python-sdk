@@ -666,3 +666,4 @@ class AlertResponse(BaseSchema):
     active: bool = True
     alert_type: Optional[AlertType] = None
     title: Optional[str] = None
+    seat_id: Optional[UUID] = None
