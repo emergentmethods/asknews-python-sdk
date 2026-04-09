@@ -1,3 +1,9 @@
+## 0.13.36 (2026-04-09)
+
+### Fix
+
+- Increase max allowed depth to 200
+
 ## 0.13.35 (2026-04-03)
 
 ### Fix
