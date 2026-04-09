@@ -157,7 +157,7 @@ class DeepNewsReportParams(DeepNewsParams):
     search_depth: Optional[int] = Field(
         default=2,
         ge=1,
-        le=80,
+        le=190,
         description=(
             "The search depth for deep research. Higher values mean more "
             "thorough research. Defaults to 2."
@@ -166,7 +166,7 @@ class DeepNewsReportParams(DeepNewsParams):
     max_depth: Optional[int] = Field(
         default=4,
         ge=1,
-        le=100,
+        le=200,
         description="The maximum research depth allowed. Defaults to 4.",
     )
     start_citation_number: Optional[int] = Field(

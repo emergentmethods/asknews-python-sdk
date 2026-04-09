@@ -92,7 +92,7 @@ class CreateDeepNewsRequest(BaseSchema):
             title=("The search depth for deep research. Higher values mean more thorough research.")
         ),
     ] = 2
-    max_depth: Annotated[Optional[int], Field(title="The maximum research depth allowed.")] = 4
+    max_depth: Annotated[Optional[int], Field(title="The maximum research depth allowed.")] = 10
     sources: Annotated[
         Optional[
             Union[
