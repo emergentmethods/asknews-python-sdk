@@ -1,3 +1,9 @@
+## 0.13.38 (2026-04-18)
+
+### Fix
+
+- Add enable_source_pruning option for deepnews
+
 ## 0.13.37 (2026-04-09)
 
 ### Fix
