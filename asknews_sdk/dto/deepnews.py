@@ -265,6 +265,18 @@ class CreateDeepNewsRequest(BaseSchema):
             ),
         ),
     ] = 1
+    enable_source_pruning: Annotated[
+        Optional[bool],
+        Field(
+            title=(
+                "Whether to enable source pruning during the research process. "
+                "When enabled, the DeepNews agent will attempt to prune irrelevant sources "
+                "from its context to optimize token usage and focus on the most relevant "
+                "iinformation. This can lead to more efficient research and better responses, "
+                "especially for complex queries with many sources."
+            )
+        ),
+    ] = False
 
 
 class CreateDeepNewsResponse(BaseSchema):

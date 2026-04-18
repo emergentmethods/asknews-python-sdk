@@ -598,6 +598,7 @@ class ChatAPI(BaseAPI[APIClient]):
         engine: Literal["v1", "v1.5"] = "v1",
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
+        enable_source_pruning: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> CreateDeepNewsResponse: ...
@@ -633,6 +634,7 @@ class ChatAPI(BaseAPI[APIClient]):
         engine: Literal["v1", "v1.5"] = "v1",
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
+        enable_source_pruning: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Iterator[CreateDeepNewsResponseStream]: ...
@@ -667,6 +669,7 @@ class ChatAPI(BaseAPI[APIClient]):
         engine: Literal["v1", "v1.5"] = "v1",
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
+        enable_source_pruning: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Union[CreateDeepNewsResponse, Iterator[CreateDeepNewsResponseStream]]:
@@ -707,6 +710,7 @@ class ChatAPI(BaseAPI[APIClient]):
                 engine=engine,
                 only_cited_sources=only_cited_sources,
                 max_parallel_tool_calls=max_parallel_tool_calls,
+                enable_source_pruning=enable_source_pruning,
             ).model_dump(mode="json"),
             headers={
                 **(http_headers or {}),
