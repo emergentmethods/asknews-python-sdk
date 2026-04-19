@@ -109,6 +109,14 @@ class DeepNewsParams(BaseModel):
         le=4,
         description=("The number of tool calls the agent can run in parallel."),
     )
+    enable_source_pruning: bool = Field(
+        default=False,
+        description=(
+            "Whether to enable source pruning to remove irrelevant sources during research. "
+            "This can help reduce token usage for deep research tasks, but may also remove "
+            "sources that could be useful for the report. Defaults to False."
+        ),
+    )
 
 
 class DeepNewsSourceParams(DeepNewsParams):
