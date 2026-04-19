@@ -1,3 +1,9 @@
+## 0.13.40 (2026-04-19)
+
+### Fix
+
+- Add enable_source_pruning to async client
+
 ## 0.13.39 (2026-04-19)
 
 ### Fix
