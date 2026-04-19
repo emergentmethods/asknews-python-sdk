@@ -1,3 +1,9 @@
+## 0.13.39 (2026-04-19)
+
+### Fix
+
+- Add enable_source_pruning to alert report/source
+
 ## 0.13.38 (2026-04-18)
 
 ### Fix
