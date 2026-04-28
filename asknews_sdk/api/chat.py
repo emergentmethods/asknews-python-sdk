@@ -599,6 +599,7 @@ class ChatAPI(BaseAPI[APIClient]):
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
+        cutoff_datetime: Optional[Union[datetime, str]] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> CreateDeepNewsResponse: ...
@@ -635,6 +636,7 @@ class ChatAPI(BaseAPI[APIClient]):
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
+        cutoff_datetime: Optional[Union[datetime, str]] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Iterator[CreateDeepNewsResponseStream]: ...
@@ -670,6 +672,7 @@ class ChatAPI(BaseAPI[APIClient]):
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
+        cutoff_datetime: Optional[Union[datetime, str]] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Union[CreateDeepNewsResponse, Iterator[CreateDeepNewsResponseStream]]:
@@ -711,6 +714,7 @@ class ChatAPI(BaseAPI[APIClient]):
                 only_cited_sources=only_cited_sources,
                 max_parallel_tool_calls=max_parallel_tool_calls,
                 enable_source_pruning=enable_source_pruning,
+                cutoff_datetime=cutoff_datetime,
             ).model_dump(mode="json"),
             headers={
                 **(http_headers or {}),
@@ -1312,6 +1316,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
+        cutoff_datetime: Optional[Union[datetime, str]] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> CreateDeepNewsResponse: ...
@@ -1348,6 +1353,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
+        cutoff_datetime: Optional[Union[datetime, str]] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> AsyncIterator[CreateDeepNewsResponseStream]: ...
@@ -1383,6 +1389,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
+        cutoff_datetime: Optional[Union[datetime, str]] = None,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Union[CreateDeepNewsResponse, AsyncIterator[CreateDeepNewsResponseStream]]:
@@ -1424,6 +1431,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
                 only_cited_sources=only_cited_sources,
                 max_parallel_tool_calls=max_parallel_tool_calls,
                 enable_source_pruning=enable_source_pruning,
+                cutoff_datetime=cutoff_datetime,
             ).model_dump(mode="json"),
             headers={
                 **(http_headers or {}),

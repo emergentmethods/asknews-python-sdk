@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional, Union, get_args
 from uuid import UUID
 
@@ -277,6 +278,12 @@ class CreateDeepNewsRequest(BaseSchema):
             )
         ),
     ] = False
+    cutoff_datetime: Annotated[
+        Optional[Union[datetime, str]],
+        Field(
+            title=("The cutoff datetime to pass to the LLM for cutting off knowledge across tools.")
+        ),
+    ] = None
 
 
 class CreateDeepNewsResponse(BaseSchema):
