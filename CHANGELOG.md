@@ -1,3 +1,9 @@
+## 0.13.41 (2026-04-28)
+
+### Fix
+
+- Add cutoff_datetime parameter to deepnews
+
 ## 0.13.40 (2026-04-19)
 
 ### Fix
