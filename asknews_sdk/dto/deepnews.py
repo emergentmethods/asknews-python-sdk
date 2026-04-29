@@ -53,7 +53,7 @@ class CreateDeepNewsResponseUsage(BaseModel):
     prompt_tokens: Annotated[int, Field(title="Prompt Tokens")]
     completion_tokens: Annotated[int, Field(title="Completion Tokens")]
     total_tokens: Annotated[int, Field(title="Total Tokens")]
-    tool_usage: Annotated[Optional[dict[str, int]], Field(None, title="Tool Usage")]
+    tool_usage: Annotated[Optional[Dict[str, int]], Field(None, title="Tool Usage")]
 
 
 DeepNewsSourceType = Literal["asknews", "google", "graph", "wiki", "x", "reddit", "charts", "email"]
