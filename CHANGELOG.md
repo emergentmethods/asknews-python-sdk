@@ -1,3 +1,9 @@
+## 0.13.43 (2026-04-29)
+
+### Fix
+
+- Accommodate old python typing
+
 ## 0.13.42 (2026-04-29)
 
 ### Fix
