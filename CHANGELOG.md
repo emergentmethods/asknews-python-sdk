@@ -1,3 +1,9 @@
+## 0.13.42 (2026-04-29)
+
+### Fix
+
+- Add tool usage to the deepnews usage response
+
 ## 0.13.41 (2026-04-28)
 
 ### Fix
