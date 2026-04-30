@@ -26,8 +26,10 @@ from asknews_sdk.dto.deepnews import (
     CreateDeepNewsResponse,
     CreateDeepNewsResponseStream,
     CreateDeepNewsResponseStreamChunk,
+    CreateDeepNewsResponseStreamChunkV2,
     CreateDeepNewsResponseStreamError,
     CreateDeepNewsResponseStreamSource,
+    CreateDeepNewsResponseStreamV2,
 )
 from asknews_sdk.errors import APIError
 from asknews_sdk.response import AsyncEventSource, EventSource
@@ -595,7 +597,7 @@ class ChatAPI(BaseAPI[APIClient]):
         presence_penalty: Optional[int] = 0,
         frequency_penalty: Optional[int] = 0,
         user: Optional[str] = None,
-        engine: Literal["v1", "v1.5"] = "v1",
+        engine: Literal["v1", "v1.5", "v2.0"] = "v1",
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
@@ -641,6 +643,43 @@ class ChatAPI(BaseAPI[APIClient]):
         http_headers: Optional[Dict] = None,
     ) -> Iterator[CreateDeepNewsResponseStream]: ...
 
+    @overload
+    def get_deep_news(
+        self,
+        messages: List[Dict[str, str]],
+        model: DeepNewsModel = "claude-sonnet-4-6",
+        stream: Literal[True] = True,
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
+        append_references: bool = True,
+        asknews_watermark: bool = True,
+        journalist_mode: bool = True,
+        conversational_awareness: bool = False,
+        filter_params: Optional[Dict] = None,
+        sources: Optional[List[str]] = None,
+        search_depth: int = 3,
+        max_depth: int = 5,
+        return_sources: bool = True,
+        include_entities: bool = True,
+        include_coordinates: bool = False,
+        include_graphs: bool = False,
+        start_citation_number: int = 1,
+        temperature: Optional[float] = 0.9,
+        top_p: Optional[float] = 1.0,
+        n: Optional[int] = 1,
+        stop: Optional[Union[str, List[str]]] = None,
+        max_tokens: Optional[int] = 9999,
+        presence_penalty: Optional[int] = 0,
+        frequency_penalty: Optional[int] = 0,
+        user: Optional[str] = None,
+        engine: Literal["v2.0"] = ...,
+        only_cited_sources: bool = True,
+        max_parallel_tool_calls: int = 1,
+        enable_source_pruning: bool = False,
+        cutoff_datetime: Optional[Union[datetime, str]] = None,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> Iterator[CreateDeepNewsResponseStreamV2]: ...
+
     def get_deep_news(
         self,
         messages: List[Dict[str, str]],
@@ -668,14 +707,18 @@ class ChatAPI(BaseAPI[APIClient]):
         presence_penalty: Optional[int] = 0,
         frequency_penalty: Optional[int] = 0,
         user: Optional[str] = None,
-        engine: Literal["v1", "v1.5"] = "v1",
+        engine: Literal["v1", "v1.5", "v2.0"] = "v1",
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
         cutoff_datetime: Optional[Union[datetime, str]] = None,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> Union[CreateDeepNewsResponse, Iterator[CreateDeepNewsResponseStream]]:
+    ) -> Union[
+        CreateDeepNewsResponse,
+        Iterator[CreateDeepNewsResponseStream],
+        Iterator[CreateDeepNewsResponseStreamV2],
+    ]:
         """
         Get deep news research!
 
@@ -723,6 +766,7 @@ class ChatAPI(BaseAPI[APIClient]):
             accept=[
                 (CreateDeepNewsResponse.__content_type__, 1.0),
                 (CreateDeepNewsResponseStreamChunk.__content_type__, 1.0),
+                (CreateDeepNewsResponseStreamChunkV2.__content_type__, 1.0),
                 (CreateDeepNewsResponseStreamSource.__content_type__, 1.0),
             ],
             stream=stream,
@@ -732,13 +776,19 @@ class ChatAPI(BaseAPI[APIClient]):
         if stream:
 
             def _stream():
+                if engine == "v2.0":
+                    adapter = TypeAdapter(
+                        Union[CreateDeepNewsResponseStreamError, CreateDeepNewsResponseStreamV2]
+                    )
+                else:
+                    adapter = TypeAdapter(
+                        Union[CreateDeepNewsResponseStreamError, CreateDeepNewsResponseStream]
+                    )
                 for event in EventSource.from_api_response(response):
                     if event.content == "[DONE]":
                         break
 
-                    token = TypeAdapter(
-                        Union[CreateDeepNewsResponseStreamError, CreateDeepNewsResponseStream]
-                    ).validate_json(event.content)
+                    token = adapter.validate_json(event.content)
 
                     if isinstance(token, CreateDeepNewsResponseStreamError):
                         raise APIError(
@@ -1312,7 +1362,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         presence_penalty: Optional[int] = 0,
         frequency_penalty: Optional[int] = 0,
         user: Optional[str] = None,
-        engine: Literal["v1", "v1.5"] = "v1",
+        engine: Literal["v1", "v1.5", "v2.0"] = "v1",
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
@@ -1358,6 +1408,43 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         http_headers: Optional[Dict] = None,
     ) -> AsyncIterator[CreateDeepNewsResponseStream]: ...
 
+    @overload
+    async def get_deep_news(
+        self,
+        messages: List[Dict[str, str]],
+        model: DeepNewsModel = "claude-sonnet-4-6",
+        stream: Literal[True] = True,
+        inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
+        append_references: bool = True,
+        asknews_watermark: bool = True,
+        journalist_mode: bool = True,
+        conversational_awareness: bool = False,
+        filter_params: Optional[Dict] = None,
+        sources: Optional[List[str]] = None,
+        search_depth: int = 3,
+        max_depth: int = 5,
+        return_sources: bool = True,
+        include_entities: bool = True,
+        include_coordinates: bool = False,
+        include_graphs: bool = False,
+        start_citation_number: int = 1,
+        temperature: Optional[float] = 0.9,
+        top_p: Optional[float] = 1.0,
+        n: Optional[int] = 1,
+        stop: Optional[Union[str, List[str]]] = None,
+        max_tokens: Optional[int] = 9999,
+        presence_penalty: Optional[int] = 0,
+        frequency_penalty: Optional[int] = 0,
+        user: Optional[str] = None,
+        engine: Literal["v2.0"] = ...,
+        only_cited_sources: bool = True,
+        max_parallel_tool_calls: int = 1,
+        enable_source_pruning: bool = False,
+        cutoff_datetime: Optional[Union[datetime, str]] = None,
+        *,
+        http_headers: Optional[Dict] = None,
+    ) -> AsyncIterator[CreateDeepNewsResponseStreamV2]: ...
+
     async def get_deep_news(
         self,
         messages: List[Dict[str, str]],
@@ -1385,14 +1472,18 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         presence_penalty: Optional[int] = 0,
         frequency_penalty: Optional[int] = 0,
         user: Optional[str] = None,
-        engine: Literal["v1", "v1.5"] = "v1",
+        engine: Literal["v1", "v1.5", "v2.0"] = "v1",
         only_cited_sources: bool = True,
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
         cutoff_datetime: Optional[Union[datetime, str]] = None,
         *,
         http_headers: Optional[Dict] = None,
-    ) -> Union[CreateDeepNewsResponse, AsyncIterator[CreateDeepNewsResponseStream]]:
+    ) -> Union[
+        CreateDeepNewsResponse,
+        AsyncIterator[CreateDeepNewsResponseStream],
+        AsyncIterator[CreateDeepNewsResponseStreamV2],
+    ]:
         """
         Get deep news research!
 
@@ -1440,6 +1531,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
             accept=[
                 (CreateDeepNewsResponse.__content_type__, 1.0),
                 (CreateDeepNewsResponseStreamChunk.__content_type__, 1.0),
+                (CreateDeepNewsResponseStreamChunkV2.__content_type__, 1.0),
                 (CreateDeepNewsResponseStreamSource.__content_type__, 1.0),
             ],
             stream=stream,
@@ -1449,13 +1541,19 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         if stream:
 
             async def _stream():
+                if engine == "v2.0":
+                    adapter = TypeAdapter(
+                        Union[CreateDeepNewsResponseStreamError, CreateDeepNewsResponseStreamV2]
+                    )
+                else:
+                    adapter = TypeAdapter(
+                        Union[CreateDeepNewsResponseStreamError, CreateDeepNewsResponseStream]
+                    )
                 async for event in AsyncEventSource.from_api_response(response):
                     if event.content == "[DONE]":
                         break
 
-                    token = TypeAdapter(
-                        Union[CreateDeepNewsResponseStreamError, CreateDeepNewsResponseStream]
-                    ).validate_json(event.content)
+                    token = adapter.validate_json(event.content)
 
                     if isinstance(token, CreateDeepNewsResponseStreamError):
                         raise APIError(

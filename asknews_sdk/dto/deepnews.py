@@ -245,7 +245,7 @@ class CreateDeepNewsRequest(BaseSchema):
         Optional[UUID], Field(title="ID of an existing thread to continue the conversation.")
     ] = None
     engine: Annotated[
-        Optional[Literal["v1", "v1.5"]],
+        Optional[Literal["v1", "v1.5", "v2.0"]],
         Field(
             title=(
                 "Which engine to use for the DeepNews response. 'v1' is the original engine, while "
@@ -360,6 +360,133 @@ class CreateDeepNewsResponseStreamError(BaseSchema):
 CreateDeepNewsResponseStream: TypeAlias = Annotated[
     Union[
         Annotated[CreateDeepNewsResponseStreamChunk, Tag("chat.completion.chunk")],
+        Annotated[CreateDeepNewsResponseStreamSource, Tag("chat.completion.source")],
+    ],
+    Discriminator(object_discriminator),
+]
+
+
+# ── v2.0 Anthropic-style content-block events ────────────────────────────────
+
+
+def _event_type_discriminator(v: Any) -> str:
+    if isinstance(v, dict):
+        return v.get("type", "")
+    return getattr(v, "type", "")
+
+
+class AnthropicTextBlock(BaseModel):
+    type: Literal["text"] = "text"
+    text: str = ""
+
+
+class AnthropicThinkingBlock(BaseModel):
+    type: Literal["thinking"] = "thinking"
+    thinking: str = ""
+
+
+class AnthropicToolUseBlock(BaseModel):
+    type: Literal["tool_use"] = "tool_use"
+    id: str
+    name: str
+    input: Dict[str, Any] = Field(default_factory=dict)
+
+
+AnthropicContentBlock = Annotated[
+    Union[
+        Annotated[AnthropicTextBlock, Tag("text")],
+        Annotated[AnthropicThinkingBlock, Tag("thinking")],
+        Annotated[AnthropicToolUseBlock, Tag("tool_use")],
+    ],
+    Discriminator(_event_type_discriminator),
+]
+
+
+class AnthropicTextDelta(BaseModel):
+    type: Literal["text_delta"] = "text_delta"
+    text: str
+
+
+class AnthropicThinkingDelta(BaseModel):
+    type: Literal["thinking_delta"] = "thinking_delta"
+    thinking: str
+
+
+class AnthropicInputJsonDelta(BaseModel):
+    type: Literal["input_json_delta"] = "input_json_delta"
+    partial_json: str
+
+
+AnthropicDeltaPayload = Annotated[
+    Union[
+        Annotated[AnthropicTextDelta, Tag("text_delta")],
+        Annotated[AnthropicThinkingDelta, Tag("thinking_delta")],
+        Annotated[AnthropicInputJsonDelta, Tag("input_json_delta")],
+    ],
+    Discriminator(_event_type_discriminator),
+]
+
+
+class MessageStartEvent(BaseModel):
+    type: Literal["message_start"] = "message_start"
+    role: Literal["assistant"] = "assistant"
+
+
+class ContentBlockStartEvent(BaseModel):
+    type: Literal["content_block_start"] = "content_block_start"
+    index: int
+    content_block: AnthropicContentBlock
+
+
+class ContentBlockDeltaEvent(BaseModel):
+    type: Literal["content_block_delta"] = "content_block_delta"
+    index: int
+    delta: AnthropicDeltaPayload
+
+
+class ContentBlockStopEvent(BaseModel):
+    type: Literal["content_block_stop"] = "content_block_stop"
+    index: int
+
+
+class MessageStopEvent(BaseModel):
+    type: Literal["message_stop"] = "message_stop"
+
+
+ContentBlockEvent = Annotated[
+    Union[
+        Annotated[MessageStartEvent, Tag("message_start")],
+        Annotated[ContentBlockStartEvent, Tag("content_block_start")],
+        Annotated[ContentBlockDeltaEvent, Tag("content_block_delta")],
+        Annotated[ContentBlockStopEvent, Tag("content_block_stop")],
+        Annotated[MessageStopEvent, Tag("message_stop")],
+    ],
+    Discriminator(_event_type_discriminator),
+]
+
+
+class CreateDeepNewsResponseStreamChoiceV2(BaseModel):
+    index: Annotated[int, Field(title="Index")]
+    delta: ContentBlockEvent
+    finish_reason: Annotated[Optional[str], Field(None, title="Finish Reason")]
+
+
+class CreateDeepNewsResponseStreamChunkV2(BaseSchema):
+    """Chunk type yielded by engine='v2.0' streams."""
+
+    __content_type__ = "text/event-stream"
+
+    id: Annotated[str, Field(title="Id")]
+    created: Annotated[int, Field(title="Created")]
+    object: Annotated[Optional[str], Field("chat.completion.chunk", title="Object")]
+    model: Annotated[Optional[str], Field(title="Model")] = None
+    usage: CreateDeepNewsResponseUsage
+    choices: Annotated[List[CreateDeepNewsResponseStreamChoiceV2], Field(title="Choices")]
+
+
+CreateDeepNewsResponseStreamV2: TypeAlias = Annotated[
+    Union[
+        Annotated[CreateDeepNewsResponseStreamChunkV2, Tag("chat.completion.chunk")],
         Annotated[CreateDeepNewsResponseStreamSource, Tag("chat.completion.source")],
     ],
     Discriminator(object_discriminator),
