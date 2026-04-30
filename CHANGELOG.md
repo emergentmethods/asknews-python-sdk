@@ -1,3 +1,9 @@
+## 0.13.44 (2026-04-30)
+
+### Fix
+
+- Add engine=v2.0 for deepnews (same agent as v1.5, new anthropic-style event blocks
+
 ## 0.13.43 (2026-04-29)
 
 ### Fix
