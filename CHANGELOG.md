@@ -1,3 +1,9 @@
+## 0.13.45 (2026-05-04)
+
+### Fix
+
+- Add full_text_discovery for participating publishers
+
 ## 0.13.44 (2026-04-30)
 
 ### Fix
