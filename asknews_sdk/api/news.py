@@ -48,7 +48,11 @@ class NewsAPI(BaseAPI[APIClient]):
         return ArticleResponse.model_validate(response.content)
 
     def get_articles(
-        self, article_ids: Union[List[str], List[UUID]], *, http_headers: Optional[Dict] = None
+        self,
+        article_ids: Union[List[str], List[UUID]],
+        full_text: bool = False,
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> List[ArticleResponse]:
         """
         Get news articles by their UUIDs.
@@ -65,7 +69,7 @@ class NewsAPI(BaseAPI[APIClient]):
         response = self.client.request(
             method="GET",
             endpoint="/v1/news",
-            query={"article_ids": article_ids},
+            query={"article_ids": article_ids, "full_text": full_text},
             headers=http_headers,
             accept=[(ArticleResponse.__content_type__, 1.0)],
         )
@@ -532,7 +536,11 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         return ArticleResponse.model_validate(response.content)
 
     async def get_articles(
-        self, article_ids: Union[List[str], List[UUID]], *, http_headers: Optional[Dict] = None
+        self,
+        article_ids: Union[List[str], List[UUID]],
+        full_text: bool = False,
+        *,
+        http_headers: Optional[Dict] = None,
     ) -> List[ArticleResponse]:
         """
         Get news articles by their UUIDs.
@@ -549,7 +557,7 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         response = await self.client.request(
             method="GET",
             endpoint="/v1/news",
-            query={"article_ids": article_ids},
+            query={"article_ids": article_ids, "full_text": full_text},
             headers=http_headers,
             accept=[(ArticleResponse.__content_type__, 1.0)],
         )

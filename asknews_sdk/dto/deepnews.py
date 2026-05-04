@@ -56,7 +56,9 @@ class CreateDeepNewsResponseUsage(BaseModel):
     tool_usage: Annotated[Optional[Dict[str, int]], Field(None, title="Tool Usage")]
 
 
-DeepNewsSourceType = Literal["asknews", "google", "graph", "wiki", "x", "reddit", "charts", "email"]
+DeepNewsSourceType = Literal[
+    "asknews", "google", "graph", "wiki", "x", "reddit", "charts", "email", "full_text_discovery"
+]
 DeepNewsSourceTypeDefault: DeepNewsSourceType = "asknews"
 
 DeepNewsInlineCitationType = Literal["markdown_link", "numbered", "none"]
