@@ -7,10 +7,12 @@ from httpx import AsyncClient, Client
 from asknews_sdk.api import (
     AnalyticsAPI,
     AsyncAnalyticsAPI,
+    AsyncByokAPI,
     AsyncChatAPI,
     AsyncNewsAPI,
     AsyncStoriesAPI,
     AsyncWikiAPI,
+    ByokAPI,
     ChatAPI,
     NewsAPI,
     StoriesAPI,
@@ -118,6 +120,7 @@ class AskNewsSDK:
         self.news = NewsAPI(self.client)
         self.chat = ChatAPI(self.client)
         self.wiki = WikiAPI(self.client)
+        self.byok = ByokAPI(self.client)
 
     def __enter__(self) -> AskNewsSDK:
         return self
@@ -228,6 +231,7 @@ class AsyncAskNewsSDK:
         self.news = AsyncNewsAPI(self.client)
         self.chat = AsyncChatAPI(self.client)
         self.wiki = AsyncWikiAPI(self.client)
+        self.byok = AsyncByokAPI(self.client)
 
     async def __aenter__(self) -> AsyncAskNewsSDK:
         return self

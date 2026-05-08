@@ -10,6 +10,7 @@ from asknews_sdk.dto.alert import (
     WebhookAction,
     WebhookParams,
 )
+from asknews_sdk.dto.byok import ApiKeyResponse, Provider, UpsertApiKeyRequest
 from asknews_sdk.dto.common import FilterParams
 from asknews_sdk.dto.error import APIErrorModel, HTTPValidationError, ValidationError
 from asknews_sdk.dto.news import (
@@ -32,6 +33,9 @@ from asknews_sdk.dto.wiki import WikiSearchResponse
 
 
 __all__ = (
+    "Provider",
+    "UpsertApiKeyRequest",
+    "ApiKeyResponse",
     "AlertResponse",
     "CreateAlertRequest",
     "ReportRequest",
