@@ -1,3 +1,11 @@
+## 0.13.46 (2026-05-18)
+
+### Fix
+
+- repsonse
+- Switch to byte streaming to avoid line separators breaking pydantic validation
+- Add byok methods
+
 ## 0.13.45 (2026-05-04)
 
 ### Fix
