@@ -1,3 +1,9 @@
+## 0.13.47 (2026-05-18)
+
+### Fix
+
+- If newline chars cross multiple chunks
+
 ## 0.13.46 (2026-05-18)
 
 ### Fix
