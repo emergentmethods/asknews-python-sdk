@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import codecs
 from typing import Any, AsyncIterator, Dict, Generic, Iterator, TypeVar
 
 from httpx import Request, Response
@@ -146,6 +147,7 @@ class BaseEventSource(Generic[TResponseBodyStream]):
         self.iterator: TResponseBodyStream = iterator
         self.encoding = encoding
         self.current_event = ServerSentEvent()
+        self._decoder = codecs.getincrementaldecoder(encoding)(errors="replace")
 
     def _process_line(self, line: str) -> "ServerSentEvent | None":
         line = line.rstrip("\r")
@@ -192,12 +194,13 @@ class EventSource(BaseEventSource[ResponseBodyStream]):
 
         buffer = ""
         for chunk in self.iterator:
-            text = chunk.decode(self.encoding) if isinstance(chunk, bytes) else str(chunk)
+            text = self._decoder.decode(chunk) if isinstance(chunk, bytes) else str(chunk)
             buffer += text
             while "\n" in buffer:
                 line, buffer = buffer.split("\n", 1)
                 if event := self._process_line(line):
                     yield event
+        buffer += self._decoder.decode(b"", final=True)
         if buffer:
             if event := self._process_line(buffer):
                 yield event
@@ -228,12 +231,13 @@ class AsyncEventSource(BaseEventSource[AsyncResponseBodyStream]):
 
         buffer = ""
         async for chunk in self.iterator:
-            text = chunk.decode(self.encoding) if isinstance(chunk, bytes) else str(chunk)
+            text = self._decoder.decode(chunk) if isinstance(chunk, bytes) else str(chunk)
             buffer += text
             while "\n" in buffer:
                 line, buffer = buffer.split("\n", 1)
                 if event := self._process_line(line):
                     yield event
+        buffer += self._decoder.decode(b"", final=True)
         if buffer:
             if event := self._process_line(buffer):
                 yield event
