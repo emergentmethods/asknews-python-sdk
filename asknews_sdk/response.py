@@ -33,19 +33,13 @@ class BaseAPIResponse(Generic[TResponseBody]):
         self.headers = headers
         self.body: TResponseBody = body
         self.stream = stream
-        self.content_type, *_ = parse_content_type(
-            headers.get("content-type", "application/json")
-        )
+        self.content_type, *_ = parse_content_type(headers.get("content-type", "application/json"))
         self.content: Any = self._deserialize_body() if not self.stream else self.body
 
     def _deserialize_body(self) -> Any:
         if self.content_type == "application/octet-stream":
             return self.body
-        elif (
-            self.content_type == "application/json"
-            and self.body
-            and isinstance(self.body, bytes)
-        ):
+        elif self.content_type == "application/json" and self.body and isinstance(self.body, bytes):
             return deserialize(self.body)
         elif self.content_type == "text/plain" and isinstance(self.body, bytes):
             return self.body.decode("utf-8")
@@ -57,6 +51,7 @@ class APIResponse(BaseAPIResponse[ResponseBody]):
     """
     API Response object returned by the APIClient.
     """
+
     @classmethod
     def from_httpx_response(
         cls,
@@ -103,6 +98,7 @@ class AsyncAPIResponse(BaseAPIResponse[AsyncResponseBody]):
     """
     Async API Response object returned by the AsyncAPIClient.
     """
+
     @classmethod
     async def from_httpx_response(
         cls,
@@ -146,14 +142,21 @@ class AsyncAPIResponse(BaseAPIResponse[AsyncResponseBody]):
 
 
 class BaseEventSource(Generic[TResponseBodyStream]):
-    def __init__(
-        self,
-        iterator: TResponseBodyStream,
-        encoding: str = "utf-8"
-    ) -> None:
+    def __init__(self, iterator: TResponseBodyStream, encoding: str = "utf-8") -> None:
         self.iterator: TResponseBodyStream = iterator
         self.encoding = encoding
         self.current_event = ServerSentEvent()
+
+    def _process_line(self, line: str) -> "ServerSentEvent | None":
+        line = line.rstrip("\r")
+        if line:
+            self.parse_line(line)
+            return None
+        elif self.current_event.data:
+            event = self.current_event
+            self.current_event = ServerSentEvent()
+            return event
+        return None
 
     def parse_line(self, line: str) -> None:
         if line.startswith(":"):
@@ -183,20 +186,21 @@ class EventSource(BaseEventSource[ResponseBodyStream]):
     """
     EventSource object for streaming Server-Sent Events.
     """
+
     def __iter__(self) -> Iterator[ServerSentEvent]:
         assert is_iterator(self.iterator), "Iterator must be an synchronous iterator"
 
-        for line in self.iterator:
-            if isinstance(line, bytes):
-                decoded_line = line.decode(self.encoding)
-            else:
-                decoded_line = str(line)
-
-            if decoded_line := decoded_line.strip():
-                self.parse_line(decoded_line)
-            elif self.current_event.data:
-                yield self.current_event
-                self.current_event = ServerSentEvent()
+        buffer = ""
+        for chunk in self.iterator:
+            text = chunk.decode(self.encoding) if isinstance(chunk, bytes) else str(chunk)
+            buffer += text
+            while "\n" in buffer:
+                line, buffer = buffer.split("\n", 1)
+                if event := self._process_line(line):
+                    yield event
+        if buffer:
+            if event := self._process_line(buffer):
+                yield event
 
     @classmethod
     def from_api_response(cls, response: APIResponse) -> EventSource:
@@ -208,11 +212,9 @@ class EventSource(BaseEventSource[ResponseBodyStream]):
         :return: EventSource object
         :rtype: EventSource
         """
-        assert response.content_type == "text/event-stream", \
-            (
-                "Response content type must be text/event-stream, "
-                f"got: {response.content_type}"
-            )
+        assert response.content_type == "text/event-stream", (
+            "Response content type must be text/event-stream, " f"got: {response.content_type}"
+        )
         return cls(response.content)
 
 
@@ -220,20 +222,21 @@ class AsyncEventSource(BaseEventSource[AsyncResponseBodyStream]):
     """
     AsyncEventSource object for streaming Server-Sent Events.
     """
+
     async def __aiter__(self) -> AsyncIterator[ServerSentEvent]:
         assert is_async_iterator(self.iterator), "Iterator must be an asynchronous iterator"
 
-        async for line in self.iterator:
-            if isinstance(line, bytes):
-                decoded_line = line.decode(self.encoding)
-            else:
-                decoded_line = str(line)
-
-            if decoded_line := decoded_line.strip():
-                self.parse_line(decoded_line)
-            elif self.current_event.data:
-                yield self.current_event
-                self.current_event = ServerSentEvent()
+        buffer = ""
+        async for chunk in self.iterator:
+            text = chunk.decode(self.encoding) if isinstance(chunk, bytes) else str(chunk)
+            buffer += text
+            while "\n" in buffer:
+                line, buffer = buffer.split("\n", 1)
+                if event := self._process_line(line):
+                    yield event
+        if buffer:
+            if event := self._process_line(buffer):
+                yield event
 
     @classmethod
     def from_api_response(cls, response: AsyncAPIResponse) -> AsyncEventSource:
@@ -245,12 +248,11 @@ class AsyncEventSource(BaseEventSource[AsyncResponseBodyStream]):
         :return: AsyncEventSource object
         :rtype: AsyncEventSource
         """
-        assert response.content_type == "text/event-stream", \
-            (
-                "Response content type must be text/event-stream, "
-                f"got: {response.content_type}"
-            )
+        assert response.content_type == "text/event-stream", (
+            "Response content type must be text/event-stream, " f"got: {response.content_type}"
+        )
         return cls(response.content)
+
 
 # class EventSource(Generic[TResponseBodyStream]):
 #     """

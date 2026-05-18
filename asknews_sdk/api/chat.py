@@ -171,7 +171,7 @@ class ChatAPI(BaseAPI[APIClient]):
                 (CreateChatCompletionResponseStream.__content_type__, 1.0),
             ],
             stream=stream,
-            stream_type="lines",
+            stream_type="bytes",
         )
 
         if stream:
@@ -770,7 +770,7 @@ class ChatAPI(BaseAPI[APIClient]):
                 (CreateDeepNewsResponseStreamSource.__content_type__, 1.0),
             ],
             stream=stream,
-            stream_type="lines",
+            stream_type="bytes",
         )
 
         if stream:
@@ -936,7 +936,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
                 (CreateChatCompletionResponseStream.__content_type__, 1.0),
             ],
             stream=stream,
-            stream_type="lines",
+            stream_type="bytes",
         )
 
         if stream:
@@ -1535,7 +1535,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
                 (CreateDeepNewsResponseStreamSource.__content_type__, 1.0),
             ],
             stream=stream,
-            stream_type="lines",
+            stream_type="bytes",
         )
 
         if stream:
