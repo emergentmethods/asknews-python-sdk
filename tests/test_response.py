@@ -105,7 +105,7 @@ def test_event_source():
         headers={"content-type": "text/event-stream"},
         stream=SSEResponseStream(),
     )
-    api_response = APIResponse.from_httpx_response(response, stream=True, stream_type="lines")
+    api_response = APIResponse.from_httpx_response(response, stream=True, stream_type="bytes")
 
     event_source = EventSource.from_api_response(api_response)
     events = list(event_source)
@@ -126,7 +126,7 @@ def test_event_source():
         headers={"content-type": "application/json"},
         stream=SSEResponseStream(),
     )
-    api_response = APIResponse.from_httpx_response(response, stream=True, stream_type="lines")
+    api_response = APIResponse.from_httpx_response(response, stream=True, stream_type="bytes")
 
     with pytest.raises(AssertionError):
         EventSource.from_api_response(api_response)
@@ -184,7 +184,7 @@ async def test_event_source_async():
         stream=SSEResponseStream(),
     )
     api_response = await AsyncAPIResponse.from_httpx_response(
-        response, stream=True, stream_type="lines"
+        response, stream=True, stream_type="bytes"
     )
 
     event_source = AsyncEventSource.from_api_response(api_response)
