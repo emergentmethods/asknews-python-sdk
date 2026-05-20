@@ -1,3 +1,9 @@
+## 0.13.49 (2026-05-20)
+
+### Fix
+
+- Add api_key_id hint to Alert response
+
 ## 0.13.48 (2026-05-20)
 
 ### Fix
