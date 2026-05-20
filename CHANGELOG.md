@@ -1,3 +1,9 @@
+## 0.13.48 (2026-05-20)
+
+### Fix
+
+- Add crawl_date and content_type to Article response
+
 ## 0.13.47 (2026-05-18)
 
 ### Fix
