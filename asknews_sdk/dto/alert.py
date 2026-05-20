@@ -675,3 +675,4 @@ class AlertResponse(BaseSchema):
     alert_type: Optional[AlertType] = None
     title: Optional[str] = None
     seat_id: Optional[UUID] = None
+    api_key_id: Optional[str] = None
