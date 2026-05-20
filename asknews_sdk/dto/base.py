@@ -139,6 +139,25 @@ class Article(BaseModel):
     full_text: Optional[str] = None
     image_description: Optional[str] = None
     original_language_summary: Optional[str] = None
+    crawl_date: Optional[AwareDatetime] = None
+    content_type: Optional[
+        Literal[
+            "news",
+            "opinion",
+            "analysis",
+            "review",
+            "listicle",
+            "guide",
+            "interview",
+            "profile",
+            "forum",
+            "liveblog",
+            "fact-check",
+            "press_release",
+            "obituary",
+            "data_journalism",
+        ]
+    ] = None
 
 
 class PingResponse(BaseSchema):
