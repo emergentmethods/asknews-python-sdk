@@ -1,3 +1,9 @@
+## 0.13.50 (2026-05-24)
+
+### Fix
+
+- Add usage to searchresponse
+
 ## 0.13.49 (2026-05-20)
 
 ### Fix
