@@ -86,6 +86,7 @@ class ScrapeDataItem(BaseModel):
 class ScrapedURLItem(BaseModel):
     url: Annotated[str, Field(title="URL")]
     data: Annotated[Optional[ScrapeDataItem], Field(title="Data")] = None
+    skip_dedupe: Annotated[bool, Field(title="Skip Dedupe check")] = False
     metadata: Annotated[Optional[Dict], Field(title="Metadata")] = None
     enrichments: Annotated[Optional[Dict], Field(title="Enrichments")] = None
 
