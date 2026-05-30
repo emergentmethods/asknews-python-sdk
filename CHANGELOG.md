@@ -1,3 +1,9 @@
+## 0.13.51 (2026-05-30)
+
+### Fix
+
+- Add skip_dedup from the scrapedurl item submission
+
 ## 0.13.50 (2026-05-24)
 
 ### Fix
