@@ -1,3 +1,9 @@
+## 0.13.52 (2026-06-18)
+
+### Fix
+
+- Allow reports to define timezone
+
 ## 0.13.51 (2026-05-30)
 
 ### Fix
