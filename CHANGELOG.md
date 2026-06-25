@@ -1,3 +1,9 @@
+## 0.13.54 (2026-06-25)
+
+### Fix
+
+- Add ability to append date to email subject for alerts
+
 ## 0.13.53 (2026-06-18)
 
 ### Fix
