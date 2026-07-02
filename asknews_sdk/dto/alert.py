@@ -25,6 +25,7 @@ DeepNewsModel = Literal[
     "gemini-2.5-pro",
     "gemini-3-pro",
     "claude-sonnet-4-6",
+    "claude-sonnet-5",
     "claude-opus-4-6",
     "claude-opus-4-5-20251101",
     "gemini-2.5-flash",
@@ -61,6 +62,7 @@ AlertReportModel = Literal[
     "claude-opus-4-5-20251101",
     "claude-opus-4-6",
     "claude-sonnet-4-6",
+    "claude-sonnet-5",
     "meta-llama/Meta-Llama-3.1-405B-Instruct",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
 ]
@@ -130,7 +132,7 @@ class DeepNewsSourceParams(DeepNewsParams):
         description=(
             f"The model to use for DeepNews research. Defaults to {DeepNewsSourceModelDefault}"
         ),
-        examples=["claude-sonnet-4-5-20250929"],
+        examples=["claude-sonnet-4-6"],
     )
     search_depth: Optional[int] = Field(
         default=1,
@@ -160,7 +162,7 @@ class DeepNewsReportParams(DeepNewsParams):
         description=(
             f"The model to use for DeepNews research. Defaults to {DeepNewsReportModelDefault}"
         ),
-        examples=["claude-sonnet-4-5-20250929"],
+        examples=["claude-sonnet-4-6"],
     )
     search_depth: Optional[int] = Field(
         default=2,
