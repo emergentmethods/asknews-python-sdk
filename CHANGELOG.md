@@ -1,3 +1,10 @@
+## 0.13.55 (2026-07-21)
+
+### Fix
+
+- Add gpt-5.6 and opus-4.8
+- Add claude-sonnet-5 for alert reports
+
 ## 0.13.54 (2026-06-25)
 
 ### Fix
