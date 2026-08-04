@@ -69,6 +69,15 @@ class Entities(BaseModel):
     Science: Annotated[Optional[List[str]], Field([], title="Science")]
 
 
+class WikidataEntity(BaseModel):
+    title: Annotated[str, Field(title="Title")]
+    qid: Annotated[str, Field(title="Qid")]
+    relevance: Annotated[float, Field(title="Relevance")]
+    description: Annotated[Optional[str], Field(None, title="Description")]
+    # Original GLiNER/graph surface form before Wikidata disambiguation.
+    source_mention: Annotated[Optional[str], Field(None, title="Source Mention")]
+
+
 class Author(BaseModel):
     email: Optional[str] = None
     name: Optional[str] = None
@@ -85,6 +94,9 @@ class Article(BaseModel):
     domain_url: Annotated[str, Field(title="Domain Url")]
     eng_title: Annotated[str, Field(title="Eng Title")]
     entities: Annotated[Entities, Field(title="Entities")]
+    wikidata_entities: Annotated[
+        Optional[Dict[str, List[WikidataEntity]]], Field(None, title="Wikidata Entities")
+    ] = None
     image_url: Annotated[Optional[str], Field(None, title="Image Url")]
     keywords: Annotated[List[str], Field(title="Keywords")]
     language: Annotated[str, Field(title="Language")]
