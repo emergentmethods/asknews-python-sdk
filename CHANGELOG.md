@@ -1,3 +1,9 @@
+## 0.13.56 (2026-08-04)
+
+### Fix
+
+- Add wikidata entities to Article DTO
+
 ## 0.13.55 (2026-07-21)
 
 ### Fix
