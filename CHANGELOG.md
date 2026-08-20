@@ -1,3 +1,72 @@
+## 0.13.56 (2026-08-04)
+
+### Fix
+
+- Add wikidata entities to Article DTO
+
+## 0.13.55 (2026-07-21)
+
+### Fix
+
+- Add gpt-5.6 and opus-4.8
+- Add claude-sonnet-5 for alert reports
+
+## 0.13.54 (2026-06-25)
+
+### Fix
+
+- Add ability to append date to email subject for alerts
+
+## 0.13.53 (2026-06-18)
+
+### Fix
+
+- Support Python 3.8
+
+## 0.13.52 (2026-06-18)
+
+### Fix
+
+- Allow reports to define timezone
+
+## 0.13.51 (2026-05-30)
+
+### Fix
+
+- Add skip_dedup from the scrapedurl item submission
+
+## 0.13.50 (2026-05-24)
+
+### Fix
+
+- Add usage to searchresponse
+
+## 0.13.49 (2026-05-20)
+
+### Fix
+
+- Add api_key_id hint to Alert response
+
+## 0.13.48 (2026-05-20)
+
+### Fix
+
+- Add crawl_date and content_type to Article response
+
+## 0.13.47 (2026-05-18)
+
+### Fix
+
+- If newline chars cross multiple chunks
+
+## 0.13.46 (2026-05-18)
+
+### Fix
+
+- repsonse
+- Switch to byte streaming to avoid line separators breaking pydantic validation
+- Add byok methods
+
 ## 0.13.45 (2026-05-04)
 
 ### Fix

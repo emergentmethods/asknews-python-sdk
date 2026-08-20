@@ -9,6 +9,7 @@ from asknews_sdk.client import APIClient, AsyncAPIClient
 from asknews_sdk.dto.news import ArticleResponse, SearchResponse, SourceReportResponse
 from asknews_sdk.errors import ResourceNotFoundError
 from asknews_sdk.response import APIResponse, AsyncAPIResponse
+from tests.test_wikidata_entities import build_article_payload
 
 
 class MockArticleResponse(ModelFactory[ArticleResponse]):
@@ -169,6 +170,68 @@ async def test_async_news_api_search_news(async_news_api: AsyncNewsAPI, response
     assert mock_route.calls.last.request.headers["accept"] == SearchResponse.__content_type__
     assert mock_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert mock_route.calls.last.response.status_code == 200
+
+
+@pytest.mark.parametrize(
+    "wikidata_entities",
+    [
+        None,
+        {},
+        {
+            "Person": [
+                {
+                    "title": "Ada Lovelace",
+                    "qid": "Q7259",
+                    "relevance": 0.97,
+                    "description": "English mathematician and writer",
+                    "source_mention": "Lovelace",
+                }
+            ],
+            "Organization": [{"title": "Analytical Engine", "qid": "Q332676", "relevance": 0.6}],
+        },
+    ],
+)
+async def test_async_news_api_search_news_wikidata_entities(
+    async_news_api: AsyncNewsAPI, response_mock: MockRouter, wikidata_entities
+):
+    """`wikidata_entities` survives parsing of a structured search_news response."""
+    mock_search_response = MockSearchResponse.build(as_string=None)
+    payload = mock_search_response.model_dump(mode="json")
+    payload["as_dicts"] = [build_article_payload(wikidata_entities=wikidata_entities)]
+
+    mock_route = response_mock.get("/v1/news/search").respond(json=payload)
+
+    response = await async_news_api.search_news("query", return_type="dicts")
+
+    assert isinstance(response, SearchResponse)
+    dumped_article = response.model_dump(mode="json", exclude_none=True)["as_dicts"][0]
+
+    if wikidata_entities is None:
+        assert response.as_dicts[0].wikidata_entities is None
+        assert "wikidata_entities" not in dumped_article
+    else:
+        assert dumped_article["wikidata_entities"] == wikidata_entities
+
+    assert mock_route.called
+
+
+def test_sync_news_api_search_news_omitted_wikidata_entities(
+    sync_news_api: NewsAPI, response_mock: MockRouter
+):
+    """An API response predating the property still parses, yielding None."""
+    mock_search_response = MockSearchResponse.build(as_string=None)
+    payload = mock_search_response.model_dump(mode="json")
+    article_payload = build_article_payload()
+    article_payload.pop("wikidata_entities", None)
+    payload["as_dicts"] = [article_payload]
+
+    mock_route = response_mock.get("/v1/news/search").respond(json=payload)
+
+    response = sync_news_api.search_news("query", return_type="dicts")
+
+    assert isinstance(response, SearchResponse)
+    assert response.as_dicts[0].wikidata_entities is None
+    assert mock_route.called
 
 
 def test_sync_news_api_source_report(sync_news_api: NewsAPI, response_mock: MockRouter):

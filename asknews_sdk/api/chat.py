@@ -64,8 +64,12 @@ DeepNewsModel = Literal[
     "claude-opus-4-6",
     "claude-opus-4-5-20251101",
     "claude-sonnet-4-6",
+    "claude-sonnet-5",
     "gemini-2.5-flash",
     "o3",
+    "gpt-5.6-sol",
+    "claude-opus-4-8",
+    "gpt-5.6-terra",
 ]
 
 
@@ -171,7 +175,7 @@ class ChatAPI(BaseAPI[APIClient]):
                 (CreateChatCompletionResponseStream.__content_type__, 1.0),
             ],
             stream=stream,
-            stream_type="lines",
+            stream_type="bytes",
         )
 
         if stream:
@@ -770,7 +774,7 @@ class ChatAPI(BaseAPI[APIClient]):
                 (CreateDeepNewsResponseStreamSource.__content_type__, 1.0),
             ],
             stream=stream,
-            stream_type="lines",
+            stream_type="bytes",
         )
 
         if stream:
@@ -936,7 +940,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
                 (CreateChatCompletionResponseStream.__content_type__, 1.0),
             ],
             stream=stream,
-            stream_type="lines",
+            stream_type="bytes",
         )
 
         if stream:
@@ -1535,7 +1539,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
                 (CreateDeepNewsResponseStreamSource.__content_type__, 1.0),
             ],
             stream=stream,
-            stream_type="lines",
+            stream_type="bytes",
         )
 
         if stream:

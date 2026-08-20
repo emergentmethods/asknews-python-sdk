@@ -14,11 +14,16 @@ class SearchResponseDictItem(Article):
     as_string_key: Annotated[str, Field(title="As String Key")]
 
 
+class Usage(BaseModel):
+    credits: int
+
+
 class SearchResponse(BaseSchema):
     as_dicts: Annotated[Optional[List[SearchResponseDictItem]], Field(None, title="As Dicts")]
     as_string: Annotated[Optional[str], Field(None, title="As String")]
     offset: Annotated[Optional[Union[int, str]], Field(None, title="Offset")]
     hit_cache: Annotated[Optional[bool], Field(None, title="Hit Cache")]
+    usage: Optional[Usage] = None
 
 
 class SourceReportItem(BaseModel):
@@ -81,6 +86,7 @@ class ScrapeDataItem(BaseModel):
 class ScrapedURLItem(BaseModel):
     url: Annotated[str, Field(title="URL")]
     data: Annotated[Optional[ScrapeDataItem], Field(title="Data")] = None
+    skip_dedupe: Annotated[bool, Field(title="Skip Dedupe check")] = False
     metadata: Annotated[Optional[Dict], Field(title="Metadata")] = None
     enrichments: Annotated[Optional[Dict], Field(title="Enrichments")] = None
 
