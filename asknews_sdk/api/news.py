@@ -114,7 +114,6 @@ class NewsAPI(BaseAPI[APIClient]):
         reporting_voice: Optional[Union[List[str], str]] = None,
         domain_url: Optional[Union[List[str], str]] = None,
         bad_domain_url: Optional[Union[List[str], str]] = None,
-        podcasts: Literal["include", "only", "none"] = "include",
         page_rank: Optional[int] = None,
         diversify_sources: Optional[bool] = False,
         strategy: Literal["latest news", "news knowledge", "default"] = "default",
@@ -140,6 +139,7 @@ class NewsAPI(BaseAPI[APIClient]):
         geo_radius: Optional[float] = None,
         geo_polygon: Optional[str] = None,
         sort_by: Optional[Literal["relevance", "pub_date"]] = None,
+        podcasts: Literal["include", "only", "none"] = "include",
         *,
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
@@ -196,12 +196,12 @@ class NewsAPI(BaseAPI[APIClient]):
         :type reporting_voice: Optional[str]
         :param domain_url: Domain URL, defaults to None
         :type domain_url: Optional[str]
+        :param page_rank: Page rank, defaults to None
+        :type page_rank: Optional[int]
         :param podcasts: Control whether podcasts are included in search results. 'include'
             searches news and podcasts, 'only' searches podcasts only, and 'none'
             excludes podcasts. Defaults to 'include'.
         :type podcasts: Literal["include", "only", "none"]
-        :param page_rank: Page rank, defaults to None
-        :type page_rank: Optional[int]
         :param http_headers: Additional HTTP headers.
         :type http_headers: Optional[Dict]
         :return: The search response.
@@ -608,7 +608,6 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         reporting_voice: Optional[Union[List[str], str]] = None,
         domain_url: Optional[Union[List[str], str]] = None,
         bad_domain_url: Optional[Union[List[str], str]] = None,
-        podcasts: Literal["include", "only", "none"] = "include",
         page_rank: Optional[int] = None,
         diversify_sources: Optional[bool] = False,
         strategy: Literal["latest news", "news knowledge", "default"] = "default",
@@ -634,6 +633,7 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         geo_radius: Optional[float] = None,
         geo_polygon: Optional[str] = None,
         sort_by: Optional[Literal["relevance", "pub_date"]] = None,
+        podcasts: Literal["include", "only", "none"] = "include",
         *,
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
