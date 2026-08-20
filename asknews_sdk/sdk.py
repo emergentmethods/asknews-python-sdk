@@ -9,11 +9,13 @@ from asknews_sdk.api import (
     AsyncAnalyticsAPI,
     AsyncByokAPI,
     AsyncChatAPI,
+    AsyncDistributionAPI,
     AsyncNewsAPI,
     AsyncStoriesAPI,
     AsyncWikiAPI,
     ByokAPI,
     ChatAPI,
+    DistributionAPI,
     NewsAPI,
     StoriesAPI,
     WikiAPI,
@@ -121,6 +123,7 @@ class AskNewsSDK:
         self.chat = ChatAPI(self.client)
         self.wiki = WikiAPI(self.client)
         self.byok = ByokAPI(self.client)
+        self.distribution = DistributionAPI(self.client)
 
     def __enter__(self) -> AskNewsSDK:
         return self
@@ -232,6 +235,7 @@ class AsyncAskNewsSDK:
         self.chat = AsyncChatAPI(self.client)
         self.wiki = AsyncWikiAPI(self.client)
         self.byok = AsyncByokAPI(self.client)
+        self.distribution = AsyncDistributionAPI(self.client)
 
     async def __aenter__(self) -> AsyncAskNewsSDK:
         return self
