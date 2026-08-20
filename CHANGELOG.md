@@ -1,3 +1,14 @@
+## 0.14.0 (2026-08-20)
+
+### Feat
+
+- Add publisher domain metrics
+
+### Fix
+
+- Preserve news search positional arguments
+- Add podcasts filter to news search
+
 ## 0.13.56 (2026-08-04)
 
 ### Fix
