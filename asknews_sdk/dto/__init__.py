@@ -12,6 +12,11 @@ from asknews_sdk.dto.alert import (
 )
 from asknews_sdk.dto.byok import ApiKeyResponse, Provider, UpsertApiKeyRequest
 from asknews_sdk.dto.common import FilterParams
+from asknews_sdk.dto.distribution import (
+    DomainMetricsDayItem,
+    DomainMetricsResponse,
+    DomainMetricsTimeWindowResponse,
+)
 from asknews_sdk.dto.error import APIErrorModel, HTTPValidationError, ValidationError
 from asknews_sdk.dto.news import (
     ReferralItem,
@@ -47,6 +52,9 @@ __all__ = (
     "WebhookAction",
     "WebhookParams",
     "FilterParams",
+    "DomainMetricsDayItem",
+    "DomainMetricsResponse",
+    "DomainMetricsTimeWindowResponse",
     "APIErrorModel",
     "ValidationError",
     "HTTPValidationError",
