@@ -139,6 +139,7 @@ class NewsAPI(BaseAPI[APIClient]):
         geo_radius: Optional[float] = None,
         geo_polygon: Optional[str] = None,
         sort_by: Optional[Literal["relevance", "pub_date"]] = None,
+        podcasts: Literal["include", "only", "none"] = "include",
         *,
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
@@ -197,6 +198,10 @@ class NewsAPI(BaseAPI[APIClient]):
         :type domain_url: Optional[str]
         :param page_rank: Page rank, defaults to None
         :type page_rank: Optional[int]
+        :param podcasts: Control whether podcasts are included in search results. 'include'
+            searches news and podcasts, 'only' searches podcasts only, and 'none'
+            excludes podcasts. Defaults to 'include'.
+        :type podcasts: Literal["include", "only", "none"]
         :param http_headers: Additional HTTP headers.
         :type http_headers: Optional[Dict]
         :return: The search response.
@@ -223,6 +228,7 @@ class NewsAPI(BaseAPI[APIClient]):
                 "reporting_voice": reporting_voice,
                 "domain_url": domain_url,
                 "bad_domain_url": bad_domain_url,
+                "podcasts": podcasts,
                 "page_rank": page_rank,
                 "diversify_sources": diversify_sources,
                 "strategy": strategy,
@@ -627,13 +633,19 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         geo_radius: Optional[float] = None,
         geo_polygon: Optional[str] = None,
         sort_by: Optional[Literal["relevance", "pub_date"]] = None,
+        podcasts: Literal["include", "only", "none"] = "include",
         *,
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
         """
-        Get time-series counts for a filter
+        Search for news articles given a query.
 
-        https://docs.asknews.app/en/reference#get-/v1/index_counts
+        https://docs.asknews.app/en/reference#get-/v1/news/search
+
+        :param podcasts: Control whether podcasts are included in search results. 'include'
+            searches news and podcasts, 'only' searches podcasts only, and 'none'
+            excludes podcasts. Defaults to 'include'.
+        :type podcasts: Literal["include", "only", "none"]
         """
         response = await self.client.request(
             method="GET",
@@ -656,6 +668,7 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
                 "reporting_voice": reporting_voice,
                 "domain_url": domain_url,
                 "bad_domain_url": bad_domain_url,
+                "podcasts": podcasts,
                 "page_rank": page_rank,
                 "diversify_sources": diversify_sources,
                 "strategy": strategy,

@@ -120,7 +120,10 @@ async def test_async_news_api_get_article(async_news_api: AsyncNewsAPI, response
     assert mock_route.calls.last.response.status_code == 404
 
 
-def test_sync_news_api_search_news(sync_news_api: NewsAPI, response_mock: MockRouter):
+@pytest.mark.parametrize("podcasts", ["include", "only", "none"])
+def test_sync_news_api_search_news(
+    sync_news_api: NewsAPI, response_mock: MockRouter, podcasts: str
+):
     mock_search_response = MockSearchResponse.build()
 
     mock_route = response_mock.get("/v1/news/search").respond(
@@ -129,6 +132,7 @@ def test_sync_news_api_search_news(sync_news_api: NewsAPI, response_mock: MockRo
 
     response = sync_news_api.search_news(
         "query",
+        podcasts=podcasts,
         http_headers={
             "custom-header": "custom-value",
         }
@@ -140,13 +144,17 @@ def test_sync_news_api_search_news(sync_news_api: NewsAPI, response_mock: MockRo
 
     assert mock_route.called
     assert mock_route.calls.last.request.url.path == "/v1/news/search"
+    assert mock_route.calls.last.request.url.params["podcasts"] == podcasts
     assert mock_route.calls.last.request.method == "GET"
     assert mock_route.calls.last.request.headers["accept"] == SearchResponse.__content_type__
     assert mock_route.calls.last.request.headers["custom-header"] == "custom-value"
     assert mock_route.calls.last.response.status_code == 200
 
 
-async def test_async_news_api_search_news(async_news_api: AsyncNewsAPI, response_mock: MockRouter):
+@pytest.mark.parametrize("podcasts", ["include", "only", "none"])
+async def test_async_news_api_search_news(
+    async_news_api: AsyncNewsAPI, response_mock: MockRouter, podcasts: str
+):
     mock_search_response = MockSearchResponse.build()
 
     mock_route = response_mock.get("/v1/news/search").respond(
@@ -155,6 +163,7 @@ async def test_async_news_api_search_news(async_news_api: AsyncNewsAPI, response
 
     response = await async_news_api.search_news(
         "query",
+        podcasts=podcasts,
         http_headers={
             "custom-header": "custom-value",
         }
@@ -166,6 +175,7 @@ async def test_async_news_api_search_news(async_news_api: AsyncNewsAPI, response
 
     assert mock_route.called
     assert mock_route.calls.last.request.url.path == "/v1/news/search"
+    assert mock_route.calls.last.request.url.params["podcasts"] == podcasts
     assert mock_route.calls.last.request.method == "GET"
     assert mock_route.calls.last.request.headers["accept"] == SearchResponse.__content_type__
     assert mock_route.calls.last.request.headers["custom-header"] == "custom-value"
