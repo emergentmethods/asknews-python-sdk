@@ -114,6 +114,7 @@ class NewsAPI(BaseAPI[APIClient]):
         reporting_voice: Optional[Union[List[str], str]] = None,
         domain_url: Optional[Union[List[str], str]] = None,
         bad_domain_url: Optional[Union[List[str], str]] = None,
+        podcasts: Literal["include", "only", "none"] = "include",
         page_rank: Optional[int] = None,
         diversify_sources: Optional[bool] = False,
         strategy: Literal["latest news", "news knowledge", "default"] = "default",
@@ -195,6 +196,10 @@ class NewsAPI(BaseAPI[APIClient]):
         :type reporting_voice: Optional[str]
         :param domain_url: Domain URL, defaults to None
         :type domain_url: Optional[str]
+        :param podcasts: Control whether podcasts are included in search results. 'include'
+            searches news and podcasts, 'only' searches podcasts only, and 'none'
+            excludes podcasts. Defaults to 'include'.
+        :type podcasts: Literal["include", "only", "none"]
         :param page_rank: Page rank, defaults to None
         :type page_rank: Optional[int]
         :param http_headers: Additional HTTP headers.
@@ -223,6 +228,7 @@ class NewsAPI(BaseAPI[APIClient]):
                 "reporting_voice": reporting_voice,
                 "domain_url": domain_url,
                 "bad_domain_url": bad_domain_url,
+                "podcasts": podcasts,
                 "page_rank": page_rank,
                 "diversify_sources": diversify_sources,
                 "strategy": strategy,
@@ -602,6 +608,7 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         reporting_voice: Optional[Union[List[str], str]] = None,
         domain_url: Optional[Union[List[str], str]] = None,
         bad_domain_url: Optional[Union[List[str], str]] = None,
+        podcasts: Literal["include", "only", "none"] = "include",
         page_rank: Optional[int] = None,
         diversify_sources: Optional[bool] = False,
         strategy: Literal["latest news", "news knowledge", "default"] = "default",
@@ -631,9 +638,14 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
         http_headers: Optional[Dict] = None,
     ) -> SearchResponse:
         """
-        Get time-series counts for a filter
+        Search for news articles given a query.
 
-        https://docs.asknews.app/en/reference#get-/v1/index_counts
+        https://docs.asknews.app/en/reference#get-/v1/news/search
+
+        :param podcasts: Control whether podcasts are included in search results. 'include'
+            searches news and podcasts, 'only' searches podcasts only, and 'none'
+            excludes podcasts. Defaults to 'include'.
+        :type podcasts: Literal["include", "only", "none"]
         """
         response = await self.client.request(
             method="GET",
@@ -656,6 +668,7 @@ class AsyncNewsAPI(BaseAPI[AsyncAPIClient]):
                 "reporting_voice": reporting_voice,
                 "domain_url": domain_url,
                 "bad_domain_url": bad_domain_url,
+                "podcasts": podcasts,
                 "page_rank": page_rank,
                 "diversify_sources": diversify_sources,
                 "strategy": strategy,
