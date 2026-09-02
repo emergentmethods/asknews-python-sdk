@@ -1,3 +1,9 @@
+## 0.14.1 (2026-09-02)
+
+### Fix
+
+- Add podcasts to DeepNews source type
+
 ## 0.14.0 (2026-08-20)
 
 ### Feat
