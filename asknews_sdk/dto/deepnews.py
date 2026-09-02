@@ -57,7 +57,16 @@ class CreateDeepNewsResponseUsage(BaseModel):
 
 
 DeepNewsSourceType = Literal[
-    "asknews", "google", "graph", "wiki", "x", "reddit", "charts", "email", "full_text_discovery"
+    "asknews",
+    "google",
+    "graph",
+    "wiki",
+    "x",
+    "reddit",
+    "charts",
+    "email",
+    "full_text_discovery",
+    "podcasts",
 ]
 DeepNewsSourceTypeDefault: DeepNewsSourceType = "asknews"
 
