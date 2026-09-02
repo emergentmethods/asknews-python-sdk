@@ -5,15 +5,11 @@ on:
       - main
 permissions:
   contents: write
-  id-token: write
 jobs:
   bump:
     if: '!startsWith(github.event.head_commit.message, ''chore(release):'')'
     name: Bump version
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/asknews/
     steps:
       - name: Check out
         uses: actions/checkout@v6
@@ -35,8 +31,6 @@ jobs:
         uses: astral-sh/setup-uv@v7
       - name: Build package
         run: uv build --wheel
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
