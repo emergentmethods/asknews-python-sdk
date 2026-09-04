@@ -1,3 +1,9 @@
+## 0.14.2 (2026-09-04)
+
+### Fix
+
+- Add GPT-6 Astra to DeepNews model typing
+
 ## 0.14.1 (2026-09-02)
 
 ### Fix
