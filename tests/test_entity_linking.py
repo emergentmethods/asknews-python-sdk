@@ -3,7 +3,7 @@ import inspect
 from urllib.parse import parse_qs, quote, urlparse
 
 import pytest
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from asknews_sdk.api.wiki import AsyncWikiAPI, WikiAPI
 from asknews_sdk.dto.wiki import (
@@ -102,7 +102,7 @@ def test_unknown_wikidata_metadata_fields_are_preserved():
                 "qid": "Q312",
                 "relevance": 0.91,
                 "wikidata_metadata": {
-                    "ceo": {"label": "Tim Cook"},
+                    "ceo": [{"qid": "Q312556", "label": "Tim Cook"}],
                     "some_future_property": 42,
                 },
             }
@@ -110,7 +110,9 @@ def test_unknown_wikidata_metadata_fields_are_preserved():
     )
 
     metadata = response.linked_entity.wikidata_metadata
-    assert metadata.ceo == {"label": "Tim Cook"}
+    # A declared property parses into its typed shape...
+    assert metadata.ceo[0].label == "Tim Cook"
+    # ...while one this SDK does not know about still reaches the caller.
     assert metadata.model_extra == {"some_future_property": 42}
 
 
@@ -365,8 +367,13 @@ def test_qid_is_escaped_into_the_path():
                 },
             ],
         ),
-        ("place_of_birth", [{"qid": "Q60", "label": "New York City"}]),
-        ("date_of_birth", [{"time": "+1955-02-24T00:00:00Z"}]),
+        # A "single-best-value" property: rival accounts of ONE fact, so the API
+        # sends the best-ranked claim alone rather than a list.
+        ("place_of_birth", {"qid": "Q60", "label": "New York City"}),
+        # Times are plain ISO-ish strings.
+        ("date_of_birth", "+1955-02-24T00:00:00Z"),
+        # External identifiers are ALWAYS lists -- an identifier is a join key,
+        # and entities legitimately carry two.
         ("gnd_id", ["118637347"]),
         ("official_name", [{"text": "Apple Inc.", "language": "en"}]),
         ("social_media_followers", [{"amount": 5000000, "platform": "x_twitter"}]),
@@ -375,16 +382,23 @@ def test_qid_is_escaped_into_the_path():
     ],
 )
 def test_metadata_accepts_property_shapes(field, value):
-    """Property-derived fields must parse whatever arrives, expected or not.
+    """Property-derived fields parse the shapes the API actually sends.
 
-    The metadata is nested inside the response model, so a raise here fails the
-    WHOLE call — including for callers that never read the offending field. That
-    blast radius is why these stay `Any` rather than being typed to today's
-    shapes.
+    These fields are typed, so the parsed value is a model (or list of models)
+    rather than the raw dict — compare via model_dump(exclude_none=True), which
+    also pins that absent qualifiers stay absent rather than becoming nulls.
     """
     metadata = WikidataMetadata(**{field: value})
+    parsed = getattr(metadata, field)
 
-    assert getattr(metadata, field) == value
+    def _plain(v):
+        if isinstance(v, list):
+            return [_plain(x) for x in v]
+        if isinstance(v, BaseModel):
+            return v.model_dump(exclude_none=True)
+        return v
+
+    assert _plain(parsed) == value
 
 
 def test_metadata_passes_through_undeclared_fields():
