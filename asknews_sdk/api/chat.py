@@ -50,6 +50,7 @@ ChatModel = Literal[
 ]
 DeepNewsModel = Literal[
     "gpt-5",
+    "gpt-6-astra",
     "claude-3-7-sonnet-latest",
     "deepseek",
     "deepseek-basic",
