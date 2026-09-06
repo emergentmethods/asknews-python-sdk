@@ -10,6 +10,7 @@ from asknews_sdk.dto import alert as alert_dto
 
 
 GPT_6_ASTRA = "gpt-6-astra"
+CLAUDE_FABLE_MODELS = ("claude-fable-5", "claude-fable-5-1")
 
 
 def test_gpt_6_astra_is_a_direct_deepnews_model_only():
@@ -38,3 +39,10 @@ def test_gpt_6_astra_is_absent_from_alert_model_contracts():
     for name, model in getmembers(alert_dto, isclass):
         if model.__module__ == alert_dto.__name__ and issubclass(model, BaseModel):
             assert GPT_6_ASTRA not in json.dumps(model.model_json_schema()), name
+
+
+@pytest.mark.parametrize("model", CLAUDE_FABLE_MODELS)
+def test_claude_fable_models_match_deepnews_and_alert_report_contracts(model):
+    assert model in get_args(DeepNewsModel)
+    assert model in get_args(alert_dto.DeepNewsModel)
+    assert model in get_args(alert_dto.AlertReportModel)
