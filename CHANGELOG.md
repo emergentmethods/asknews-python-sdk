@@ -1,3 +1,9 @@
+## 0.14.3 (2026-09-06)
+
+### Fix
+
+- Add Claude Fable 5 and 5.1 model support
+
 ## 0.14.2 (2026-09-04)
 
 ### Fix
