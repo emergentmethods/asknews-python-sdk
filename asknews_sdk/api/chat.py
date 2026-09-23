@@ -71,7 +71,9 @@ DeepNewsModel = Literal[
     "gemini-2.5-flash",
     "o3",
     "gpt-5.6-sol",
+    "gpt-6-sol",
     "claude-opus-4-8",
+    "claude-opus-5-5",
     "gpt-5.6-terra",
 ]
 
