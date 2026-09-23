@@ -1,3 +1,9 @@
+## 0.14.4 (2026-09-23)
+
+### Fix
+
+- Add Claude Opus 5.5 and GPT 6 Sol DeepNews models
+
 ## 0.14.3 (2026-09-06)
 
 ### Fix
