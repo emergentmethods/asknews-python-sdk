@@ -3,7 +3,7 @@ from inspect import getmembers, isclass
 from typing import get_args, get_type_hints
 
 import pytest
-from pydantic import BaseModel
+from pydantic import BaseModel, TypeAdapter, ValidationError
 
 from asknews_sdk.api.chat import AsyncChatAPI, ChatAPI, ChatModel, DeepNewsModel
 from asknews_sdk.dto import alert as alert_dto
@@ -12,7 +12,8 @@ from asknews_sdk.dto.deepnews import CreateDeepNewsRequest
 
 GPT_6_ASTRA = "gpt-6-astra"
 CLAUDE_FABLE_MODELS = ("claude-fable-5", "claude-fable-5-1")
-ADVANCED_DEEPNEWS_MODELS = ("claude-opus-5-5", "gpt-6-sol")
+NEW_DEEPNEWS_MODELS = ("claude-sonnet-5-5", "claude-opus-5-5", "gpt-6.1-sol")
+ADVANCED_DEEPNEWS_MODELS = (*NEW_DEEPNEWS_MODELS, "gpt-6-sol")
 
 
 def test_gpt_6_astra_is_a_direct_deepnews_model_only():
@@ -45,11 +46,10 @@ def test_gpt_6_astra_is_absent_from_alert_model_contracts():
 
 @pytest.mark.parametrize("model", ADVANCED_DEEPNEWS_MODELS)
 @pytest.mark.parametrize("api_type", [ChatAPI, AsyncChatAPI])
-def test_advanced_models_are_scoped_to_deepnews_and_preserve_alert_contracts(model, api_type):
+def test_advanced_models_are_scoped_to_deepnews_and_preserve_legacy_contracts(model, api_type):
     assert model in get_args(DeepNewsModel)
     assert model in get_args(get_type_hints(api_type.get_deep_news)["model"])
     assert model not in get_args(ChatModel)
-    assert model not in get_args(alert_dto.DeepNewsModel)
     assert model not in get_args(alert_dto.CheckAlertModel)
     assert model not in get_args(alert_dto.AlertReportModel)
 
@@ -59,6 +59,36 @@ def test_advanced_deepnews_models_serialize_in_requests(model):
     request = CreateDeepNewsRequest(messages=[{"role": "user", "content": "query"}], model=model)
 
     assert request.model_dump(mode="json")["model"] == model
+
+
+@pytest.mark.parametrize("model", NEW_DEEPNEWS_MODELS)
+@pytest.mark.parametrize(
+    "request_type", [alert_dto.CreateAlertRequest, alert_dto.UpdateAlertRequest]
+)
+def test_active_alert_source_and_report_models_validate_and_serialize(model, request_type):
+    assert model in get_args(alert_dto.DeepNewsModel)
+    request = request_type(
+        cron="0 9 * * *",
+        triggers=[],
+        sources=[{"identifier": "deepnews", "params": {"model": model}}],
+        report={"identifier": "deepnews", "params": {"model": model}},
+    )
+    payload = json.loads(request.model_dump_json())
+
+    assert payload["sources"][0]["params"]["model"] == model
+    assert payload["report"]["params"]["model"] == model
+
+
+@pytest.mark.parametrize("model_type", [DeepNewsModel, alert_dto.DeepNewsModel])
+def test_deepnews_model_contracts_reject_misspelled_gpt_id(model_type):
+    with pytest.raises(ValidationError):
+        TypeAdapter(model_type).validate_python("gpt-sol-6.1")
+
+
+def test_active_alert_model_defaults_are_unchanged():
+    assert alert_dto.DeepNewsSourceParams().model == "gemini-3-flash"
+    assert alert_dto.DeepNewsReportParams().model == "claude-sonnet-4-6"
+    assert alert_dto.LegacyReportRequest().model == "claude-sonnet-4-6"
 
 
 @pytest.mark.parametrize("model", CLAUDE_FABLE_MODELS)

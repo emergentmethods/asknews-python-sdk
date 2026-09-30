@@ -13,21 +13,32 @@ pip install asknews
 
 ## Usage
 
+- Use `ask.news.search_news()` for a fast, surgical, single-search lookup when you already know the keywords or entities and do not need iterative discovery.
+- Use DeepNews (`ask.chat.get_deep_news()` in this SDK) to attach your agent to deep, iterative research across news and other sources: finding and following leads, identifying unknown entities, and connecting evidence across sources.
+
 ```python
 from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK(
-    api_key="<YOUR API KEY>"
+    api_key="<YOUR API KEY>",
     scopes=["news", "chat", "stories", "analytics"]
 )
 
-query = "Effect of fed policy on tech sector"
+query = "NVIDIA earnings"
 
-# prompt-optimized string ready to go for any LLM:
+# Fast lookup: prompt-optimized news context for your LLM.
 news_context = ask.news.search_news(query).as_string
+
+# Iterative discovery across news and other sources.
+research = ask.chat.get_deep_news(
+    messages=[{"role": "user", "content": "Find and follow leads on AI chip supply risks."}],
+    sources=["asknews", "google", "wiki"],
+    engine="v1.5",
+)
+print(research.choices[0].message.content)
 ```
 
-And you will have a prompt-optimized string ready to go for any LLM. The API doesn't stop there, explore a wide range of endpoints:
+The API doesn't stop there, explore a wide range of endpoints:
 
 - /stories, high level event tracking and state of the art article clustering
 - /forecasts, industry leading forecasting on any real-time event
