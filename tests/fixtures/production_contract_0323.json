@@ -1,0 +1,179 @@
+{
+  "source": "https://api.asknews.app/openapi.json",
+  "fetched_at": "2026-10-05T23:02:53Z",
+  "version": "0.32.3",
+  "raw_sha256": "4d7eeec4435f4cfaf8bce613994a9ab9c201695fdc15df74133aeb76a46a430e",
+  "deepnews_models": [
+    "o1-mini",
+    "o1",
+    "o3-mini",
+    "o3",
+    "gpt-4o-mini",
+    "gpt-4o",
+    "gpt-4.1-2025-04-14",
+    "gpt-5-mini",
+    "gpt-5",
+    "command-nightly",
+    "claude-3-5-sonnet-20240620",
+    "claude-3-5-sonnet-latest",
+    "claude-3-7-sonnet-latest",
+    "claude-3-7-sonnet-20250219",
+    "claude-3-7-sonnet-nothinking",
+    "claude-sonnet-4-20250514",
+    "claude-opus-4-20250514",
+    "claude-sonnet-4-5-20250929",
+    "claude-opus-4-5-20251101",
+    "claude-sonnet-4-6",
+    "claude-sonnet-5",
+    "claude-sonnet-5-5",
+    "claude-opus-4-8",
+    "claude-opus-5",
+    "claude-opus-5-5",
+    "claude-opus-4-6",
+    "claude-fable-5",
+    "claude-fable-5-1",
+    "gpt-5.6-terra",
+    "gpt-5.6-sol",
+    "gpt-6-sol",
+    "gpt-6.1-sol",
+    "gpt-6-astra",
+    "deepseek",
+    "deepseek-basic",
+    "deepseek-r1-0528",
+    "meta-llama/Meta-Llama-3-8B-Instruct",
+    "meta-llama/Meta-Llama-3.1-405B-Instruct",
+    "meta-llama/Meta-Llama-3.3-70B-Instruct",
+    "meta-llama/Llama-4-Maverick-17B-128E-Instruct",
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+    "gemini-2.5-pro-preview-03-25",
+    "gemini-3-pro",
+    "gemini-3.1-pro",
+    "gemini-3-flash",
+    "gemini-3.5-flash",
+    "gemini-3.6-flash",
+    "open-source-best",
+    "kimi-k2p5",
+    "kimi-k3"
+  ],
+  "legacy_report_models": [
+    "gpt-5",
+    "gpt-4o",
+    "gpt-4.1-2025-04-14",
+    "gpt-4.1-mini-2025-04-14",
+    "gpt-4o-mini",
+    "o3-mini",
+    "claude-3-5-sonnet-latest",
+    "claude-sonnet-4-20250514",
+    "claude-sonnet-4-5-20250929",
+    "claude-opus-4-5-20251101",
+    "claude-opus-4-6",
+    "claude-fable-5",
+    "claude-fable-5-1",
+    "claude-sonnet-4-6",
+    "claude-sonnet-5",
+    "claude-opus-4-8",
+    "claude-opus-5",
+    "gpt-5.6-terra",
+    "gpt-5.6-sol",
+    "gpt-6-astra",
+    "meta-llama/Meta-Llama-3.1-405B-Instruct",
+    "meta-llama/Meta-Llama-3.3-70B-Instruct"
+  ],
+  "top_n_parameters": [
+    {
+      "name": "domain_names",
+      "in": "query",
+      "required": true,
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Domain names to filter by",
+        "title": "Domain Names"
+      },
+      "description": "Domain names to filter by"
+    },
+    {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+        "type": "integer",
+        "maximum": 100,
+        "minimum": 1,
+        "description": "Number of top domain articles to return (page size)",
+        "default": 10,
+        "title": "Limit"
+      },
+      "description": "Number of top domain articles to return (page size)"
+    },
+    {
+      "name": "page",
+      "in": "query",
+      "required": false,
+      "schema": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "Page number (1-based; page size = limit)",
+        "default": 1,
+        "title": "Page"
+      },
+      "description": "Page number (1-based; page size = limit)"
+    },
+    {
+      "name": "start_date",
+      "in": "query",
+      "required": false,
+      "schema": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "Start date to filter by (timestamp in seconds since epoch)",
+        "title": "Start Date"
+      },
+      "description": "Start date to filter by (timestamp in seconds since epoch)"
+    },
+    {
+      "name": "end_date",
+      "in": "query",
+      "required": false,
+      "schema": {
+        "anyOf": [
+          {
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "End date to filter by (timestamp in seconds since epoch)",
+        "title": "End Date"
+      },
+      "description": "End date to filter by (timestamp in seconds since epoch)"
+    },
+    {
+      "name": "metric",
+      "in": "query",
+      "required": false,
+      "schema": {
+        "enum": [
+          "surface",
+          "citation",
+          "grounded"
+        ],
+        "type": "string",
+        "description": "Metric used to rank and count the returned articles",
+        "default": "surface",
+        "title": "Metric"
+      },
+      "description": "Metric used to rank and count the returned articles"
+    }
+  ]
+}

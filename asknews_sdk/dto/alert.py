@@ -40,6 +40,30 @@ DeepNewsModel = Literal[
     "claude-opus-4-8",
     "claude-opus-5-5",
     "gpt-5.6-terra",
+    "o1-mini",
+    "o1",
+    "gpt-4o-mini",
+    "gpt-4o",
+    "gpt-4.1-2025-04-14",
+    "gpt-5-mini",
+    "command-nightly",
+    "claude-3-5-sonnet-20240620",
+    "claude-3-5-sonnet-latest",
+    "claude-3-7-sonnet-20250219",
+    "claude-3-7-sonnet-nothinking",
+    "claude-opus-5",
+    "gpt-6-sol",
+    "gpt-6-astra",
+    "meta-llama/Meta-Llama-3-8B-Instruct",
+    "meta-llama/Meta-Llama-3.1-405B-Instruct",
+    "meta-llama/Meta-Llama-3.3-70B-Instruct",
+    "meta-llama/Llama-4-Maverick-17B-128E-Instruct",
+    "gemini-2.5-pro-preview-03-25",
+    "gemini-3.1-pro",
+    "gemini-3.5-flash",
+    "gemini-3.6-flash",
+    "kimi-k2p5",
+    "kimi-k3",
 ]
 
 
@@ -77,6 +101,7 @@ AlertReportModel = Literal[
     "claude-opus-4-8",
     "gpt-5.6-terra" "meta-llama/Meta-Llama-3.1-405B-Instruct",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
+    "gpt-6-astra",
 ]
 AlertReportModelDefault: AlertReportModel = "claude-sonnet-4-6"
 

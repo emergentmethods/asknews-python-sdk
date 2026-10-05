@@ -15,7 +15,7 @@ from asknews_sdk.dto.chat import (
 )
 from asknews_sdk.dto.deepnews import CreateDeepNewsResponse
 from asknews_sdk.utils import build_accept_header
-from tests.api.test_chat_model_types import ADVANCED_DEEPNEWS_MODELS
+from tests.api.test_chat_model_types import PRODUCTION_DEEPNEWS_MODELS
 
 
 class MockCreateChatCompletionResponse(ModelFactory[CreateChatCompletionResponse]):
@@ -48,7 +48,7 @@ def async_chat_api(async_api_client: AsyncAPIClient):
     return AsyncChatAPI(async_api_client)
 
 
-@pytest.mark.parametrize("model", ADVANCED_DEEPNEWS_MODELS)
+@pytest.mark.parametrize("model", PRODUCTION_DEEPNEWS_MODELS)
 def test_sync_deepnews_model_request(sync_chat_api: ChatAPI, response_mock: MockRouter, model):
     mock_response = MockCreateDeepNewsResponse.build(model=model)
     route = response_mock.post("/v1/chat/deepnews").respond(
@@ -63,7 +63,7 @@ def test_sync_deepnews_model_request(sync_chat_api: ChatAPI, response_mock: Mock
     assert json.loads(route.calls.last.request.content)["model"] == model
 
 
-@pytest.mark.parametrize("model", ADVANCED_DEEPNEWS_MODELS)
+@pytest.mark.parametrize("model", PRODUCTION_DEEPNEWS_MODELS)
 async def test_async_deepnews_model_request(
     async_chat_api: AsyncChatAPI, response_mock: MockRouter, model
 ):
