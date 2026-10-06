@@ -1,3 +1,11 @@
+## 0.14.5 (2026-10-06)
+
+### Fix
+
+- Limit SDK update to the requested DeepNews models
+- Sync additive SDK contracts with production 0.32.3
+- Add research models and clarify news lookup usage
+
 ## 0.14.4 (2026-09-23)
 
 ### Fix
