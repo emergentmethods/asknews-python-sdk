@@ -16,8 +16,6 @@ from asknews_sdk.dto.distribution import (
     DomainMetricsDayItem,
     DomainMetricsResponse,
     DomainMetricsTimeWindowResponse,
-    TopNArticlesForDomainItem,
-    TopNArticlesForDomainResponse,
 )
 from asknews_sdk.dto.error import APIErrorModel, HTTPValidationError, ValidationError
 from asknews_sdk.dto.news import (
@@ -57,8 +55,6 @@ __all__ = (
     "DomainMetricsDayItem",
     "DomainMetricsResponse",
     "DomainMetricsTimeWindowResponse",
-    "TopNArticlesForDomainItem",
-    "TopNArticlesForDomainResponse",
     "APIErrorModel",
     "ValidationError",
     "HTTPValidationError",
