@@ -26,6 +26,7 @@ DeepNewsModel = Literal[
     "gemini-3-pro",
     "claude-sonnet-4-6",
     "claude-sonnet-5",
+    "claude-sonnet-5-5",
     "claude-opus-4-6",
     "claude-fable-5",
     "claude-fable-5-1",
@@ -35,7 +36,9 @@ DeepNewsModel = Literal[
     "open-source-best",
     "gemini-3-flash",
     "gpt-5.6-sol",
+    "gpt-6.1-sol",
     "claude-opus-4-8",
+    "claude-opus-5-5",
     "gpt-5.6-terra",
 ]
 
@@ -72,7 +75,8 @@ AlertReportModel = Literal[
     "claude-sonnet-5",
     "gpt-5.6-sol",
     "claude-opus-4-8",
-    "gpt-5.6-terra" "meta-llama/Meta-Llama-3.1-405B-Instruct",
+    "gpt-5.6-terra",
+    "meta-llama/Meta-Llama-3.1-405B-Instruct",
     "meta-llama/Meta-Llama-3.3-70B-Instruct",
 ]
 AlertReportModelDefault: AlertReportModel = "claude-sonnet-4-6"
