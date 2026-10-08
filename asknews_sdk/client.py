@@ -67,6 +67,7 @@ class BaseAPIClient(Generic[TClient, TResponse]):
         self.client_secret = client_secret
         self.scopes = {"offline", "openid", *(scopes or set())}
         self.api_key = api_key
+        self.user_agent = user_agent
         self.base_url = base_url
         self.token_url = token_url
         self.verify_ssl = verify_ssl
@@ -131,6 +132,11 @@ class BaseAPIClient(Generic[TClient, TResponse]):
             headers["content-type"] = content_type
 
         headers["accept"] = build_accept_header(accept or [("application/json", 1.0)])
+
+        # The request is sent with ``client.send``, which does not merge the client's
+        # default headers, so the User-Agent has to be set on the request itself.
+        if not any(key.lower() == "user-agent" for key in headers):
+            headers["user-agent"] = self.user_agent
 
         return Request(
             method=method,

@@ -1,8 +1,9 @@
 import pytest
-from httpx import Request
+import respx
+from httpx import Request, Response
 from respx.router import MockRouter
 
-from asknews_sdk.client import APIClient, AsyncAPIClient
+from asknews_sdk.client import USER_AGENT, APIClient, AsyncAPIClient
 from asknews_sdk.errors import APIError
 from asknews_sdk.response import APIResponse, AsyncAPIResponse
 from tests.conftest import BASE_URL
@@ -205,3 +206,53 @@ async def test_async_client_api_error(
 
     assert exc_info.value.code == 404000
     assert exc_info.value.detail == "Not Found"
+
+
+def test_build_api_request_user_agent(sync_api_client: APIClient):
+    request = sync_api_client.build_api_request("GET", "/test")
+
+    assert request.headers.get("user-agent") == USER_AGENT
+    assert USER_AGENT.startswith("asknews-sdk-python/")
+
+    request = sync_api_client.build_api_request(
+        "GET", "/test", headers={"User-Agent": "custom-agent/1.0"}
+    )
+
+    assert request.headers.get("user-agent") == "custom-agent/1.0"
+
+
+def test_custom_user_agent():
+    with APIClient(
+        client_id=None,
+        client_secret=None,
+        scopes=None,
+        api_key="ank_test",
+        base_url=BASE_URL,
+        token_url=None,
+        user_agent="my-app/2.0",
+    ) as client:
+        request = client.build_api_request("GET", "/test")
+
+    assert request.headers.get("user-agent") == "my-app/2.0"
+
+
+@respx.mock
+def test_request_sends_user_agent(sync_api_client: APIClient, respx_mock: MockRouter):
+    route = respx_mock.get(f"{BASE_URL}/test").mock(return_value=Response(200, json={}))
+
+    sync_api_client.request("GET", "/test")
+
+    assert route.called
+    assert route.calls.last.request.headers.get("user-agent") == USER_AGENT
+
+
+@respx.mock
+async def test_async_request_sends_user_agent(
+    async_api_client: AsyncAPIClient, respx_mock: MockRouter
+):
+    route = respx_mock.get(f"{BASE_URL}/test").mock(return_value=Response(200, json={}))
+
+    await async_api_client.request("GET", "/test")
+
+    assert route.called
+    assert route.calls.last.request.headers.get("user-agent") == USER_AGENT
