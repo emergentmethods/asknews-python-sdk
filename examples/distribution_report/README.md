@@ -5,6 +5,10 @@ Run locally with **your existing authorized credentials**. No credential or
 permission changes, customer extraction, or live authorization tests were made
 to develop this example. Tests use synthetic responses only.
 
+Primary reference: the official [Publisher Analytics guide](https://docs.asknews.app/en/publisher)
+and its [linked API reference](https://docs.asknews.app/en/reference#tag--distribution),
+read with the live Python recipes on 2026-10-09. See the guide/source comparison below.
+
 ## Install and run
 
 Keep `distribution_report.py` and `requirements.txt` together (or enter this
@@ -26,11 +30,17 @@ POSIX modes. Filesystems must support hard links for atomic no-overwrite output.
 secret manager/session; do not put secrets in command arguments, source files,
 chat, or shell history. This script reads one of:
 
-- `ASKNEWS_API_KEY`, passed to the SDK's `api_key` parameter; **or**
+- `ASKNEWS_API_KEY`, passed to the SDK's `api_key` parameter. The publisher guide
+  uses an **existing publisher organization key** (`ank_org_...`) with
+  `distribution` + `news` scopes. **Personal API keys cannot access distribution**;
+  ownership/admin privileges do not turn a personal key into a publisher key; **or**
 - `ASKNEWS_CLIENT_ID` + `ASKNEWS_CLIENT_SECRET`, passed to the SDK's OAuth client
   credentials parameters. Optional `ASKNEWS_SCOPES` is a space-separated subset
   of `distribution news internal`; default `distribution news`. Request only
   scopes the existing client already has. The script does not grant scopes.
+  OAuth is an additional source-verified SDK/admin authentication option, not
+  the publisher guide's organization-key recipe; it still needs endpoint and
+  exact-domain authorization. Do not create or change credentials to run this example.
 
 These environment names are this example's adapter, not automatic SDK environment
 loading. Do not set both authentication methods. No custom host, token URL,
@@ -60,9 +70,13 @@ suitably authorized credential or accept the documented gap—not an access chan
   cause before rerunning.
 
 Defaults: page size **100**, at most **100 pages per metric**, **400 HTTP sends**
-(including OAuth/retries), **900 seconds** of request-start/retry budget,
-30-second HTTP operation timeout, serial requests with at least 1 second before
-each send. A request already in flight may finish after the overall deadline;
+(including OAuth/retries), **2400 seconds** of request-start/retry budget,
+30-second HTTP operation timeout, serial requests with **6 seconds before every
+distribution send** (including retries and admin/internal requests) and 1 second
+before other/news/auth sends. This follows guide Recipe 3 and stays below the
+published **0.2 distribution requests/second** limit (burst 5, concurrency 2).
+The longer bounded default budget accommodates the slower polite pagination.
+A request already in flight may finish after the overall deadline;
 httpx timeouts bound individual network operations, not a strict wall-clock
 process deadline. Set an external process timeout if required.
 
@@ -103,8 +117,10 @@ Monthly distinct article counts must **not** be computed by summing daily
 uniques. Index counts describe current retained indexed articles filtered by
 **crawl date**; they are not distribution events, publication-date activity,
 or a historical inventory snapshot. Ranking endpoints do not supply titles,
-publication dates, bias/sentiment or other enrichments: those remain unavailable;
-this example does not add costly article fanout. Consumer identities, prompts,
+publication dates, bias/sentiment or other enrichments: those are not collected
+by this event-count example. The guide's Recipe 4 supports these via a separate
+batched article lookup (see below); they are not unsupported API features.
+This example performs no additional article enrichment fanout. Consumer identities, prompts,
 queries, raw hits and billing/PII endpoints are never requested or exported.
 
 Only the requested exact domain is sent in filters. URLs with a different host
@@ -145,6 +161,47 @@ not all, drift. Pagination exhaustion does not prove immutable completeness.
 Weighted share reflects the server's current metric weights and publisher
 multipliers for the selected period; weights/pool values are not exposed by this
 response. **No revenue, payout, currency or dollar amount is inferred.**
+
+## Publisher guide / source cross-check
+
+- **Recipes 1–3 match:** `AskNewsSDK(api_key=...)`, authenticated
+  `sdk.client.request(...)`, `response.content`, exact domain names, same-UTC-month
+  integer dates, page size <=100, 1-based page/next_page, page-only event sums and
+  an optional empty final page. The script also guards caps/duplicates/drift.
+- **Rate correction:** the guide and API configuration say **0.2 req/s**, not
+  1 req/s. This example now follows the guide's six-second distribution delay.
+  The guide's deterministic tie ordering does not create a transactional snapshot.
+- **Share wording:** the guide calls `hit_share` a share of publisher traffic.
+  Inspected service code applies metric weights and publisher multipliers. The
+  workbook therefore says **weighted share**, never unweighted event percentage
+  or dollars; it cannot reconstruct weights from this response.
+- **Metrics not listed in the guide's parameter table:** the linked public
+  API reference (version **0.32.4** when checked) includes
+  `metric=surface|citation|grounded` on article rankings. Retrievals are `surface`
+  events, citations and groundings are independent event counts, not publication
+  counts. Internal raw models also have `full_text`, which is a separate metric.
+- **Public versus internal:** the guide FAQ explicitly excludes dashboard-only
+  daily/query/domain lookup endpoints from the public API. The linked schema
+  confirms `distribution` + `internal` on the optional metric/unique routes;
+  neither the guide's organization-key recipe nor admin status promises access.
+- **Index counts:** not one of the guide's three recipes. The linked reference
+  exposes `/v1/index_counts` with `news` scope, and inspected publisher-key
+  allowlist explicitly includes it. This source-verified extra is still
+  deployment/authorization-dependent; denial is recorded, not bypassed.
+- **Recipe 4 is supported, but deliberately not requested:** verified SDK method
+  `sdk.news.get_articles(article_ids: List[str] | List[UUID], full_text=False)`
+  returns `List[ArticleResponse]` and GETs `/v1/news`. The guide batches at 100 IDs
+  for title, publication metadata, classification, sentiment and reporting voice.
+  This scoped event-count report does not fetch that additional metadata, entities,
+  summaries or article bodies, even in batches. Its article sheet is IDs/URLs/counts;
+  do not interpret absent metadata as an API/SDK limitation. No high-cost per-article fanout.
+- **Date completeness:** the guide's examples use integer timestamps and do not
+  establish fractional-second month-end coverage; the source's inclusive bounds
+  and this report's explicit coverage warnings remain necessary.
+
+The guide links are also recorded as **literal text** in each workbook's
+Methodology sheet. No guidance here changes existing permissions, SDK/API
+functionality or production settings.
 
 ## Verified SDK/API compatibility
 

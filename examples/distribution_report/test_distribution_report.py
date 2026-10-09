@@ -243,7 +243,7 @@ def test_429_then_503_then_success_actual_sdk():
     reader = sdk_reader(handler)
     assert reader.get(m.RANK, {}) == {"data": []}
     assert reader.requests == 3
-    assert [call.args[0] for call in reader.sleep.call_args_list] == [1.0, 3, 1.0, 2, 1.0]
+    assert [call.args[0] for call in reader.sleep.call_args_list] == [6.0, 3, 6.0, 2, 6.0]
     assert all(call.args[0].method == "GET" for call in handler.call_args_list)
     reader.sdk.close()
 
@@ -494,3 +494,28 @@ def test_partial_page_failure_and_numeric_precision():
     for value in (None, True, -1, 2**53, 1.5, "3"):
         with pytest.raises(m.ReportError):
             m.count(value)
+
+
+def test_publisher_guide_rate_limit_pacing():
+    reader = m.Reader(None, sleep=Mock())
+    for endpoint in (m.RANK, m.INDEX, "/oauth2/token"):
+        reader.before_request(httpx.Request("GET", "https://api.asknews.app" + endpoint))
+    assert [call.args[0] for call in reader.sleep.call_args_list] == [6.0, 1.0, 1.0]
+    assert reader.requests == 3
+
+
+def test_rate_delay_must_fit_remaining_budget():
+    reader = m.Reader(None, max_seconds=5, sleep=Mock())
+    with pytest.raises(m.ReportError, match="budget"):
+        reader.before_request(httpx.Request("GET", "https://api.asknews.app" + m.RANK))
+    assert reader.requests == 0 and reader.sleep.call_count == 0
+
+
+def test_official_guide_in_workbook_methodology():
+    book = m.workbook(report_fixture())
+    rows = dict(book["Methodology"].iter_rows(min_row=2, values_only=True))
+    assert rows["Official publisher guide"] == "https://docs.asknews.app/en/publisher"
+    assert "6s" in rows["Polite requests"]
+    assert "personal API keys cannot access distribution" in rows["Publisher authentication"]
+    assert "batches of 100" in rows["Optional guide enrichment"]
+    assert "weighted" in rows["Guide/source differences"]

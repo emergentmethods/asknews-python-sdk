@@ -32,6 +32,8 @@ from asknews_sdk.errors import APIError
 UTC = timezone.utc
 METRICS = ("surface", "citation", "grounded")
 FIELDS = ("surfaces", "citations", "grounded", "full_text")
+PUBLISHER_GUIDE = "https://docs.asknews.app/en/publisher"
+API_REFERENCE = "https://docs.asknews.app/en/reference#tag--distribution"
 BASE = "/v1/distribution/"
 RANK = BASE + "articles/top_n_for_domains"
 SHARE = BASE + "stats/hit_share"
@@ -111,7 +113,7 @@ def retry_delay(header, attempt, now=None):
 class Reader:
     """All data reads use SDK transport; budgets count each HTTP send (including OAuth)."""
 
-    def __init__(self, sdk, max_requests=400, max_seconds=900, sleep=time.sleep):
+    def __init__(self, sdk, max_requests=400, max_seconds=2400, sleep=time.sleep):
         self.sdk = sdk
         self.max_requests = max_requests
         self.deadline = time.monotonic() + max_seconds
@@ -119,10 +121,13 @@ class Reader:
         self.sleep = sleep
 
     def before_request(self, request):
-        if self.requests >= self.max_requests or time.monotonic() + 1 >= self.deadline:
+        # Publisher guide Recipe 3: 6s keeps distribution below its 0.2 req/s limit.
+        # Apply even to admin/internal calls; do not assume rate-limit exemptions.
+        delay = 6.0 if request.url.path.startswith(BASE) else 1.0
+        if self.requests >= self.max_requests or time.monotonic() + delay >= self.deadline:
             raise ReportError("Request/time budget reached; increase bounded limits explicitly.")
         # Called by httpx for API and SDK-managed OAuth requests, not logged.
-        self.sleep(1.0)
+        self.sleep(delay)
         self.requests += 1
 
     def after_response(self, response):
@@ -573,6 +578,34 @@ def workbook(report):
         "Methodology",
         ("Item", "Value"),
         [
+            ("Official publisher guide", PUBLISHER_GUIDE),
+            ("Linked API reference", API_REFERENCE),
+            (
+                "Publisher authentication",
+                "Guide uses existing publisher organization API keys (ank_org_...) with "
+                "distribution/news scopes; personal API keys cannot access distribution. "
+                "OAuth is an SDK-supported admin alternative only when already authorized. "
+                "Admin status never implies internal scope.",
+            ),
+            (
+                "Guide/source differences",
+                "Guide describes traffic share broadly; implementation is weighted, not raw "
+                "traffic or payout. Guide omits metric selector and index counts; public API "
+                "reference/source support them. Named SDK internal DTOs still drop grounded.",
+            ),
+            (
+                "Optional guide enrichment",
+                "Recipe 4 supports news.get_articles(article_ids=..., full_text=False) in "
+                "batches of 100. This bounded event-count report does not request metadata "
+                "enrichment, summaries or article bodies; unavailable here does not mean "
+                "unavailable from the API.",
+            ),
+            (
+                "Polite requests",
+                "Guide limit: distribution 0.2 requests/sec, burst 5, concurrency 2. "
+                "This report is serial and waits 6s before every distribution send, including "
+                "retries; other/auth sends wait 1s. Retry-After is additional when present.",
+            ),
             ("Requested start UTC", utc_string(start)),
             ("Requested exclusive end UTC", utc_string(following)),
             ("API inclusive start timestamp", int(start.timestamp())),
@@ -714,7 +747,7 @@ def main(argv=None):
     parser.add_argument("--page-size", type=bounded_int(1, 100), default=100)
     parser.add_argument("--max-pages", type=bounded_int(1, 1000), default=100)
     parser.add_argument("--max-requests", type=bounded_int(1, 4000), default=400)
-    parser.add_argument("--max-seconds", type=bounded_int(1, 3600), default=900)
+    parser.add_argument("--max-seconds", type=bounded_int(1, 3600), default=2400)
     args = parser.parse_args(argv)
     # SDK errors/HTTP logging can contain auth requests or response bodies. Never enable debug.
     logging.disable(logging.CRITICAL)
