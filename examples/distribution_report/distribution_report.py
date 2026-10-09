@@ -99,6 +99,8 @@ def retry_delay(header, attempt, now=None):
     if header is not None:
         try:
             delay = float(header)
+            if delay < 0:
+                raise ReportError("Invalid negative Retry-After; stop and retry later.")
         except (TypeError, ValueError):
             try:
                 date = parsedate_to_datetime(header)
@@ -119,15 +121,33 @@ class Reader:
         self.deadline = time.monotonic() + max_seconds
         self.requests = 0
         self.sleep = sleep
+        self.not_before = 0.0
+        self.stopped_reason = None
+
+    def stop(self, reason):
+        self.stopped_reason = reason
+        raise ReportError("All further sends stopped: " + reason)
+
+    def defer(self, delay):
+        # Shared across every section, including after a section's final failed attempt.
+        self.not_before = max(self.not_before, time.monotonic() + delay)
+        if self.not_before >= self.deadline:
+            self.stop("Retry-After/backoff would exceed time budget.")
 
     def before_request(self, request):
+        if self.stopped_reason is not None:
+            self.stop(self.stopped_reason)
         # Publisher guide Recipe 3: 6s keeps distribution below its 0.2 req/s limit.
         # Apply even to admin/internal calls; do not assume rate-limit exemptions.
-        delay = 6.0 if request.url.path.startswith(BASE) else 1.0
-        if self.requests >= self.max_requests or time.monotonic() + delay >= self.deadline:
-            raise ReportError("Request/time budget reached; increase bounded limits explicitly.")
+        pacing = 6.0 if request.url.path.startswith(BASE) else 1.0
+        now = time.monotonic()
+        delay = max(pacing, self.not_before - now)
+        if self.requests >= self.max_requests or now + delay >= self.deadline:
+            self.stop("Request/time budget reached; increase bounded limits explicitly.")
         # Called by httpx for API and SDK-managed OAuth requests, not logged.
         self.sleep(delay)
+        if time.monotonic() >= self.deadline:
+            self.stop("Time budget expired while waiting.")
         self.requests += 1
 
     def after_response(self, response):
@@ -146,6 +166,8 @@ class Reader:
         if endpoint not in ALLOWED:
             raise ReportError("Endpoint not allowlisted.")
         for attempt in range(3):
+            if self.stopped_reason is not None:
+                self.stop(self.stopped_reason)
             try:
                 return self.sdk.client.request(method="GET", endpoint=endpoint, query=query).content
             except (APIError, httpx.HTTPStatusError) as exc:
@@ -163,16 +185,18 @@ class Reader:
                     raise ReportError(
                         f"HTTP {status}: section unavailable; check API compatibility."
                     ) from None
-                delay = retry_delay(exc.response.headers.get("retry-after"), attempt)
+                try:
+                    delay = retry_delay(exc.response.headers.get("retry-after"), attempt)
+                except ReportError as error:
+                    # A section-local failure cannot release a shared-quota restriction.
+                    self.stop(str(error))
             except httpx.TransportError:
                 delay = 2**attempt
             except (ValueError, TypeError, AttributeError):
                 raise ReportError("Unrecognized SDK/API response; verify compatibility.") from None
+            self.defer(delay)
             if attempt == 2:
                 raise ReportError("Transient request failed after three bounded attempts.")
-            if time.monotonic() + delay >= self.deadline:
-                raise ReportError("Retry would exceed time budget.")
-            self.sleep(delay)
         raise ReportError("Request did not complete.")
 
 
@@ -289,8 +313,10 @@ class Report:
 
     def section(self, name, operation):
         try:
+            issues_before = len(self.issues)
             value = operation()
-            self.coverage.append((name, "available", "See boundary/snapshot methodology"))
+            status = "partial" if len(self.issues) > issues_before else "available"
+            self.coverage.append((name, status, "See coverage issues and boundary methodology"))
             return value
         except AuthError:
             raise
@@ -313,6 +339,17 @@ def parse_share(payload, domain):
     return value
 
 
+def validate_distinct_coverage(report, payload):
+    for name in ("hits", "surfaced"):
+        if "total_" + name not in payload:
+            report.issues.append("Daily distinct response total missing: total_" + name)
+        else:
+            # Validate totals even when missing row fields prevent sum reconciliation.
+            count(payload["total_" + name])
+        if any(row[name] is None for row in report.unique_daily.values()):
+            report.issues.append("Daily distinct field missing: " + name)
+
+
 def collect_internal(reader, report, query, start, following):
     # One denied internal request stops the internal group; no 403 endpoint-probing loop.
     raw = reader.get(TOTAL, query)
@@ -333,12 +370,16 @@ def collect_internal(reader, report, query, start, following):
     month_query = {"domain_names": [report.domain], "year": start.year, "month": start.month}
     raw = reader.get(UNIQUE, month_query)
     report.unique = {name: count(raw[name]) for name in ("hits", "surfaced")}
-    report.unique_daily = daily_values(
-        reader.get(UNIQUE_DAILY, month_query), ("hits", "surfaced"), start, following
-    )
-    daily_hits = sum(row["hits"] for row in report.unique_daily.values())
-    if daily_hits != report.unique["hits"] or report.unique["hits"] != report.totals["surfaces"]:
-        report.issues.append("Surface totals/daily/aggregate mismatch (snapshot drift).")
+    unique_daily_payload = reader.get(UNIQUE_DAILY, month_query)
+    report.unique_daily = daily_values(unique_daily_payload, ("hits", "surfaced"), start, following)
+    validate_distinct_coverage(report, unique_daily_payload)
+    daily_hits = [row["hits"] for row in report.unique_daily.values()]
+    if all(value is not None for value in daily_hits):
+        if sum(daily_hits) != report.unique["hits"]:
+            report.issues.append("Surface totals/daily mismatch (snapshot drift).")
+    if report.unique["hits"] != report.totals["surfaces"]:
+        report.issues.append("Surface totals/aggregate mismatch (snapshot drift).")
+    # total_surfaced reconciles daily rows only; NEVER replace the monthly distinct count.
     surface = report.ranks["surface"]
     if surface.complete and len(surface.rows) != report.unique["surfaced"]:
         report.issues.append("Monthly distinct/ranking article count mismatch (snapshot drift).")
@@ -604,7 +645,9 @@ def workbook(report):
                 "Polite requests",
                 "Guide limit: distribution 0.2 requests/sec, burst 5, concurrency 2. "
                 "This report is serial and waits 6s before every distribution send, including "
-                "retries; other/auth sends wait 1s. Retry-After is additional when present.",
+                "retries; other/auth sends wait 1s. A shared Retry-After deadline applies "
+                "across sections, including final attempts. Unusable headers or waits/budgets "
+                "that prevent compliance permanently stop all further sends for this run.",
             ),
             ("Requested start UTC", utc_string(start)),
             ("Requested exclusive end UTC", utc_string(following)),

@@ -243,7 +243,7 @@ def test_429_then_503_then_success_actual_sdk():
     reader = sdk_reader(handler)
     assert reader.get(m.RANK, {}) == {"data": []}
     assert reader.requests == 3
-    assert [call.args[0] for call in reader.sleep.call_args_list] == [6.0, 3, 6.0, 2, 6.0]
+    assert [call.args[0] for call in reader.sleep.call_args_list] == [6.0, 6.0, 6.0]
     assert all(call.args[0].method == "GET" for call in handler.call_args_list)
     reader.sdk.close()
 
@@ -519,3 +519,172 @@ def test_official_guide_in_workbook_methodology():
     assert "personal API keys cannot access distribution" in rows["Publisher authentication"]
     assert "batches of 100" in rows["Optional guide enrichment"]
     assert "weighted" in rows["Guide/source differences"]
+
+
+@pytest.mark.parametrize("header", ["120", "not-a-date", "NaN", "infinity", "-1"])
+def test_unusable_retry_after_stops_all_sections(header, monkeypatch):
+    clock, sent = [0.0], []
+    monkeypatch.setattr(m.time, "monotonic", lambda: clock[0])
+
+    def handler(request):
+        sent.append((request.url.path, clock[0]))
+        return httpx.Response(429, headers={"Retry-After": header})
+
+    reader = sdk_reader(handler)
+    reader.sleep = lambda seconds: clock.__setitem__(0, clock[0] + seconds)
+    try:
+        report = m.collect(reader, "apnews.com", "2026-09", include_internal=True)
+        assert reader.stopped_reason and len(sent) == 1
+        assert report.issues and report.share is None and not report.index
+        assert all(not ranked.complete for ranked in report.ranks.values())
+        # Changing sections, removing request hooks or extending time cannot reopen the reader.
+        reader.deadline += 1000
+        with pytest.raises(m.ReportError, match="stopped"):
+            reader.get(m.INDEX, {})
+        assert len(sent) == 1
+    finally:
+        reader.sdk.close()
+
+
+def test_retry_after_final_attempt_survives_section_and_endpoint_change(monkeypatch):
+    clock, sent = [0.0], []
+    monkeypatch.setattr(m.time, "monotonic", lambda: clock[0])
+
+    def handler(request):
+        sent.append((request.url.path, clock[0]))
+        return httpx.Response(429, headers={"Retry-After": "10"})
+
+    reader = sdk_reader(handler)
+    reader.sleep = lambda seconds: clock.__setitem__(0, clock[0] + seconds)
+    try:
+        report = m.collect(reader, "apnews.com", "2026-09")
+        assert len(sent) == 15 and report.issues
+        assert sent[0][1] == 6
+        assert sent[3][1] - sent[2][1] >= 10  # final surface attempt -> citation
+        assert sent[12][0] == m.INDEX  # restriction also follows shared reader into news
+        assert all(b[1] - a[1] >= 10 for a, b in zip(sent, sent[1:]))
+        assert reader.not_before == sent[-1][1] + 10
+    finally:
+        reader.sdk.close()
+
+
+@pytest.mark.parametrize("budget", [15, 20])
+def test_retry_after_or_wait_budget_stops_future_sends(budget, monkeypatch):
+    clock, sent = [0.0], []
+    monkeypatch.setattr(m.time, "monotonic", lambda: clock[0])
+
+    def handler(request):
+        sent.append(clock[0])
+        return httpx.Response(429, headers={"Retry-After": "10"})
+
+    reader = sdk_reader(handler, max_seconds=budget)
+    reader.sleep = lambda seconds: clock.__setitem__(0, clock[0] + seconds)
+    try:
+        report = m.collect(reader, "apnews.com", "2026-09")
+        assert report.issues and reader.stopped_reason
+        assert sent == ([6.0] if budget == 15 else [6.0, 16.0])
+    finally:
+        reader.sdk.close()
+
+
+def test_budget_expiring_during_wait_stops_before_send(monkeypatch):
+    clock = [0.0]
+    monkeypatch.setattr(m.time, "monotonic", lambda: clock[0])
+    handler = Mock(return_value=httpx.Response(200, json={}))
+    reader = sdk_reader(handler, max_seconds=10)
+    reader.sleep = lambda seconds: clock.__setitem__(0, clock[0] + 20)
+    try:
+        with pytest.raises(m.ReportError, match="expired"):
+            reader.get(m.RANK, {})
+        assert reader.stopped_reason and handler.call_count == 0
+        with pytest.raises(m.ReportError, match="stopped"):
+            reader.get(m.INDEX, {})
+        assert handler.call_count == 0
+    finally:
+        reader.sdk.close()
+
+
+def distinct_fixture_handler(unique_daily):
+    def handler(request):
+        path, query = request.url.path, request.url.params
+        if path == m.RANK:
+            payload = page([article(value=3)])
+        elif path == m.SHARE:
+            payload = {"data": [{"domain": "apnews.com", "hit_share": 0.1}]}
+        elif path == m.TOTAL:
+            payload = dict.fromkeys(m.FIELDS, 3)
+        elif path == m.DAILY:
+            payload = {
+                "data": [dict(day="2026-09-01", **dict.fromkeys(m.FIELDS, 3))],
+                **{"total_" + name: 3 for name in m.FIELDS},
+            }
+        elif path == m.UNIQUE:
+            payload = {"hits": 3, "surfaced": 1}
+        elif path == m.UNIQUE_DAILY:
+            payload = unique_daily
+        else:
+            assert path == m.INDEX
+            payload = [{"start": query["start_datetime"], "end": query["end_datetime"], "count": 2}]
+        return httpx.Response(200, json=payload)
+
+    return handler
+
+
+@pytest.mark.parametrize(
+    "unique_daily",
+    [
+        {"data": [{"day": "2026-09-01", "hits": 3}], "total_hits": 3, "total_surfaced": 1},
+        {"data": [{"day": "2026-09-01", "surfaced": 1}], "total_hits": 3, "total_surfaced": 1},
+        {"data": [{"day": "2026-09-01", "hits": 3, "surfaced": 1}], "total_surfaced": 1},
+        {"data": [{"day": "2026-09-01", "hits": 3, "surfaced": 1}], "total_hits": 3},
+        {"data": [{"day": "2026-09-01", "hits": 3, "surfaced": 1}]},
+        {"data": []},
+        {
+            "data": [{"day": "2026-09-01", "hits": 3, "surfaced": None}],
+            "total_hits": 3,
+            "total_surfaced": 1,
+        },
+        {"data": [{"day": "2026-09-01", "hits": 3}], "total_hits": 3, "total_surfaced": None},
+    ],
+)
+def test_missing_distinct_schema_requires_partial_cli(unique_daily, tmp_path, monkeypatch):
+    reader = sdk_reader(distinct_fixture_handler(unique_daily))
+    try:
+        report = m.collect(reader, "apnews.com", "2026-09", include_internal=True)
+    finally:
+        reader.sdk.close()
+    assert report.issues
+    assert all(row[1] != "available" for row in report.coverage if row[0] == "Internal group")
+    monkeypatch.setattr(m, "collect", lambda *args: report)
+    monkeypatch.setattr(m, "credentials", lambda env: {"api_key": "synthetic-not-real"})
+    path = tmp_path / "requires-partial.xlsx"
+    assert m.main(["--output", str(path)]) == 1 and not path.exists()
+    assert m.main(["--output", str(path), "--allow-partial"]) == 2
+    book = load_workbook(path)
+    summary = {row[0]: row[1] for row in book["Summary"].iter_rows(min_row=2, values_only=True)}
+    assert summary["Run status"] == "PARTIAL"
+    assert summary["Monthly unique retrieved articles"] == 1
+    for row in unique_daily["data"]:
+        if row.get("hits") is None:
+            assert book["Daily metrics"]["F2"].value is None
+        if row.get("surfaced") is None:
+            assert book["Daily metrics"]["G2"].value is None
+
+
+def test_daily_distinct_sum_is_never_monthly_distinct():
+    payload = {
+        "data": [
+            {"day": "2026-09-01", "hits": 2, "surfaced": 1},
+            {"day": "2026-09-02", "hits": 1, "surfaced": 1},
+        ],
+        "total_hits": 3,
+        "total_surfaced": 2,
+    }
+    reader = sdk_reader(distinct_fixture_handler(payload))
+    try:
+        report = m.collect(reader, "apnews.com", "2026-09", include_internal=True)
+    finally:
+        reader.sdk.close()
+    assert not report.issues
+    assert sum(row["surfaced"] for row in report.unique_daily.values()) == 2
+    assert report.unique["surfaced"] == 1

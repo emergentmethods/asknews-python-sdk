@@ -83,9 +83,15 @@ process deadline. Set an external process timeout if required.
 Optional bounded flags: `--page-size 1..100`, `--max-pages 1..1000`,
 `--max-requests 1..4000`, `--max-seconds 1..3600`. API/transport transient failures
 retry at most twice (three attempts total); retryable statuses are
-408/429/500/502/503/504. `Retry-After` seconds and HTTP dates are honored. A wait
-over 60 seconds, invalid Retry-After or exhausted budget stops that section
-rather than retrying early. No concurrency or article-by-article fanout. Index
+408/429/500/502/503/504. `Retry-After` seconds and HTTP dates set a **reader-wide
+not-before deadline**, including on the final failed attempt of a section.
+Every later send (other metrics, share, internal, index or OAuth) must honor that
+deadline as well as its normal pacing; a section boundary never resets it.
+A wait over 60 seconds, unusable/negative Retry-After, or exhausted request/time
+budget **permanently stops all further sends for the run**, not just the current
+section. Remaining sections are recorded unavailable/partial without network
+requests. Previously collected data can only be saved via `--allow-partial`
+(exit 2); otherwise no workbook is written. No concurrency or article-by-article fanout. Index
 counts cost one additional bounded request per day (28–31). Request limits
 include unsuccessful sends; no unrestricted all-history queries.
 
@@ -113,8 +119,14 @@ may require a final empty page. Old servers without explicit `page`/`next_page`
 metadata are marked partial/unavailable rather than falsely reporting their
 potentially top-N-capped cohort as complete.
 
+The daily distinct response requires `hits` and `surfaced` on every returned
+row plus both `total_hits` and `total_surfaced`. Missing fields remain blank;
+missing/invalid fields or totals mark the internal group partial/unavailable and
+require `--allow-partial` (exit 2), never an unflagged successful export.
+`total_surfaced` reconciles the **sum of daily distinct counts only**.
 Monthly distinct article counts must **not** be computed by summing daily
-uniques. Index counts describe current retained indexed articles filtered by
+uniques; the independent monthly `surfaced` value is preserved. Index counts
+describe current retained indexed articles filtered by
 **crawl date**; they are not distribution events, publication-date activity,
 or a historical inventory snapshot. Ranking endpoints do not supply titles,
 publication dates, bias/sentiment or other enrichments: those are not collected
@@ -253,6 +265,10 @@ Fixtures and httpx MockTransport exercise the **real SDK** without network or
 real credentials. Tests cover pagination, repeated/capped pages, metric joining,
 leap/year/UTC boundaries, exact-domain rejection, 401/403, retries/budgets,
 missing fields, daily reconciliation, formula injection, workbook reopening,
-totals, output collision and partial exit behavior. No real AP workbook or data
+totals, output collision and partial exit behavior. Reviewer regressions cover
+cross-section/final-attempt Retry-After, unusable headers, exhausted wait/request
+time budgets, missing daily distinct fields/totals, explicit partial CLI behavior,
+and preserving monthly distinct counts when daily distinct counts overlap.
+No real AP workbook or data
 is included. Tests live with this optional example to avoid adding Excel
 runtime/dev dependencies to the SDK package or changing its release workflows.
