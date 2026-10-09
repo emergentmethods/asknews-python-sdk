@@ -49,6 +49,11 @@ The API doesn't stop there, explore a wide range of endpoints:
 
 Find full details at the [AskNews API documentation](https://docs.asknews.app).
 
+## Examples
+
+- [Exact-domain distribution Excel report](examples/distribution_report/README.md):
+  bounded read-only export using your existing authorized credentials, with offline tests.
+
 ## Support
 
 Join our [Discord](https://discord.gg/2Yw66XXEhY) to see what other people are building, and to get support with your projects.

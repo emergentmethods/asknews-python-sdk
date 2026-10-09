@@ -1,0 +1,3 @@
+# Standalone example only; does not add dependencies to the SDK package.
+asknews==0.14.6
+openpyxl==3.1.5
