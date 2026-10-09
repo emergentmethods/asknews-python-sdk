@@ -1,3 +1,9 @@
+## 0.14.6 (2026-10-09)
+
+### Fix
+
+- Send the User-Agent header on every request
+
 ## 0.14.5 (2026-10-06)
 
 ### Fix
