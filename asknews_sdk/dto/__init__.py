@@ -34,7 +34,18 @@ from asknews_sdk.dto.sentiment import (
     FinanceResponseTimeSeriesData,
 )
 from asknews_sdk.dto.stories import StoriesResponse, StoryResponse, StoryResponseUpdate
-from asknews_sdk.dto.wiki import WikiSearchResponse
+from asknews_sdk.dto.wiki import (
+    WikiBatchEntityRequest,
+    WikiBatchEntityResponse,
+    WikiBatchLinkEntityRequest,
+    WikiBatchLinkEntityResponse,
+    WikiBatchSearchResponse,
+    WikidataResponseDictItem,
+    WikiEntityResponse,
+    WikiLinkEntityResponse,
+    WikiResponseDictItem,
+    WikiSearchResponse,
+)
 
 
 __all__ = (
@@ -73,4 +84,13 @@ __all__ = (
     "URLIndexingRequest",
     "URLIndexingResponse",
     "WikiSearchResponse",
+    "WikiResponseDictItem",
+    "WikidataResponseDictItem",
+    "WikiBatchSearchResponse",
+    "WikiLinkEntityResponse",
+    "WikiBatchLinkEntityRequest",
+    "WikiBatchLinkEntityResponse",
+    "WikiEntityResponse",
+    "WikiBatchEntityRequest",
+    "WikiBatchEntityResponse",
 )
