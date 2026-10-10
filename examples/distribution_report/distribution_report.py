@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import calendar
+import json
 import logging
 import math
 import os
@@ -42,10 +43,30 @@ DAILY = BASE + "stats/metrics_timeseries"
 UNIQUE = BASE + "articles/domain_hits_surface"
 UNIQUE_DAILY = BASE + "articles/domain_hits_surface_timewindow"
 INDEX = "/v1/index_counts"
+# Narrow transport fallbacks only: no ranking/share/unique helpers; internal DTOs
+# discard grounded; get_index_counts strips UTC offsets. Recipe 4 uses a named helper.
 ALLOWED = {RANK, SHARE, TOTAL, DAILY, UNIQUE, UNIQUE_DAILY, INDEX}
+ENRICH_FIELDS = (
+    "title",
+    "eng_title",
+    "pub_date",
+    "language",
+    "country",
+    "classification",
+    "sentiment",
+    "entities",
+    "keywords",
+    "reporting_voice",
+    "provocative",
+    "page_rank",
+    "key_points",
+    "bias",
+    "content_type",
+)
 BOUNDARY = (
-    "PARTIAL CALENDAR COVERAGE: inclusive integer bounds end at 23:59:59 UTC; "
-    "fractional events after that instant are not covered. Never an exact full-month claim."
+    "PARTIAL CALENDAR COVERAGE: integer-second inclusive API end = exclusive stop minus 1s; "
+    "events after that instant and before stop are omitted. Index repeats this gap at "
+    "each clipped UTC-day stop. Never an exact full-range/full-month claim."
 )
 
 
@@ -71,6 +92,71 @@ def month_bounds(month):
     except ValueError:
         raise ReportError("Invalid calendar month.") from None
     return start, following - timedelta(seconds=1), following
+
+
+@dataclass(frozen=True)
+class Window:
+    start: datetime
+    stop: datetime
+
+    def __post_init__(self):
+        for value in (self.start, self.stop):
+            if value.tzinfo is None or value.utcoffset() is None or value.microsecond:
+                raise ReportError("Use timezone-aware datetimes at whole-second precision.")
+        object.__setattr__(self, "start", self.start.astimezone(UTC))
+        object.__setattr__(self, "stop", self.stop.astimezone(UTC))
+        if self.stop <= self.start:
+            raise ReportError("--stop must be later than --start (exclusive stop).")
+        if not 2000 <= self.start.year <= 2100:
+            raise ReportError("Range must be within 2000–2100.")
+        if (self.start.year, self.start.month) != (self.end.year, self.end.month):
+            raise ReportError("Cross-month UTC ranges are unsupported; select one month at a time.")
+
+    @property
+    def end(self):
+        return self.stop - timedelta(seconds=1)
+
+    @property
+    def full_month(self):
+        start, _, stop = month_bounds(self.start.strftime("%Y-%m"))
+        return (self.start, self.stop) == (start, stop)
+
+
+def parse_datetime(value):
+    # Explicit calendar date, seconds and numeric offset/Z only, not date-only/naive input.
+    if not re.fullmatch(
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})", value
+    ):
+        raise ReportError("Use ISO8601 YYYY-MM-DDTHH:MM:SSZ or an explicit ±HH:MM offset.")
+    # datetime.fromisoformat normalizes malformed offsets such as +01:60; reject them.
+    if value[-1] != "Z" and (int(value[-5:-3]) > 23 or int(value[-2:]) > 59):
+        raise ReportError("Invalid ISO8601 timezone offset.")
+    try:
+        date = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        raise ReportError("Invalid ISO8601 calendar datetime.") from None
+    if date.microsecond:
+        raise ReportError("Fractional-second inputs are unsupported; use whole seconds explicitly.")
+    return date.astimezone(UTC)
+
+
+def select_window(month=None, start=None, stop=None):
+    if month is not None:
+        if start is not None or stop is not None:
+            raise ReportError("--month is mutually exclusive with --start/--stop.")
+        first, _, following = month_bounds(month)
+        return Window(first, following)
+    if start is None or stop is None:
+        raise ReportError("Supply both --start and --stop, or the optional --month shorthand.")
+    return Window(parse_datetime(start), parse_datetime(stop))
+
+
+def day_windows(start, stop):
+    current = start
+    while current < stop:
+        following = min(current.replace(hour=0, minute=0, second=0) + timedelta(days=1), stop)
+        yield current, following
+        current = following
 
 
 def exact_domain(value):
@@ -113,7 +199,7 @@ def retry_delay(header, attempt, now=None):
 
 
 class Reader:
-    """All data reads use SDK transport; budgets count each HTTP send (including OAuth)."""
+    """Shared safety for named SDK methods and narrow transport fallbacks, including OAuth."""
 
     def __init__(self, sdk, max_requests=400, max_seconds=2400, sleep=time.sleep):
         self.sdk = sdk
@@ -165,11 +251,20 @@ class Reader:
     def get(self, endpoint, query):
         if endpoint not in ALLOWED:
             raise ReportError("Endpoint not allowlisted.")
+        return self.read(
+            lambda: self.sdk.client.request(method="GET", endpoint=endpoint, query=query).content
+        )
+
+    def articles(self, ids):
+        # Real published SDK helper, not a local imitation; no full-text body fetch.
+        return self.read(lambda: self.sdk.news.get_articles(article_ids=ids, full_text=False))
+
+    def read(self, operation):
         for attempt in range(3):
             if self.stopped_reason is not None:
                 self.stop(self.stopped_reason)
             try:
-                return self.sdk.client.request(method="GET", endpoint=endpoint, query=query).content
+                return operation()
             except (APIError, httpx.HTTPStatusError) as exc:
                 status = exc.response.status_code
                 if status == 401:
@@ -262,7 +357,7 @@ def ranking(reader, query, domain, metric, page_size, max_pages):
             result.pages += 1
             if next_page is None:
                 result.complete = True
-                result.note = "pagination exhausted; snapshot and month-end caveats still apply"
+                result.note = "pagination exhausted; snapshot and range-end caveats still apply"
                 return result
         raise ReportError("Page cap reached; exported counts are partial, not domain totals.")
     except (AuthError, Denied):
@@ -284,7 +379,7 @@ def daily_values(payload, fields, start, following, total_prefix="total_"):
         if not isinstance(day, str) or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
             raise ReportError("Daily bucket must be a UTC calendar date.")
         date = datetime.strptime(day, "%Y-%m-%d").replace(tzinfo=UTC)
-        if not start <= date < following or day in parsed:
+        if not start.replace(hour=0, minute=0, second=0) <= date < following or day in parsed:
             raise ReportError("Duplicate/out-of-window daily bucket.")
         parsed[day] = {name: count(row[name]) if name in row else None for name in fields}
     for name in fields:
@@ -299,6 +394,8 @@ def daily_values(payload, fields, start, following, total_prefix="total_"):
 class Report:
     domain: str
     month: str
+    window: Window | None = None
+    enrichment: dict = field(default_factory=dict)
     started: str = field(default_factory=lambda: utc_string(datetime.now(UTC)))
     finished: str = ""
     ranks: dict = field(default_factory=dict)
@@ -310,6 +407,10 @@ class Report:
     share: float | None = None
     coverage: list = field(default_factory=list)
     issues: list = field(default_factory=list)
+
+    @property
+    def selected(self):
+        return self.window or select_window(month=self.month)
 
     def section(self, name, operation):
         try:
@@ -367,6 +468,27 @@ def collect_internal(reader, report, query, start, following):
             report.issues.append("Daily metric field missing: " + name)
         elif report.totals[name] is not None and sum(values) != report.totals[name]:
             report.issues.append("Daily/aggregate mismatch: " + name)
+    if Window(start, following).full_month:
+        collect_distinct(reader, report, start, following)
+    else:
+        report.coverage.append(
+            (
+                "Distinct retrieval counts",
+                "unsupported for partial month",
+                "Both distinct routes accept year/month only; not requested. Monthly and daily "
+                "distinct cells remain blank. Never sum daily uniques into range uniques.",
+            )
+        )
+    for metric, name in zip(METRICS, FIELDS):
+        ranked = report.ranks[metric]
+        if ranked.complete and report.totals[name] is not None:
+            if sum(row[1] for row in ranked.rows.values()) != report.totals[name]:
+                report.issues.append(f"{metric}: ranking/raw aggregate mismatch (snapshot drift).")
+    return True
+
+
+def collect_distinct(reader, report, start, following):
+    # These routes have year/month ONLY, not arbitrary date bounds.
     month_query = {"domain_names": [report.domain], "year": start.year, "month": start.month}
     raw = reader.get(UNIQUE, month_query)
     report.unique = {name: count(raw[name]) for name in ("hits", "surfaced")}
@@ -383,19 +505,17 @@ def collect_internal(reader, report, query, start, following):
     surface = report.ranks["surface"]
     if surface.complete and len(surface.rows) != report.unique["surfaced"]:
         report.issues.append("Monthly distinct/ranking article count mismatch (snapshot drift).")
-    for metric, name in zip(METRICS, FIELDS):
-        ranked = report.ranks[metric]
-        if ranked.complete and report.totals[name] is not None:
-            if sum(row[1] for row in ranked.rows.values()) != report.totals[name]:
-                report.issues.append(f"{metric}: ranking/raw aggregate mismatch (snapshot drift).")
-    return True
 
 
 def collect_index(reader, report, start, following):
-    day = start
-    while day < following:
-        end = day + timedelta(days=1) - timedelta(seconds=1)
-        # Per-day disjoint requests avoid the server's adjacent inclusive bucket overlap.
+    for day, stop in day_windows(start, following):
+        end = stop - timedelta(seconds=1)
+        if end == day:
+            # Server create_sub_ranges emits no bucket for equal endpoints.
+            report.issues.append("Index: one-second clipped window unsupported; left blank.")
+            continue
+        # UTC-day windows clipped to selected bounds; no adjacent inclusive overlap.
+        # Transport intentionally preserves UTC offsets lost by the named index helper.
         payload = reader.get(
             INDEX,
             {
@@ -414,13 +534,13 @@ def collect_index(reader, report, start, following):
             if date.tzinfo is None or date.astimezone(UTC) != expected:
                 raise ReportError("Index bucket timezone/boundaries differ; bucket discarded.")
         report.index[day.date().isoformat()] = count(row["count"])
-        day += timedelta(days=1)
     return True
 
 
 def collect(reader, domain, month, page_size=100, max_pages=100, include_internal=False):
-    start, end, following = month_bounds(month)
-    report = Report(domain, month)
+    window = month if isinstance(month, Window) else select_window(month=month)
+    start, end, following = window.start, window.end, window.stop
+    report = Report(domain, start.strftime("%Y-%m"), window=window)
     query = {
         "domain_names": [domain],
         "start_date": int(start.timestamp()),
@@ -450,6 +570,7 @@ def collect(reader, domain, month, page_size=100, max_pages=100, include_interna
                 "Requires existing internal scope; use --include-internal",
             )
         )
+    report.section("Article enrichment", lambda: collect_enrichment(reader, report))
     report.section("Index counts", lambda: collect_index(reader, report, start, following))
     report.finished = utc_string(datetime.now(UTC))
     return report
@@ -469,6 +590,46 @@ def joined_articles(report):
             # Absence means zero only for exhausted positive-event rankings.
             values.append(row.get(metric, 0 if report.ranks[metric].complete else None))
         yield (identity, row["url"], *values)
+
+
+def collect_enrichment(reader, report):
+    # Union ONLY the validated range-event cohorts; publication date need not be in range.
+    ids = [row[0] for row in joined_articles(report)]
+    for offset in range(0, len(ids), 100):
+        batch = ids[offset : offset + 100]
+        articles = reader.articles(batch)
+        if not isinstance(articles, list) or len(articles) > len(batch):
+            raise ReportError("Invalid enrichment batch size; batch discarded.")
+        parsed = {}
+        for article in articles:
+            data = article.model_dump(mode="json", exclude_unset=True)
+            identity, _ = parse_article(dict(data, hit_count=0), report.domain)
+            if (
+                identity not in batch
+                or identity in parsed
+                or data.get("domain_url") != report.domain
+            ):
+                raise ReportError("Enrichment ID/domain isolation failed; batch discarded.")
+            parsed[identity] = {name: data.get(name) for name in ENRICH_FIELDS}
+        report.enrichment.update(parsed)  # only publish after validating the entire batch
+        if len(parsed) != len(batch):
+            report.issues.append(
+                f"Article enrichment: {len(batch) - len(parsed)} requested IDs absent in batch; "
+                "retained-index/access gaps remain blank, not zero."
+            )
+    return True
+
+
+def enriched_rows(report):
+    for row in joined_articles(report):
+        data = report.enrichment.get(row[0], {})
+        values = []
+        for name in ENRICH_FIELDS:
+            value = data.get(name)
+            if isinstance(value, (dict, list)):
+                value = json.dumps(value, ensure_ascii=False, sort_keys=True)
+            values.append(value)
+        yield (*row, *values, "returned" if row[0] in report.enrichment else "unavailable")
 
 
 def sheet(workbook, title, headers, rows):
@@ -504,12 +665,14 @@ def sheet(workbook, title, headers, rows):
 
 
 def workbook(report):
-    start, end, following = month_bounds(report.month)
+    window = report.selected
+    start, end, following = window.start, window.end, window.stop
     book = Workbook()
     book.remove(book.active)
     summary = [
         ("Domain (exact)", report.domain, "No subdomains or other publishers"),
-        ("Month", report.month, BOUNDARY),
+        ("Requested start UTC (inclusive)", utc_string(start), BOUNDARY),
+        ("Requested stop UTC (exclusive)", utc_string(following), "Never expanded to month"),
         (
             "Run status",
             "PARTIAL" if report.issues else "COLLECTED WITH COVERAGE CAVEATS",
@@ -518,7 +681,7 @@ def workbook(report):
         (
             "Monthly unique retrieved articles",
             report.unique.get("surfaced"),
-            "Internal month distinct; never sum daily uniques",
+            "Full-month requests only; partial-month unsupported/blank; never sum daily uniques",
         ),
         (
             "Exported surface article IDs",
@@ -526,9 +689,9 @@ def workbook(report):
             "Exported cohort only; not indexed article inventory",
         ),
         (
-            "Indexed crawl-date counts (exported days)",
+            "Indexed crawl-date counts (exported windows)",
             sum(report.index.values()) if report.index else None,
-            f"{len(report.index)} daily buckets; fractional-second gaps each day; "
+            f"{len(report.index)} clipped daily buckets; fractional-second gaps each window; "
             "not publication/event dates",
         ),
     ]
@@ -559,8 +722,7 @@ def workbook(report):
     )
     sheet(book, "Summary", ("Metric", "Value", "Interpretation"), summary)
     daily = []
-    day = start
-    while day < following:
+    for day, stop in day_windows(start, following):
         key = day.date().isoformat()
         counts = report.daily.get(key, {})
         unique = report.unique_daily.get(key, {})
@@ -571,10 +733,12 @@ def workbook(report):
                 unique.get("hits"),
                 unique.get("surfaced"),
                 report.index.get(key),
-                "Missing buckets/fields blank, not zero",
+                "Missing buckets/fields blank, not zero; "
+                + utc_string(day)
+                + " <= requested time < "
+                + utc_string(stop),
             )
         )
-        day += timedelta(days=1)
     sheet(
         book,
         "Daily metrics",
@@ -591,8 +755,16 @@ def workbook(report):
     sheet(
         book,
         "Articles",
-        ("Article ID", "URL (literal)", "Retrieval events", "Citation events", "Grounding events"),
-        list(joined_articles(report)),
+        (
+            "Article ID",
+            "URL (literal)",
+            "Retrieval events",
+            "Citation events",
+            "Grounding events",
+            *ENRICH_FIELDS,
+            "Enrichment coverage",
+        ),
+        list(enriched_rows(report)),
     )
     ws = sheet(
         book,
@@ -635,11 +807,13 @@ def workbook(report):
                 "reference/source support them. Named SDK internal DTOs still drop grounded.",
             ),
             (
-                "Optional guide enrichment",
-                "Recipe 4 supports news.get_articles(article_ids=..., full_text=False) in "
-                "batches of 100. This bounded event-count report does not request metadata "
-                "enrichment, summaries or article bodies; unavailable here does not mean "
-                "unavailable from the API.",
+                "Guide article enrichment",
+                "Recipe 4: this report calls sdk.news.get_articles "
+                "(article_ids=..., full_text=False) in "
+                "batches of 100, joined by UUID with exact-domain validation. "
+                "Only IDs from selected "
+                "range-event rankings are enriched; older publication dates are legitimate. "
+                "Missing metadata/retained-index gaps stay blank. No article body fetched.",
             ),
             (
                 "Polite requests",
@@ -671,7 +845,8 @@ def workbook(report):
             ),
             (
                 "Index coverage",
-                "One bounded request per UTC day, inclusive 00:00:00–23:59:59; "
+                "One bounded request per clipped UTC day, inclusive start through "
+                "clipped stop - 1s; "
                 "fractional remainder excluded EVERY day to prevent overlapping "
                 "buckets. crawl_date, not publication dates or distribution events. "
                 "Current retained index, not historical inventory.",
@@ -692,8 +867,8 @@ def workbook(report):
                 "Metric joining",
                 "Stable article UUID, never sum duplicate rows or join on title. "
                 "Missing metric is zero only after that ranking exhausts; otherwise "
-                "blank. Titles/publication dates/enrichments not supplied by ranking "
-                "endpoint.",
+                "blank. Metadata comes from named news.get_articles, not ranking fields. "
+                "Missing enrichments never erase event counts or become zero.",
             ),
             (
                 "Isolation",
@@ -703,7 +878,8 @@ def workbook(report):
             ),
             (
                 "SDK compatibility",
-                "Verified against asknews 0.14.6. SDK authenticated client.request "
+                "Verified against asknews 0.14.6; uses named sdk.news.get_articles for enrichment. "
+                "Narrow authenticated client.request "
                 "GET transport preserves grounded fields omitted by current typed "
                 "distribution models; ranking/share/unique lack named wrappers. Index"
                 " transport retains UTC offsets stripped by named method.",
@@ -711,7 +887,7 @@ def workbook(report):
             (
                 "Permissions",
                 "distribution for public rankings/share; internal + distribution for "
-                "dashboard aggregates; news for index. Admin status does not imply "
+                "dashboard aggregates; news for enrichment/index. Admin status does not imply "
                 "internal scope. No scope discovery or access changes.",
             ),
             (
@@ -775,7 +951,9 @@ def bounded_int(low, high):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--domain", default="apnews.com")
-    parser.add_argument("--month", default="2026-09")
+    parser.add_argument("--month", help="Optional YYYY-MM shorthand, exclusive with --start/--stop")
+    parser.add_argument("--start", help="Inclusive timezone-aware ISO8601 datetime, whole seconds")
+    parser.add_argument("--stop", help="Exclusive timezone-aware ISO8601 datetime, whole seconds")
     parser.add_argument("--output", type=Path)
     parser.add_argument(
         "--include-internal",
@@ -796,8 +974,11 @@ def main(argv=None):
     logging.disable(logging.CRITICAL)
     try:
         domain = exact_domain(args.domain)
-        month_bounds(args.month)
-        output = args.output or Path(f"{domain}-{args.month}-distribution.xlsx")
+        window = select_window(args.month, args.start, args.stop)
+        label = (
+            window.start.strftime("%Y%m%dT%H%M%SZ") + "-" + window.stop.strftime("%Y%m%dT%H%M%SZ")
+        )
+        output = args.output or Path(f"{domain}-{label}-distribution.xlsx")
         if output.suffix.lower() != ".xlsx" or output.exists():
             raise ReportError("Choose a new .xlsx output path; existing files are not overwritten.")
         auth = credentials(os.environ)
@@ -811,7 +992,7 @@ def main(argv=None):
         ) as sdk:
             reader.sdk = sdk
             report = collect(
-                reader, domain, args.month, args.page_size, args.max_pages, args.include_internal
+                reader, domain, window, args.page_size, args.max_pages, args.include_internal
             )
         report.coverage.append(
             ("HTTP sends", str(reader.requests), "Includes SDK-managed OAuth and bounded retries")

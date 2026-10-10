@@ -41,6 +41,31 @@ def article(n=1, value=3, url=None):
     }
 
 
+def metadata(n=1, **overrides):
+    data = {
+        "article_id": str(UUID(int=n)),
+        "article_url": f"https://apnews.com/article/{n}",
+        "domain_url": "apnews.com",
+        "classification": ["World"],
+        "country": "US",
+        "source_id": "synthetic",
+        "page_rank": 3,
+        "eng_title": f"English {n}",
+        "title": f"Title {n}",
+        "entities": {"Organization": ["Synthetic"]},
+        "keywords": ["test"],
+        "language": "en",
+        "pub_date": "2026-08-01T02:00:00Z",
+        "summary": "synthetic",
+        "sentiment": 0,
+        "key_points": ["Point"],
+        "reporting_voice": "Objective",
+        "provocative": "low",
+    }
+    data.update(overrides)
+    return data
+
+
 def page(rows, number=1, next_page=None):
     return {
         "data": rows,
@@ -400,10 +425,12 @@ def test_end_to_end_synthetic_sdk_requests_and_metrics(tmp_path):
     def handler(request):
         q = request.url.params
         assert request.method == "GET"
+        path = request.url.path
+        if path == "/v1/news":
+            return httpx.Response(200, json=[metadata()])
         assert q.get_list("domain_names") == ["apnews.com"] or q.get_list("domains") == [
             "apnews.com"
         ]
-        path = request.url.path
         if path == m.RANK:
             return httpx.Response(200, json=page([article(value=3)]))
         if path == m.SHARE:
@@ -436,7 +463,7 @@ def test_end_to_end_synthetic_sdk_requests_and_metrics(tmp_path):
 
     reader = sdk_reader(handler)
     report = m.collect(reader, "apnews.com", "2026-09", include_internal=True)
-    assert not report.issues and reader.requests == 38
+    assert not report.issues and reader.requests == 39
     assert report.totals["grounded"] == 3 and len(report.index) == 30
     path = tmp_path / "complete-fixture.xlsx"
     m.save_workbook(m.workbook(report), path)
@@ -450,9 +477,9 @@ def test_partial_output_is_explicit(tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(m, "credentials", lambda env: {"api_key": "synthetic"})
     monkeypatch.setattr(m, "collect", lambda *a: report)
     output = tmp_path / "partial.xlsx"
-    assert m.main(["--output", str(output)]) == 1
+    assert m.main(["--month", "2026-09", "--output", str(output)]) == 1
     assert not output.exists()
-    assert m.main(["--output", str(output), "--allow-partial"]) == 2
+    assert m.main(["--month", "2026-09", "--output", str(output), "--allow-partial"]) == 2
     assert output.exists()
     assert "PARTIAL CALENDAR COVERAGE" in capsys.readouterr().out
 
@@ -517,7 +544,7 @@ def test_official_guide_in_workbook_methodology():
     assert rows["Official publisher guide"] == "https://docs.asknews.app/en/publisher"
     assert "6s" in rows["Polite requests"]
     assert "personal API keys cannot access distribution" in rows["Publisher authentication"]
-    assert "batches of 100" in rows["Optional guide enrichment"]
+    assert "batches of 100" in rows["Guide article enrichment"]
     assert "weighted" in rows["Guide/source differences"]
 
 
@@ -607,7 +634,9 @@ def test_budget_expiring_during_wait_stops_before_send(monkeypatch):
 def distinct_fixture_handler(unique_daily):
     def handler(request):
         path, query = request.url.path, request.url.params
-        if path == m.RANK:
+        if path == "/v1/news":
+            payload = [metadata()]
+        elif path == m.RANK:
             payload = page([article(value=3)])
         elif path == m.SHARE:
             payload = {"data": [{"domain": "apnews.com", "hit_share": 0.1}]}
@@ -658,8 +687,8 @@ def test_missing_distinct_schema_requires_partial_cli(unique_daily, tmp_path, mo
     monkeypatch.setattr(m, "collect", lambda *args: report)
     monkeypatch.setattr(m, "credentials", lambda env: {"api_key": "synthetic-not-real"})
     path = tmp_path / "requires-partial.xlsx"
-    assert m.main(["--output", str(path)]) == 1 and not path.exists()
-    assert m.main(["--output", str(path), "--allow-partial"]) == 2
+    assert m.main(["--month", "2026-09", "--output", str(path)]) == 1 and not path.exists()
+    assert m.main(["--month", "2026-09", "--output", str(path), "--allow-partial"]) == 2
     book = load_workbook(path)
     summary = {row[0]: row[1] for row in book["Summary"].iter_rows(min_row=2, values_only=True)}
     assert summary["Run status"] == "PARTIAL"
@@ -688,3 +717,403 @@ def test_daily_distinct_sum_is_never_monthly_distinct():
     assert not report.issues
     assert sum(row["surfaced"] for row in report.unique_daily.values()) == 2
     assert report.unique["surfaced"] == 1
+
+
+@pytest.mark.parametrize(
+    "start,stop,days,full",
+    [
+        ("2026-09-01T00:00:00Z", "2026-09-08T00:00:00Z", 7, False),
+        ("2026-09-01T00:00:00Z", "2026-10-01T00:00:00Z", 30, True),
+        ("2026-09-01T02:00:00+02:00", "2026-10-01T02:00:00+02:00", 30, True),
+        ("2026-09-01T23:00:00-02:00", "2026-09-03T02:30:00Z", 2, False),
+        ("2026-09-05T12:00:00Z", "2026-09-05T12:01:00Z", 1, False),
+    ],
+)
+def test_explicit_window_normalized_utc(start, stop, days, full):
+    window = m.select_window(start=start, stop=stop)
+    assert window.start.tzinfo == UTC and window.stop.tzinfo == UTC
+    assert window.full_month == full
+    assert window.end == window.stop - timedelta(seconds=1)
+    assert len(list(m.day_windows(window.start, window.stop))) == days
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {},
+        {"start": "2026-09-01T00:00:00Z"},
+        {"stop": "2026-09-08T00:00:00Z"},
+        {"month": "2026-09", "start": "2026-09-01T00:00:00Z"},
+        {"month": "2026-09", "stop": "2026-09-08T00:00:00Z"},
+        *[
+            {"start": value, "stop": "2026-09-08T00:00:00Z"}
+            for value in (
+                "2026-09-01",
+                "2026-09-01T00:00:00",
+                "2026-09-01 00:00:00Z",
+                "2026-09-01T00:00:00.1Z",
+                "2026-09-01T00:00:00+24:00",
+                "2026-09-01T00:00:00+01:60",
+                "2026-09-31T00:00:00Z",
+                "2026-09-08T00:00:00Z",
+                "2026-09-09T00:00:00Z",
+                "2026-08-31T23:59:59Z",
+                "1999-12-31T00:00:00Z",
+            )
+        ],
+        {"start": "2026-09-01T00:00:00Z", "stop": "2026-10-01T00:00:01Z"},
+    ],
+)
+def test_invalid_range_fails_before_credentials_or_sdk(kwargs, monkeypatch, capsys):
+    auth = Mock(side_effect=AssertionError("Credentials must not be read"))
+    sdk = Mock(side_effect=AssertionError("SDK must not be constructed"))
+    monkeypatch.setattr(m, "credentials", auth)
+    monkeypatch.setattr(m, "AskNewsSDK", sdk)
+    argv = [part for name, value in kwargs.items() for part in ("--" + name, value)]
+    assert m.main(argv) == 1
+    assert auth.call_count == sdk.call_count == 0
+    assert capsys.readouterr().err
+
+
+def test_week_and_partial_day_all_endpoints_and_workbook(tmp_path):
+    for start, stop, days in (
+        ("2026-09-01T00:00:00Z", "2026-09-08T00:00:00Z", 7),
+        ("2026-09-01T12:34:56Z", "2026-09-03T06:07:08Z", 3),
+    ):
+        window = m.select_window(start=start, stop=stop)
+        sent = []
+
+        def handler(request, window=window, sent=sent):
+            path, q = request.url.path, request.url.params
+            sent.append(path)
+            assert path not in (m.UNIQUE, m.UNIQUE_DAILY)
+            if path in (m.RANK, m.SHARE, m.TOTAL, m.DAILY):
+                assert int(q["start_date"]) == int(window.start.timestamp())
+                assert int(q["end_date"]) == int(window.end.timestamp())
+                assert q.get_list("domain_names") == ["apnews.com"]
+            if path == m.RANK:
+                payload = page([article()])
+            elif path == m.SHARE:
+                payload = {"data": [{"domain": "apnews.com", "hit_share": 0.2}]}
+            elif path == m.TOTAL:
+                payload = dict.fromkeys(m.FIELDS, 3)
+            elif path == m.DAILY:
+                payload = {
+                    "data": [dict(day="2026-09-01", **dict.fromkeys(m.FIELDS, 3))],
+                    **{"total_" + name: 3 for name in m.FIELDS},
+                }
+            elif path == "/v1/news":
+                assert q.get_list("article_ids") == [str(UUID(int=1))]
+                assert q["full_text"].lower() == "false"
+                payload = [metadata()]
+            else:
+                assert path == m.INDEX
+                begin, end = (
+                    m.parse_datetime(q["start_datetime"]),
+                    m.parse_datetime(q["end_datetime"]),
+                )
+                assert window.start <= begin <= end < window.stop
+                assert begin.date() == end.date()
+                payload = [{"start": q["start_datetime"], "end": q["end_datetime"], "count": 2}]
+            return httpx.Response(200, json=payload)
+
+        reader = sdk_reader(handler)
+        try:
+            report = m.collect(reader, "apnews.com", window, include_internal=True)
+            assert not report.issues
+            assert reader.requests == 3 + 1 + 2 + 1 + days
+        finally:
+            reader.sdk.close()
+        assert not report.unique and not report.unique_daily
+        assert len(report.enrichment) == 1 and len(report.index) == days
+        assert any(row[1] == "unsupported for partial month" for row in report.coverage)
+        path = tmp_path / f"window-{days}.xlsx"
+        m.save_workbook(m.workbook(report), path)
+        book = load_workbook(path)
+        summary = {row[0]: row[1] for row in book["Summary"].iter_rows(min_row=2, values_only=True)}
+        assert summary["Requested start UTC (inclusive)"] == start
+        assert summary["Requested stop UTC (exclusive)"] == stop
+        assert summary["Monthly unique retrieved articles"] is None
+        assert summary["Indexed crawl-date counts (exported windows)"] == 2 * days
+        assert book["Daily metrics"].max_row == days + 1
+        for row in book["Daily metrics"].iter_rows(min_row=2, values_only=True):
+            assert row[5] is None and row[6] is None
+        assert book["Daily metrics"]["B2"].value == 3  # clipped first day is accepted
+        values = list(book["Articles"].values)
+        enriched = dict(zip(values[0], values[1]))
+        assert enriched["pub_date"].startswith("2026-08-01")  # event cohort, not pub cohort
+        assert enriched["title"] == "Title 1" and enriched["Retrieval events"] == 3
+
+
+def test_named_method_batches_uuid_join_missing_enrichment_and_injection(tmp_path, monkeypatch):
+    report = m.Report("apnews.com", "2026-09")
+    rows = {str(UUID(int=i)): (f"https://apnews.com/article/{i}", i) for i in range(1, 202)}
+    report.ranks = {metric: m.Ranking(rows.copy(), True, "exhausted") for metric in m.METRICS}
+    batches = []
+
+    def handler(request):
+        assert request.url.path == "/v1/news" and request.method == "GET"
+        assert request.url.params["full_text"].lower() == "false"
+        ids = request.url.params.get_list("article_ids")
+        batches.append(ids)
+        payload = [
+            metadata(UUID(value).int, title="=1+1", keywords=["@SUM(A1)"], key_points=["-1+2"])
+            for value in reversed(ids)
+            if UUID(value).int != 2
+        ]
+        return httpx.Response(200, json=payload)
+
+    reader = sdk_reader(handler)
+    named = Mock(wraps=reader.sdk.news.get_articles)
+    monkeypatch.setattr(reader.sdk.news, "get_articles", named)
+    try:
+        report.section("Article enrichment", lambda: m.collect_enrichment(reader, report))
+        assert named.call_count == reader.requests == 3
+        assert [len(ids) for ids in batches] == [100, 100, 1]
+        assert len({value for batch in batches for value in batch}) == 201
+        for call, batch in zip(named.call_args_list, batches):
+            assert call.kwargs == {"article_ids": batch, "full_text": False}
+    finally:
+        reader.sdk.close()
+    assert len(report.enrichment) == 200 and report.issues
+    path = tmp_path / "enriched.xlsx"
+    m.save_workbook(m.workbook(report), path)
+    book = load_workbook(path)
+    values = list(book["Articles"].values)
+    data = {row[0]: dict(zip(values[0], row)) for row in values[1:]}
+    assert data[str(UUID(int=2))]["title"] is None
+    assert data[str(UUID(int=2))]["Retrieval events"] == 2
+    assert data[str(UUID(int=2))]["Enrichment coverage"] == "unavailable"
+    assert data[str(UUID(int=101))]["eng_title"] == "English 101"
+    assert data[str(UUID(int=101))]["Retrieval events"] == 101
+    assert data[str(UUID(int=1))]["title"] == "=1+1"
+    assert data[str(UUID(int=1))]["bias"] is None
+    assert sum(row[2] for row in values[1:]) == sum(range(1, 202))
+    for ws in book:
+        for row in ws:
+            assert all(cell.data_type != "f" and not cell.hyperlink for cell in row)
+    assert not book._external_links
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        metadata(article_url="https://www.apnews.com/x"),
+        metadata(domain_url="other.com"),
+        metadata(3),
+        metadata(article_url="https://other.com/x"),
+        metadata(article_url="https://u:p@apnews.com/x"),
+    ],
+)
+def test_enrichment_domain_and_unrequested_ids_discard_whole_batch(bad):
+    report = report_fixture()
+    reader = sdk_reader(lambda req: httpx.Response(200, json=[metadata(2), bad]))
+    try:
+        report.section("Article enrichment", lambda: m.collect_enrichment(reader, report))
+    finally:
+        reader.sdk.close()
+    assert report.issues and not report.enrichment
+    assert "other.com" not in str(report.issues)
+
+
+def test_enrichment_duplicate_and_later_batch_failure_preserves_valid_data():
+    report = report_fixture()
+    reader = sdk_reader(lambda req: httpx.Response(200, json=[metadata(), metadata()]))
+    try:
+        report.section("Article enrichment", lambda: m.collect_enrichment(reader, report))
+    finally:
+        reader.sdk.close()
+    assert not report.enrichment and report.issues
+    rows = {str(UUID(int=i)): (f"https://apnews.com/article/{i}", 1) for i in range(1, 102)}
+    report = m.Report("apnews.com", "2026-09")
+    report.ranks = {metric: m.Ranking(rows, True) for metric in m.METRICS}
+
+    def handler(request):
+        ids = request.url.params.get_list("article_ids")
+        if len(ids) == 1:
+            return httpx.Response(403, text="SECRET")
+        return httpx.Response(200, json=[metadata(UUID(value).int) for value in ids])
+
+    reader = sdk_reader(handler)
+    try:
+        report.section("Article enrichment", lambda: m.collect_enrichment(reader, report))
+        assert reader.requests == 2
+    finally:
+        reader.sdk.close()
+    assert len(report.enrichment) == 100 and report.issues
+    assert "SECRET" not in str(report.issues)
+
+
+@pytest.mark.parametrize("status,error", [(401, m.AuthError), (403, m.Denied)])
+def test_named_method_auth_stops_without_retry(status, error):
+    reader = sdk_reader(lambda req: httpx.Response(status, text="SECRET"))
+    try:
+        with pytest.raises(error) as exc:
+            reader.articles([str(UUID(int=1))])
+        assert reader.requests == 1 and "SECRET" not in str(exc.value)
+    finally:
+        reader.sdk.close()
+
+
+def test_named_method_shared_backpressure_and_global_caps(monkeypatch):
+    clock, sent = [0.0], []
+    monkeypatch.setattr(m.time, "monotonic", lambda: clock[0])
+
+    def handler(request):
+        sent.append((request.url.path, clock[0]))
+        return httpx.Response(429, headers={"Retry-After": "10"})
+
+    reader = sdk_reader(handler, max_requests=4)
+    reader.sleep = lambda seconds: clock.__setitem__(0, clock[0] + seconds)
+    try:
+        with pytest.raises(m.ReportError, match="three"):
+            reader.articles([str(UUID(int=1))])
+        with pytest.raises(m.ReportError, match="budget"):
+            reader.get(m.INDEX, {})
+        assert [stamp for _, stamp in sent] == [1, 11, 21, 31]
+        with pytest.raises(m.ReportError, match="stopped"):
+            reader.articles([str(UUID(int=1))])
+        assert len(sent) == 4
+    finally:
+        reader.sdk.close()
+
+
+def test_named_oauth_token_count_and_no_refresh():
+    handler = Mock(
+        side_effect=[
+            httpx.Response(
+                200, json={"access_token": "synthetic", "expires_in": 3600, "token_type": "Bearer"}
+            ),
+            httpx.Response(401, text="SECRET"),
+        ]
+    )
+    reader = m.Reader(None, sleep=Mock())
+    with AskNewsSDK(
+        client_id="fake",
+        client_secret="fake",
+        scopes={"news"},
+        retries=0,
+        transport=httpx.MockTransport(handler),
+        event_hooks={"request": [reader.before_request], "response": [reader.after_response]},
+    ) as sdk:
+        reader.sdk = sdk
+        with pytest.raises(m.AuthError):
+            reader.articles([str(UUID(int=1))])
+    assert reader.requests == handler.call_count == 2
+
+
+def test_one_second_index_clip_is_blank_without_request():
+    report = report_fixture()
+    window = m.select_window(start="2026-09-01T23:59:59Z", stop="2026-09-02T00:00:00Z")
+    reader = Fake([])
+    m.collect_index(reader, report, window.start, window.stop)
+    assert not reader.calls and not report.index and report.issues
+
+
+def test_empty_cohort_never_requests_enrichment():
+    report = report_fixture()
+    report.ranks = {metric: m.Ranking({}, True) for metric in m.METRICS}
+    reader = SimpleNamespace(articles=Mock(side_effect=AssertionError("No batch expected")))
+    assert m.collect_enrichment(reader, report)
+    reader.articles.assert_not_called()
+
+
+def test_index_partial_days_exact_clips():
+    window = m.select_window(start="2026-09-01T14:34:56+02:00", stop="2026-09-03T06:07:08Z")
+    report, calls = report_fixture(), []
+
+    def get(endpoint, query):
+        calls.append((query["start_datetime"], query["end_datetime"]))
+        return [{"start": query["start_datetime"], "end": query["end_datetime"], "count": 0}]
+
+    m.collect_index(SimpleNamespace(get=get), report, window.start, window.stop)
+    assert calls == [
+        ("2026-09-01T12:34:56Z", "2026-09-01T23:59:59Z"),
+        ("2026-09-02T00:00:00Z", "2026-09-02T23:59:59Z"),
+        ("2026-09-03T00:00:00Z", "2026-09-03T06:07:07Z"),
+    ]
+    assert list(report.index.values()) == [0, 0, 0]
+
+
+def test_explicit_month_equals_shorthand():
+    assert m.select_window(month="2026-09") == m.select_window(
+        start="2026-09-01T00:00:00Z", stop="2026-10-01T00:00:00Z"
+    )
+
+
+def test_enrichment_missing_schema_sanitized_partial_and_cli_gate(tmp_path, monkeypatch):
+    report = report_fixture()
+    reader = sdk_reader(lambda req: httpx.Response(200, json=[{"title": "SECRET"}]))
+    try:
+        report.section("Article enrichment", lambda: m.collect_enrichment(reader, report))
+    finally:
+        reader.sdk.close()
+    assert report.issues and not report.enrichment and "SECRET" not in str(report.issues)
+    monkeypatch.setattr(m, "credentials", lambda env: {"api_key": "synthetic"})
+    captured = []
+
+    def collect(reader, domain, window, *args):
+        captured.append(window)
+        report.window = window
+        return report
+
+    monkeypatch.setattr(m, "collect", collect)
+    output = tmp_path / "missing-enrichment.xlsx"
+    argv = [
+        "--start",
+        "2026-09-01T02:00:00+02:00",
+        "--stop",
+        "2026-09-08T00:00:00Z",
+        "--output",
+        str(output),
+    ]
+    assert m.main(argv) == 1 and not output.exists()
+    assert m.main([*argv, "--allow-partial"]) == 2
+    assert captured[0].start == datetime(2026, 9, 1, tzinfo=UTC)
+    assert captured[0].stop == datetime(2026, 9, 8, tzinfo=UTC)
+    book = load_workbook(output)
+    assert book["Articles"]["F2"].value is None
+    assert book["Articles"]["C2"].value == 4
+
+
+@pytest.mark.parametrize("header", ["120", "not-a-date"])
+def test_named_unusable_backpressure_stops_every_send(header):
+    handler = Mock(return_value=httpx.Response(429, headers={"Retry-After": header}))
+    reader = sdk_reader(handler)
+    try:
+        with pytest.raises(m.ReportError, match="stopped"):
+            reader.articles([str(UUID(int=1))])
+        with pytest.raises(m.ReportError, match="stopped"):
+            reader.get(m.RANK, {})
+        assert reader.requests == handler.call_count == 1
+    finally:
+        reader.sdk.close()
+
+
+def test_named_time_and_oauth_request_caps():
+    handler = Mock(return_value=httpx.Response(200, json=[]))
+    reader = sdk_reader(handler, max_seconds=1)
+    try:
+        with pytest.raises(m.ReportError, match="budget"):
+            reader.articles([str(UUID(int=1))])
+        assert handler.call_count == reader.requests == 0
+    finally:
+        reader.sdk.close()
+    handler = Mock(
+        return_value=httpx.Response(
+            200, json={"access_token": "synthetic", "expires_in": 3600, "token_type": "Bearer"}
+        )
+    )
+    reader = m.Reader(None, max_requests=1, sleep=Mock())
+    with AskNewsSDK(
+        client_id="fake",
+        client_secret="fake",
+        scopes={"news"},
+        retries=0,
+        transport=httpx.MockTransport(handler),
+        event_hooks={"request": [reader.before_request], "response": [reader.after_response]},
+    ) as sdk:
+        reader.sdk = sdk
+        with pytest.raises(m.ReportError, match="budget"):
+            reader.articles([str(UUID(int=1))])
+        assert handler.call_count == reader.requests == 1  # token only; no unbudgeted news send
