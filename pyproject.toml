@@ -20,6 +20,7 @@ license = {text = "MIT"}
 dependencies = [
     "orjson>=3.9.10",
     "httpx>=0.27.2,<0.29.0",
+    "certifi>=2026.10.19",
     "asgiref>=3.7.2",
     "cryptography>=40.0.0,<46.0.7",
     "crontab>=1.0.1",
