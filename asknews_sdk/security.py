@@ -13,7 +13,7 @@ from typing import AsyncGenerator, Awaitable, Callable, Generator, Optional, Set
 from urllib.parse import quote, urlencode
 
 from anyio import Path as AsyncPath
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -290,7 +290,10 @@ def _load_token_disk(file_path: Path, client_id: str, client_secret: str) -> Tok
             return None
 
         data = file_path.read_bytes()
-        salt, token_info = data.split(b"::", 1)
+        # The salt is raw random bytes and can itself contain the delimiter.
+        if data[16:18] != b"::":
+            raise InvalidToken
+        salt, token_info = data[:16], data[18:]
 
         key = _derive_encryption_key((client_id + client_secret), salt)
         serialized_token = _decrypt_with_key(key, token_info)
@@ -335,7 +338,10 @@ def _load_token_disk_async(
             return None
 
         data = await file_path.read_bytes()
-        salt, token_info = data.split(b"::", 1)
+        # The salt is raw random bytes and can itself contain the delimiter.
+        if data[16:18] != b"::":
+            raise InvalidToken
+        salt, token_info = data[:16], data[18:]
 
         key = _derive_encryption_key((client_id + client_secret), salt)
         serialized_token = _decrypt_with_key(key, token_info)
