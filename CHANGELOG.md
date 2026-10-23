@@ -1,3 +1,9 @@
+## 0.14.8 (2026-10-23)
+
+### Fix
+
+- Bump cryptography and parse token cache salts safely
+
 ## 0.14.7 (2026-10-23)
 
 ### Fix
