@@ -1,3 +1,9 @@
+## 0.14.7 (2026-10-23)
+
+### Fix
+
+- Require patched certifi for GHSA-6q48-6c7w-9gw2
+
 ## 0.14.6 (2026-10-09)
 
 ### Fix
