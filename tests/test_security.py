@@ -596,3 +596,35 @@ async def test_load_save_token_disk_async(tmp_path):
 
     assert token_info == loaded_token_info
 
+
+@pytest.mark.parametrize("salt", [b"a" * 16, b"a" * 15 + b":", b"::" + b"a" * 14])
+@pytest.mark.parametrize("async_save", [False, True])
+@pytest.mark.parametrize("async_load", [False, True])
+async def test_token_disk_salt_delimiters(tmp_path, monkeypatch, salt, async_save, async_load):
+    # Raw salts can contain or end with the delimiter; their length is fixed.
+    monkeypatch.setattr("asknews_sdk.security.os.urandom", lambda size: salt)
+    path = tmp_path / "token"
+    token = {"access_token": "token", "scope": "news", "token_type": "Bearer", "expires_in": 3600}
+    with pytest.warns(SecurityWarning):
+        save = (_save_token_disk_async if async_save else _save_token_disk)(path, "id", "secret")
+    if async_save:
+        await save(token)
+    else:
+        save(token)
+    assert path.read_bytes()[:18] == salt + b"::"
+    load = (_load_token_disk_async if async_load else _load_token_disk)(path, "id", "secret")
+    loaded = await load() if async_load else load()
+    assert loaded == token
+
+
+@pytest.mark.parametrize("data", [b"", b"short::token", b"a" * 16 + b"!!token"])
+@pytest.mark.parametrize("async_load", [False, True])
+async def test_token_disk_rejects_invalid_header(tmp_path, data, async_load):
+    path = tmp_path / "token"
+    path.write_bytes(data)
+    load = (_load_token_disk_async if async_load else _load_token_disk)(path, "id", "secret")
+    with pytest.raises(InvalidToken):
+        if async_load:
+            await load()
+        else:
+            load()
