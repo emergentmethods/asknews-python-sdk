@@ -5,7 +5,10 @@ from respx import MockRouter
 
 from asknews_sdk.api.distribution import AsyncDistributionAPI, DistributionAPI
 from asknews_sdk.client import APIClient, AsyncAPIClient
-from asknews_sdk.dto.distribution import DomainMetricsResponse, DomainMetricsTimeWindowResponse
+from asknews_sdk.dto.distribution import (
+    DomainMetricsResponse, DomainMetricsTimeWindowResponse,
+    HitShareResponse, TopNArticlesForDomainResponse,
+)
 from asknews_sdk.sdk import AskNewsSDK, AsyncAskNewsSDK
 
 
@@ -119,3 +122,63 @@ async def test_async_get_domain_metrics_timeseries(
     assert parse_qs(mock_route.calls.last.request.url.query.decode()) == {
         "domain_names": DOMAIN_NAMES
     }
+
+
+@pytest.mark.parametrize("is_async", [False, True])
+@pytest.mark.parametrize("custom", [False, True])
+async def test_get_domain_hit_share(
+    is_async, custom, sync_distribution_api, async_distribution_api, response_mock
+):
+    payload = {"data": [{"domain": "example.com", "hit_share": 0.25}], "total_share": 0.25}
+    route = response_mock.get("/v1/distribution/stats/hit_share").respond(json=payload)
+    api = async_distribution_api if is_async else sync_distribution_api
+    kwargs = {"start_date": START_DATE, "end_date": END_DATE, "is_publisher": False} if custom else {}
+    result = api.get_domain_hit_share(
+        DOMAIN_NAMES, **kwargs, http_headers={"custom-header": "custom-value"}
+    )
+    response = await result if is_async else result
+    assert isinstance(response, HitShareResponse)
+    assert response == HitShareResponse(**payload)
+    assert response.data[0].domain == "example.com"
+    assert response.data[0].hit_share == 0.25
+    request = route.calls.last.request
+    assert request.method == "GET"
+    assert request.headers["accept"] == "application/json"
+    assert request.headers["custom-header"] == "custom-value"
+    expected = {"domain_names": DOMAIN_NAMES, "is_publisher": ["False" if custom else "True"]}
+    if custom:
+        expected.update(start_date=[str(START_DATE)], end_date=[str(END_DATE)])
+    assert parse_qs(request.url.query.decode()) == expected
+
+
+@pytest.mark.parametrize("is_async", [False, True])
+@pytest.mark.parametrize("metric", [None, "surface", "citation", "grounded"])
+async def test_get_top_n_articles_for_domains(
+    is_async, metric, sync_distribution_api, async_distribution_api, response_mock
+):
+    payload = {
+        "data": [{"article_url": "https://example.com/story", "article_id": "article-1", "hit_count": 42}],
+        "total_count": 80, "page": 2, "next_page": 3,
+    }
+    route = response_mock.get("/v1/distribution/articles/top_n_for_domains").respond(json=payload)
+    api = async_distribution_api if is_async else sync_distribution_api
+    kwargs = {} if metric is None else {
+        "limit": 25, "page": 2, "start_date": START_DATE, "end_date": END_DATE, "metric": metric,
+    }
+    result = api.get_top_n_articles_for_domains(
+        DOMAIN_NAMES, **kwargs, http_headers={"custom-header": "custom-value"}
+    )
+    response = await result if is_async else result
+    assert isinstance(response, TopNArticlesForDomainResponse)
+    assert response == TopNArticlesForDomainResponse(**payload)
+    assert response.data[0].article_id == "article-1"
+    assert response.data[0].hit_count == 42
+    request = route.calls.last.request
+    assert request.method == "GET"
+    assert request.headers["accept"] == "application/json"
+    assert request.headers["custom-header"] == "custom-value"
+    expected = {"domain_names": DOMAIN_NAMES, "limit": ["10"], "page": ["1"], "metric": ["surface"]}
+    if metric is not None:
+        expected.update(limit=["25"], page=["2"], metric=[metric],
+                        start_date=[str(START_DATE)], end_date=[str(END_DATE)])
+    assert parse_qs(request.url.query.decode()) == expected
