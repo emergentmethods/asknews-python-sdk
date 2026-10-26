@@ -1,3 +1,9 @@
+## 0.14.9 (2026-10-26)
+
+### Fix
+
+- Add typed distribution hit share and top article helpers
+
 ## 0.14.8 (2026-10-23)
 
 ### Fix
