@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Annotated, Any, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import AnyUrl, AwareDatetime, BaseModel, Field
-from typing_extensions import Annotated
 
 from asknews_sdk.dto.base import Article, BaseSchema, Entities, RedditEntities
 
