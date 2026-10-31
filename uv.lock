@@ -2,7 +2,8 @@ version = 1
 revision = 5
 requires-python = ">=3.10"
 resolution-markers = [
-    "python_full_version >= '3.11'",
+    "python_full_version >= '3.14'",
+    "python_full_version >= '3.11' and python_full_version < '3.14'",
     "python_full_version < '3.11'",
 ]
 
@@ -99,8 +100,10 @@ requires-dist = [
     { name = "crontab", specifier = ">=1.0.1" },
     { name = "cryptography", specifier = ">=40.0.0,<49.0.1" },
     { name = "httpx", specifier = ">=0.27.2,<0.29.0" },
-    { name = "orjson", specifier = ">=3.9.10" },
-    { name = "pydantic", extras = ["email"], specifier = ">=2.10.4" },
+    { name = "orjson", marker = "python_full_version < '3.14'", specifier = ">=3.9.10" },
+    { name = "orjson", marker = "python_full_version >= '3.14'", specifier = ">=3.11.3" },
+    { name = "pydantic", extras = ["email"], marker = "python_full_version < '3.14'", specifier = ">=2.10.4" },
+    { name = "pydantic", extras = ["email"], marker = "python_full_version >= '3.14'", specifier = ">=2.12" },
 ]
 
 [package.metadata.requires-dev]
@@ -484,7 +487,8 @@ name = "coverage"
 version = "7.17.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
-    "python_full_version >= '3.11'",
+    "python_full_version >= '3.14'",
+    "python_full_version >= '3.11' and python_full_version < '3.14'",
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d2/79/e78bd8f75a9b8e32233ce92d4607f0a21ce88a9156cace2884e7175a82f5/coverage-7.17.0.tar.gz", hash = "sha256:cc010a0a7fbdd9bb8bdfd0d3f04a5151275860213cbd7e2b876b29778489c712", size = 991021, upload-time = "2026-10-22T16:06:50.009Z" }
 wheels = [
