@@ -613,6 +613,7 @@ class ChatAPI(BaseAPI[APIClient]):
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
         cutoff_datetime: Optional[Union[datetime, str]] = None,
+        stream_sources_inline: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> CreateDeepNewsResponse: ...
@@ -650,6 +651,7 @@ class ChatAPI(BaseAPI[APIClient]):
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
         cutoff_datetime: Optional[Union[datetime, str]] = None,
+        stream_sources_inline: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Iterator[CreateDeepNewsResponseStream]: ...
@@ -687,6 +689,7 @@ class ChatAPI(BaseAPI[APIClient]):
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
         cutoff_datetime: Optional[Union[datetime, str]] = None,
+        stream_sources_inline: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Iterator[CreateDeepNewsResponseStreamV2]: ...
@@ -723,6 +726,7 @@ class ChatAPI(BaseAPI[APIClient]):
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
         cutoff_datetime: Optional[Union[datetime, str]] = None,
+        stream_sources_inline: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Union[
@@ -769,6 +773,7 @@ class ChatAPI(BaseAPI[APIClient]):
                 max_parallel_tool_calls=max_parallel_tool_calls,
                 enable_source_pruning=enable_source_pruning,
                 cutoff_datetime=cutoff_datetime,
+                stream_sources_inline=stream_sources_inline,
             ).model_dump(mode="json"),
             headers={
                 **(http_headers or {}),
@@ -1378,6 +1383,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
         cutoff_datetime: Optional[Union[datetime, str]] = None,
+        stream_sources_inline: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> CreateDeepNewsResponse: ...
@@ -1415,6 +1421,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
         cutoff_datetime: Optional[Union[datetime, str]] = None,
+        stream_sources_inline: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> AsyncIterator[CreateDeepNewsResponseStream]: ...
@@ -1452,6 +1459,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
         cutoff_datetime: Optional[Union[datetime, str]] = None,
+        stream_sources_inline: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> AsyncIterator[CreateDeepNewsResponseStreamV2]: ...
@@ -1488,6 +1496,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
         max_parallel_tool_calls: int = 1,
         enable_source_pruning: bool = False,
         cutoff_datetime: Optional[Union[datetime, str]] = None,
+        stream_sources_inline: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> Union[
@@ -1534,6 +1543,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
                 max_parallel_tool_calls=max_parallel_tool_calls,
                 enable_source_pruning=enable_source_pruning,
                 cutoff_datetime=cutoff_datetime,
+                stream_sources_inline=stream_sources_inline,
             ).model_dump(mode="json"),
             headers={
                 **(http_headers or {}),

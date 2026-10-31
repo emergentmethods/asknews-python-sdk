@@ -16,17 +16,13 @@ tasks:
 
   # Lint
   lint:
+    vars:
+      LINT_DIR: '{{.SRC_DIR | default .PACKAGE_SRC_DIR}}'
     cmds:
-      - |
-        if [ -n "{{.SRC_DIR}}" ]; then
-          export SRC_DIR="{{.SRC_DIR}}"
-        else
-          export SRC_DIR="{{.PACKAGE_SRC_DIR}}"
-        fi
-      - uvx ruff check $SRC_DIR {{.CLI_ARGS}}
+      - uvx ruff check {{.LINT_DIR}} {{.CLI_ARGS}}
       - |
         if [ "{{.FORMAT}}" = "true" ]; then
-          uvx ruff format $SRC_DIR {{.CLI_ARGS}}
+          uvx ruff format {{.LINT_DIR}} {{.CLI_ARGS}}
         fi
 
   # Build

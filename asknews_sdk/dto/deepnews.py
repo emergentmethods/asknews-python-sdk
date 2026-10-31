@@ -296,6 +296,17 @@ class CreateDeepNewsRequest(BaseSchema):
             title=("The cutoff datetime to pass to the LLM for cutting off knowledge across tools.")
         ),
     ] = None
+    stream_sources_inline: Annotated[
+        Optional[bool],
+        Field(
+            title=(
+                "Engine 'v2.0' only: when true, one 'chat.completion.source.batch' chunk per "
+                "research tool call is streamed after the turn's tool calls stop and before the "
+                "next agent output, carrying that call's source attribution. Off by default; the "
+                "final 'chat.completion.source' chunks are unchanged either way."
+            )
+        ),
+    ] = False
 
 
 class CreateDeepNewsResponse(BaseSchema):
@@ -357,6 +368,88 @@ class CreateDeepNewsResponseStreamSource(BaseSchema):
     ]
 
 
+class CreateDeepNewsResponseStreamSourceBatchNewsEntry(BaseModel):
+    kind: Literal["news"] = "news"
+    source_id: Annotated[str, Field(title="Source Id")]
+    source: SearchResponseDictItem
+    citation_number: Annotated[Optional[int], Field(None, title="Citation Number")]
+
+
+class CreateDeepNewsResponseStreamSourceBatchWebEntry(BaseModel):
+    kind: Literal["web"] = "web"
+    source_id: Annotated[str, Field(title="Source Id")]
+    source: WebSearchResult
+    citation_number: Annotated[Optional[int], Field(None, title="Citation Number")]
+
+
+class CreateDeepNewsResponseStreamSourceBatchGraphEntry(BaseModel):
+    kind: Literal["graph"] = "graph"
+    source_id: Annotated[str, Field(title="Source Id")]
+    source: AnyUrl
+    citation_number: Annotated[Optional[int], Field(None, title="Citation Number")]
+
+
+class CreateDeepNewsResponseStreamSourceBatchChartEntry(BaseModel):
+    kind: Literal["chart"] = "chart"
+    source_id: Annotated[str, Field(title="Source Id")]
+    source: ChartResponse
+    citation_number: Annotated[Optional[int], Field(None, title="Citation Number")]
+
+
+CreateDeepNewsResponseStreamSourceBatchEntry: TypeAlias = Annotated[
+    Union[
+        Annotated[CreateDeepNewsResponseStreamSourceBatchNewsEntry, Tag("news")],
+        Annotated[CreateDeepNewsResponseStreamSourceBatchWebEntry, Tag("web")],
+        Annotated[CreateDeepNewsResponseStreamSourceBatchGraphEntry, Tag("graph")],
+        Annotated[CreateDeepNewsResponseStreamSourceBatchChartEntry, Tag("chart")],
+    ],
+    Discriminator(kind_discriminator),
+]
+
+DeepNewsToolCallKind = Literal[
+    "news",
+    "web",
+    "wiki",
+    "x",
+    "reddit",
+    "podcast",
+    "graph",
+    "chart",
+    "full_text",
+    "other",
+]
+DeepNewsToolCallStatus = Literal["ok", "empty", "error", "timed_out", "skipped"]
+
+
+class CreateDeepNewsResponseStreamSourceBatch(BaseSchema):
+    """One research tool call's source attribution, streamed inline when
+    `stream_sources_inline=True` (engine 'v2.0'): one chunk per call, emitted after
+    the turn's tool calls stop and before the next agent output.
+
+    `source_ids` lists every source the call returned by source id (an opaque,
+    per-stream-unique string); `sources` carries only the items not sent in an
+    earlier batch chunk, each with its `source_id`. The final
+    `chat.completion.source` chunks are unchanged.
+    """
+
+    __content_type__ = "text/event-stream"
+
+    id: Annotated[str, Field(title="Id")]
+    created: Annotated[int, Field(title="Created")]
+    object: Annotated[Optional[str], Field(title="Object")] = "chat.completion.source.batch"
+    turn_index: Annotated[int, Field(title="Turn Index")]
+    call_index: Annotated[int, Field(title="Call Index")]
+    calls_in_turn: Annotated[int, Field(title="Calls In Turn")]
+    tool_call_id: Annotated[str, Field(title="Tool Call Id")]
+    tool_name: Annotated[str, Field(title="Tool Name")]
+    kind: Annotated[DeepNewsToolCallKind, Field(title="Kind")]
+    status: Annotated[DeepNewsToolCallStatus, Field(title="Status")]
+    source_ids: Annotated[List[str], Field(title="Source Ids")] = []
+    sources: Annotated[
+        List[CreateDeepNewsResponseStreamSourceBatchEntry], Field(title="Sources")
+    ] = []
+
+
 class CreateDeepNewsResponseStreamErrorDetails(BaseModel):
     code: Annotated[int, Field(title="Code")]
     message: Annotated[str, Field(title="Message")]
@@ -372,6 +465,7 @@ CreateDeepNewsResponseStream: TypeAlias = Annotated[
     Union[
         Annotated[CreateDeepNewsResponseStreamChunk, Tag("chat.completion.chunk")],
         Annotated[CreateDeepNewsResponseStreamSource, Tag("chat.completion.source")],
+        Annotated[CreateDeepNewsResponseStreamSourceBatch, Tag("chat.completion.source.batch")],
     ],
     Discriminator(object_discriminator),
 ]
@@ -499,6 +593,7 @@ CreateDeepNewsResponseStreamV2: TypeAlias = Annotated[
     Union[
         Annotated[CreateDeepNewsResponseStreamChunkV2, Tag("chat.completion.chunk")],
         Annotated[CreateDeepNewsResponseStreamSource, Tag("chat.completion.source")],
+        Annotated[CreateDeepNewsResponseStreamSourceBatch, Tag("chat.completion.source.batch")],
     ],
     Discriminator(object_discriminator),
 ]

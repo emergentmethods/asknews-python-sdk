@@ -106,6 +106,8 @@ class Article(BaseModel):
     title: Annotated[str, Field(title="Title")]
     sentiment: Annotated[int, Field(title="Sentiment")]
     medoid_distance: Annotated[Optional[float], Field(title="Medoid Distance")] = None
+    centroid_distance: Annotated[Optional[float], Field(title="Centroid Distance")] = None
+    cluster_probability: Annotated[Optional[float], Field(title="Cluster Probability")] = None
     markdown_citation: Annotated[Optional[str], Field("", title="Markdown Citation")]
     provocative: Annotated[
         str, Field(title="A measure of how provocative this story update is.")
