@@ -18,6 +18,7 @@
 # | `search_depth`, `max_depth` | How much research to do. See [13 Deep research depth](13_deep_research_depth.md). |
 # | `filter_params` | Defaults applied to the agent's AskNews searches (e.g. `hours_back`, `languages`). |
 # | `stream` | Stream the agent's thinking, tool calls, text, and sources as they happen. |
+# | `stream_sources_inline` | Engine `v2.0` streams only: also emit each tool call's sources as a batch right after the call, not just at the end. See below. |
 # | `inline_citations` | `"markdown_link"` (default), `"numbered"`, or `"none"`. |
 # | `return_sources` / `only_cited_sources` | Return the sources, optionally only those cited. |
 # | `cutoff_datetime` | Knowledge cutoff across all tools (for backtests). |
@@ -174,6 +175,138 @@ for message in stream:
 final_answer = "".join(answer)
 if last_chunk is not None:
     print("\nusage:", last_chunk.usage)
+
+# %% [markdown]
+# ## Streaming sources per tool call (`stream_sources_inline`)
+#
+# By default the stream sends every retrieved source as
+# `CreateDeepNewsResponseStreamSource` messages at the end, after the
+# answer. For a progressive UI (a source panel that fills while the agent
+# is still researching) or for resolving citations as they arrive, set
+# `stream_sources_inline=True`. The agent then also emits one
+# `CreateDeepNewsResponseStreamSourceBatch` message per research tool call,
+# after that turn's tool calls finish and before the next agent output.
+#
+# Requirements: `stream=True` and `engine="v2.0"`. With other engines, or
+# without streaming, the flag has no effect.
+#
+# What a batch carries:
+#
+# | Field | Meaning |
+# |---|---|
+# | `turn_index`, `call_index`, `calls_in_turn` | Which agent turn and which call in that turn (for ordering parallel calls). |
+# | `tool_call_id`, `tool_name` | The tool call it belongs to; `tool_call_id` matches the `id` of the `tool_use` content block. |
+# | `kind` | The tool's kind: `news`, `web`, `wiki`, `x`, `reddit`, `podcast`, `graph`, `chart`, `full_text`, or `other`. |
+# | `status` | `ok`, `empty`, `error`, `timed_out`, or `skipped`. |
+# | `source_ids` | Every source the call returned, by id. Ids are opaque and unique within one stream. |
+# | `sources` | Only the sources not sent in an earlier batch, each with its own `kind` (`news`, `web`, `graph`, or `chart`), `source_id`, typed `source`, and optional `citation_number`. |
+#
+# Two things to get right:
+#
+# - Dedupe by `source_id`. When a later call re-finds a source, its id is
+#   listed in `source_ids` but it is not re-sent in `sources`. Keep a dict
+#   keyed by `source_id` and resolve `source_ids` against it.
+# - Switch on the entry's `kind`, not the batch's. A `search_wikipedia` call
+#   streams `kind="wiki"` at the batch level with `web` entries inside.
+#
+# The final `CreateDeepNewsResponseStreamSource` messages are still emitted
+# at the end, unchanged, so code that only reads those keeps working.
+
+# %%
+from asknews_sdk.dto.deepnews import (
+    CreateDeepNewsResponseStreamSourceBatch,
+    CreateDeepNewsResponseStreamSourceBatchChartEntry,
+    CreateDeepNewsResponseStreamSourceBatchGraphEntry,
+    CreateDeepNewsResponseStreamSourceBatchNewsEntry,
+    CreateDeepNewsResponseStreamSourceBatchWebEntry,
+)
+
+
+stream = ask.chat.get_deep_news(
+    messages=[{"role": "user", "content": "What are analysts saying about AI chip export controls?"}],
+    sources=["asknews", "google", "wiki"],
+    model="claude-sonnet-5-5",
+    engine="v2.0",
+    search_depth=2,
+    max_depth=5,
+    stream=True,
+    stream_sources_inline=True,
+    inline_citations="numbered",
+    return_sources=True,
+)
+
+answer = []
+seen = {}  # source_id -> entry; a source is sent in full only once per stream
+calls = []  # (turn_index, call_index, tool_name, status, source_ids)
+
+for message in stream:
+    if isinstance(message, CreateDeepNewsResponseStreamChunkV2):
+        event = message.choices[0].delta
+        if isinstance(event, ContentBlockDeltaEvent) and isinstance(event.delta, AnthropicTextDelta):
+            answer.append(event.delta.text)
+            print(event.delta.text, end="", flush=True)
+
+    elif isinstance(message, CreateDeepNewsResponseStreamSourceBatch):
+        calls.append((message.turn_index, message.call_index, message.tool_name, message.status, message.source_ids))
+        for entry in message.sources:
+            if entry.source_id in seen:
+                continue
+            seen[entry.source_id] = entry
+            tag = f"[{entry.citation_number}] " if entry.citation_number is not None else ""
+            if isinstance(entry, CreateDeepNewsResponseStreamSourceBatchNewsEntry):
+                print(f"\n  + {tag}news: {entry.source.title} {entry.source.article_url}")
+            elif isinstance(entry, CreateDeepNewsResponseStreamSourceBatchWebEntry):
+                print(f"\n  + {tag}web: {entry.source.title} {entry.source.url}")
+            elif isinstance(entry, CreateDeepNewsResponseStreamSourceBatchGraphEntry):
+                print(f"\n  + {tag}graph: {entry.source}")  # a URL
+            elif isinstance(entry, CreateDeepNewsResponseStreamSourceBatchChartEntry):
+                print(f"\n  + {tag}chart: {entry.source.query}")  # .chart_json holds the Plotly figure
+        print(
+            f"\n  <{message.tool_name} turn={message.turn_index} call={message.call_index + 1}/"
+            f"{message.calls_in_turn} status={message.status} "
+            f"sources={len(message.source_ids)} new={len(message.sources)}>"
+        )
+
+    elif isinstance(message, CreateDeepNewsResponseStreamSource):
+        pass  # the final per-source messages still arrive; `seen` already has them
+
+# Which sources each call returned, resolved against what was streamed earlier.
+for turn_index, call_index, tool_name, status, source_ids in calls:
+    titles = [getattr(seen[sid].source, "title", seen[sid].kind) for sid in source_ids if sid in seen]
+    print(f"turn {turn_index} call {call_index} {tool_name} ({status}): {titles}")
+
+# `citation_number` lines up with the numbered citations in the answer.
+by_citation = {e.citation_number: e for e in seen.values() if e.citation_number is not None}
+print(sorted(by_citation))
+
+# %% [markdown]
+# The async client takes the same flag:
+#
+# ```python
+# import asyncio
+# from asknews_sdk import AsyncAskNewsSDK
+# from asknews_sdk.dto.deepnews import CreateDeepNewsResponseStreamSourceBatch
+#
+# async def main():
+#     async with AsyncAskNewsSDK(api_key=..., scopes=["chat"]) as ask:
+#         stream = await ask.chat.get_deep_news(
+#             messages=[{"role": "user", "content": "What are analysts saying about AI chip export controls?"}],
+#             sources=["asknews", "google"],
+#             engine="v2.0",
+#             search_depth=2,
+#             max_depth=5,
+#             stream=True,
+#             stream_sources_inline=True,
+#         )
+#         seen = {}
+#         async for message in stream:
+#             if isinstance(message, CreateDeepNewsResponseStreamSourceBatch):
+#                 for entry in message.sources:
+#                     seen.setdefault(entry.source_id, entry)
+#                 print(message.tool_name, message.status, len(seen), "sources so far")
+#
+# asyncio.run(main())
+# ```
 
 # %% [markdown]
 # ## Constraining the agent's news searches

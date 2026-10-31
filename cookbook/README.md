@@ -31,7 +31,7 @@ PyCharm, or convert it to a notebook with `jupytext --to ipynb`.
 | 09 | Tracking a company | Entity guarantee + descriptive query, variants, exclusions, volume |
 | 10 | Tracking a person | Person guarantee, role in query, AND with a company, watchlists |
 | 11 | Tracking a product, brand, or industry | Combining string/entity guarantees, region scoping, sentiment, trade press, share of voice |
-| 12 | Deep research basics | `get_deep_news`, sources, streaming v2.0 events, `filter_params`, async |
+| 12 | Deep research basics | `get_deep_news`, sources, streaming v2.0 events, `stream_sources_inline` per-call source batches, `filter_params`, async |
 | 13 | Deep research depth | `search_depth` / `max_depth`: how and why, sizing guide, cutoff backtests |
 | 14 | Prompting deep research | Surgical tool instructions, per-item procedures, fixed vs flexible params, report rules |
 | 15 | Creating an alert | `ReportAbout` / `AlwaysAlertWhen` / `AlertOnceIf`, DeepNews reports, triggers, testing and managing |
