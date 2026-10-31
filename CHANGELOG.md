@@ -1,3 +1,10 @@
+## 0.15.0 (2026-10-31)
+
+### Fix
+
+- Set Python 3.14 dependency floors and minor release policy
+- Support Python 3.10 through 3.14
+
 ## 0.14.10 (2026-10-31)
 
 ### Fix
