@@ -75,7 +75,7 @@ output = "coverage.xml"
 
 [tool.ruff]
 line-length = 100
-exclude = ["tests", "examples"]
+exclude = ["tests", "examples", "cookbook"]
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "C", "B"]
