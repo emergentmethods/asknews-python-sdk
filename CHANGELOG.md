@@ -1,3 +1,10 @@
+## 0.14.10 (2026-10-31)
+
+### Fix
+
+- Wrap long lines in the deepnews source batch recipe
+- Add stream_sources_inline and typed deepnews source batch chunks
+
 ## 0.14.9 (2026-10-26)
 
 ### Fix
