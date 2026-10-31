@@ -1,9 +1,8 @@
-from typing import AsyncIterator, Callable, Iterator, List, Literal, Tuple, Union
+from typing import Annotated, AsyncIterator, Callable, Iterator, List, Literal, Tuple, Union
 
 from crontab import CronTab
 from httpx import Auth, Request
 from pydantic import AfterValidator, BaseModel, BeforeValidator, HttpUrl
-from typing_extensions import Annotated
 
 
 class Sentinel:

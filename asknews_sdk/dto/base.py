@@ -1,8 +1,7 @@
-from typing import ClassVar, Dict, List, Literal, Optional, Union
+from typing import Annotated, ClassVar, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import AnyUrl, AwareDatetime, BaseModel, Field
-from typing_extensions import Annotated
 
 
 class GeoCoordinate(BaseModel):

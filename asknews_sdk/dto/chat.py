@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Annotated, Any, Dict, List, Literal, Optional, Union
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, HttpUrl, RootModel
-from typing_extensions import Annotated
 
 from asknews_sdk.dto.base import BaseSchema
 from asknews_sdk.dto.news import SearchResponseDictItem

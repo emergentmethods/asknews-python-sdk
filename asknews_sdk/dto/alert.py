@@ -1,9 +1,8 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Union, get_args
+from typing import Annotated, Any, Dict, List, Literal, Optional, Union, get_args
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, RootModel
-from typing_extensions import Annotated
 
 from asknews_sdk.dto.base import BaseSchema
 from asknews_sdk.dto.common import FilterParams

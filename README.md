@@ -1,9 +1,20 @@
 # AskNews Python SDK
 
-![Static Badge](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue?style=flat-square)
+![Static Badge](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue?style=flat-square)
 
 
 Python SDK for the AskNews API.
+
+## Python support
+
+Supported Python versions: **3.10–3.14**.
+
+### Next release: Python support changes
+
+Python 3.8 and 3.9 are no longer supported; upgrade to Python 3.10 or newer
+before upgrading the SDK. Python 3.13 and 3.14 are now included in the test matrix.
+This is a breaking change for users on older Python versions; a **minor version
+bump** is recommended for the next release.
 
 ## Installation
 

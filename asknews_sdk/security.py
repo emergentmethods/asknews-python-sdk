@@ -9,7 +9,7 @@ import threading
 import warnings
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import AsyncGenerator, Awaitable, Callable, Generator, Optional, Set, Union
+from typing import AsyncGenerator, Awaitable, Callable, Generator, Optional, Set, TypedDict, Union
 from urllib.parse import quote, urlencode
 
 from anyio import Path as AsyncPath
@@ -18,7 +18,6 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from httpx import Auth, Request, Response
-from typing_extensions import TypedDict
 
 
 class SecurityWarning(Warning): ...

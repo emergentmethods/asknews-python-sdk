@@ -1,9 +1,8 @@
 from collections.abc import Iterable
-from typing import Any, AsyncIterator, Iterator, List, Optional, Tuple
+from typing import Any, AsyncIterator, Iterator, List, Optional, Tuple, TypeGuard, TypeVar
 from urllib.parse import urlencode, urljoin
 
 import orjson
-from typing_extensions import TypeGuard, TypeVar
 
 
 T = TypeVar("T")

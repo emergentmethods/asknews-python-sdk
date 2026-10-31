@@ -1,7 +1,6 @@
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field
-from typing_extensions import Annotated
 
 from asknews_sdk.dto.base import BaseSchema
 
