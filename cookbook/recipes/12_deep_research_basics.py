@@ -222,8 +222,9 @@ from asknews_sdk.dto.deepnews import (
 )
 
 
+question = "What are analysts saying about AI chip export controls?"
 stream = ask.chat.get_deep_news(
-    messages=[{"role": "user", "content": "What are analysts saying about AI chip export controls?"}],
+    messages=[{"role": "user", "content": question}],
     sources=["asknews", "google", "wiki"],
     model="claude-sonnet-5-5",
     engine="v2.0",
@@ -242,12 +243,21 @@ calls = []  # (turn_index, call_index, tool_name, status, source_ids)
 for message in stream:
     if isinstance(message, CreateDeepNewsResponseStreamChunkV2):
         event = message.choices[0].delta
-        if isinstance(event, ContentBlockDeltaEvent) and isinstance(event.delta, AnthropicTextDelta):
-            answer.append(event.delta.text)
-            print(event.delta.text, end="", flush=True)
+        if isinstance(event, ContentBlockDeltaEvent):
+            if isinstance(event.delta, AnthropicTextDelta):
+                answer.append(event.delta.text)
+                print(event.delta.text, end="", flush=True)
 
     elif isinstance(message, CreateDeepNewsResponseStreamSourceBatch):
-        calls.append((message.turn_index, message.call_index, message.tool_name, message.status, message.source_ids))
+        calls.append(
+            (
+                message.turn_index,
+                message.call_index,
+                message.tool_name,
+                message.status,
+                message.source_ids,
+            )
+        )
         for entry in message.sources:
             if entry.source_id in seen:
                 continue
@@ -260,7 +270,8 @@ for message in stream:
             elif isinstance(entry, CreateDeepNewsResponseStreamSourceBatchGraphEntry):
                 print(f"\n  + {tag}graph: {entry.source}")  # a URL
             elif isinstance(entry, CreateDeepNewsResponseStreamSourceBatchChartEntry):
-                print(f"\n  + {tag}chart: {entry.source.query}")  # .chart_json holds the Plotly figure
+                # entry.source.chart_json holds the Plotly figure
+                print(f"\n  + {tag}chart: {entry.source.query}")
         print(
             f"\n  <{message.tool_name} turn={message.turn_index} call={message.call_index + 1}/"
             f"{message.calls_in_turn} status={message.status} "
@@ -272,7 +283,9 @@ for message in stream:
 
 # Which sources each call returned, resolved against what was streamed earlier.
 for turn_index, call_index, tool_name, status, source_ids in calls:
-    titles = [getattr(seen[sid].source, "title", seen[sid].kind) for sid in source_ids if sid in seen]
+    titles = [
+        getattr(seen[sid].source, "title", seen[sid].kind) for sid in source_ids if sid in seen
+    ]
     print(f"turn {turn_index} call {call_index} {tool_name} ({status}): {titles}")
 
 # `citation_number` lines up with the numbered citations in the answer.
@@ -290,7 +303,7 @@ print(sorted(by_citation))
 # async def main():
 #     async with AsyncAskNewsSDK(api_key=..., scopes=["chat"]) as ask:
 #         stream = await ask.chat.get_deep_news(
-#             messages=[{"role": "user", "content": "What are analysts saying about AI chip export controls?"}],
+#             messages=[{"role": "user", "content": question}],
 #             sources=["asknews", "google"],
 #             engine="v2.0",
 #             search_depth=2,
