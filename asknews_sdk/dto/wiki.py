@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Dict, List, Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, field_validator, model_serializer
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from asknews_sdk.dto.base import BaseSchema
 
@@ -19,25 +19,12 @@ class CirrusMetadata(BaseModel):
 
 
 class _WikidataValue(BaseModel):
-    """Base for the nested property-value shapes.
+    """Base for nested property values.
 
-    Two settings, both load-bearing:
-
-    * ``extra="allow"`` -- the API attaches per-property context keys to these
-      entries (``for_work`` on awards, ``kinship`` on relatives,
-      ``character_role``/``character_name`` on cast members), and new ones can
-      appear without warning. Keeping extras means a newly served qualifier
-      reaches you as an attribute on ``model_extra`` instead of raising.
-    * ``_drop_none`` -- the API omits absent qualifiers rather than sending
-      nulls, and re-serializing one of these models keeps that shape, so a
-      round trip does not invent keys the API never sent.
+    ``extra="allow"`` so qualifiers served later still arrive on ``model_extra``.
     """
 
     model_config = ConfigDict(extra="allow")
-
-    @model_serializer(mode="wrap")
-    def _drop_none(self, handler):
-        return {k: v for k, v in handler(self).items() if v is not None}
 
 
 class WikidataQidRef(_WikidataValue):
@@ -123,8 +110,6 @@ class WikidataMetadata(BaseModel):
     # Count of ALL sitelinks, including sister projects and languages absent
     # from wikipedia_titles.
     sitelink_count: Optional[int] = None
-    # True when the entity is a class/type (it has subclass_of).
-    is_class: Optional[bool] = None
     alt_labels: Optional[Dict[str, str]] = None
     aliases: Optional[List[str]] = None
     # Normalized registered domain of official_website, for exact-match lookup
@@ -133,15 +118,11 @@ class WikidataMetadata(BaseModel):
     # Revision metadata for the source Wikidata item.
     lastrevid: Optional[int] = None
     last_modified: Optional[str] = None
+    is_class: Optional[bool] = None
 
-    # ---- Every extracted Wikidata property ---------------------------------
+    # ---- Properties; [one entry] marks a list field that holds a single entry ----
 
-    # List[WikidataQidRef] -- normally EVERY claim, best-ranked first
-    # (`ceo` carries former officeholders alongside the incumbent).
-    # NOTE: the fields marked [one entry] below are list-shaped but
-    # currently store a SINGLE entry -- the shape is held open so
-    # restoring the full history stays non-breaking. Do not read
-    # their length as a count.
+    # List[WikidataQidRef] -- every claim, best-ranked first
     instance_of: Optional[List[WikidataQidRef]] = None  # P31
     subclass_of: Optional[List[WikidataQidRef]] = None  # P279
     spouse: Optional[List[WikidataQidRef]] = None  # P26
@@ -412,6 +393,8 @@ class WikiResponseDictItem(BaseModel):
     timestamp: datetime
     cirrus_metadata: Optional[CirrusMetadata] = None
     point_id: Optional[str] = None
+    point_id_main_section: Optional[str] = None
+    point_id_full_page: Optional[str] = None
     has_main_section: Optional[bool] = None
 
 
@@ -445,10 +428,11 @@ class WikiBatchLinkEntityRequest(BaseModel):
     entities: List[str]
     entity_types: Optional[List[Optional[str]]] = None
     entity_descriptions: Optional[List[Optional[str]]] = None
-    relevance_threshold: Optional[float] = None
-    ambiguity_margin: Optional[float] = None
+    n_candidates: int = 5
+    relevance_threshold: float = 0.40
+    ambiguity_margin: float = 0.05
     allow_ambiguous: bool = True
-    include_candidates: bool = True
+    include_candidates: bool = False
 
     @field_validator("entities")
     @classmethod

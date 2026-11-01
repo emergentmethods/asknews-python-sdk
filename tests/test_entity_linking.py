@@ -140,9 +140,10 @@ def test_batch_request_defaults_match_the_api():
     request = WikiBatchLinkEntityRequest(entities=["Apple", "Paris"])
 
     assert request.allow_ambiguous is True
-    assert request.include_candidates is True
-    assert request.relevance_threshold is None
-    assert request.ambiguity_margin is None
+    assert request.include_candidates is False
+    assert request.n_candidates == 5
+    assert request.relevance_threshold == 0.40
+    assert request.ambiguity_margin == 0.05
 
 
 def test_batch_request_allows_per_element_none_types():

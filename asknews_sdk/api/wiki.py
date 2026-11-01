@@ -157,7 +157,7 @@ class WikiAPI(BaseAPI):
         relevance_threshold: float = 0.40,
         ambiguity_margin: float = 0.05,
         allow_ambiguous: bool = True,
-        include_candidates: bool = True,
+        include_candidates: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> WikiLinkEntityResponse:
@@ -217,10 +217,10 @@ class WikiAPI(BaseAPI):
         entities: List[str],
         entity_types: Optional[List[Optional[str]]] = None,
         entity_descriptions: Optional[List[Optional[str]]] = None,
-        relevance_threshold: Optional[float] = None,
-        ambiguity_margin: Optional[float] = None,
+        relevance_threshold: float = 0.40,
+        ambiguity_margin: float = 0.05,
         allow_ambiguous: bool = True,
-        include_candidates: bool = True,
+        include_candidates: bool = False,
         n_candidates: int = 5,
         *,
         http_headers: Optional[Dict] = None,
@@ -240,10 +240,10 @@ class WikiAPI(BaseAPI):
         :type entity_descriptions: Optional[List[Optional[str]]]
         :param relevance_threshold: Accept/abstain gate: minimum relevance (0-1) the
             linked entity must have.
-        :type relevance_threshold: Optional[float]
+        :type relevance_threshold: float
         :param ambiguity_margin: A different entity with the same name scoring within
             this relative margin (0-1) of the winner marks the result 'ambiguous'.
-        :type ambiguity_margin: Optional[float]
+        :type ambiguity_margin: float
         :param allow_ambiguous: If true, 'ambiguous' links still return their
             entity; if false, only confident 'linked' matches are accepted.
         :type allow_ambiguous: bool
@@ -266,12 +266,12 @@ class WikiAPI(BaseAPI):
             ambiguity_margin=ambiguity_margin,
             allow_ambiguous=allow_ambiguous,
             include_candidates=include_candidates,
+            n_candidates=n_candidates,
         )
         response = self.client.request(
             method="POST",
             endpoint="/v1/wiki/link-entity/batch",
             body=body.model_dump(mode="json"),
-            query={"n_candidates": n_candidates},
             headers=http_headers,
             accept=[(WikiBatchLinkEntityResponse.__content_type__, 1.0)],
         )
@@ -481,7 +481,7 @@ class AsyncWikiAPI(BaseAPI):
         relevance_threshold: float = 0.40,
         ambiguity_margin: float = 0.05,
         allow_ambiguous: bool = True,
-        include_candidates: bool = True,
+        include_candidates: bool = False,
         *,
         http_headers: Optional[Dict] = None,
     ) -> WikiLinkEntityResponse:
@@ -541,10 +541,10 @@ class AsyncWikiAPI(BaseAPI):
         entities: List[str],
         entity_types: Optional[List[Optional[str]]] = None,
         entity_descriptions: Optional[List[Optional[str]]] = None,
-        relevance_threshold: Optional[float] = None,
-        ambiguity_margin: Optional[float] = None,
+        relevance_threshold: float = 0.40,
+        ambiguity_margin: float = 0.05,
         allow_ambiguous: bool = True,
-        include_candidates: bool = True,
+        include_candidates: bool = False,
         n_candidates: int = 5,
         *,
         http_headers: Optional[Dict] = None,
@@ -564,10 +564,10 @@ class AsyncWikiAPI(BaseAPI):
         :type entity_descriptions: Optional[List[Optional[str]]]
         :param relevance_threshold: Accept/abstain gate: minimum relevance (0-1) the
             linked entity must have.
-        :type relevance_threshold: Optional[float]
+        :type relevance_threshold: float
         :param ambiguity_margin: A different entity with the same name scoring within
             this relative margin (0-1) of the winner marks the result 'ambiguous'.
-        :type ambiguity_margin: Optional[float]
+        :type ambiguity_margin: float
         :param allow_ambiguous: If true, 'ambiguous' links still return their
             entity; if false, only confident 'linked' matches are accepted.
         :type allow_ambiguous: bool
@@ -590,12 +590,12 @@ class AsyncWikiAPI(BaseAPI):
             ambiguity_margin=ambiguity_margin,
             allow_ambiguous=allow_ambiguous,
             include_candidates=include_candidates,
+            n_candidates=n_candidates,
         )
         response = await self.client.request(
             method="POST",
             endpoint="/v1/wiki/link-entity/batch",
             body=body.model_dump(mode="json"),
-            query={"n_candidates": n_candidates},
             headers=http_headers,
             accept=[(WikiBatchLinkEntityResponse.__content_type__, 1.0)],
         )
