@@ -15,7 +15,6 @@ class CirrusMetadata(BaseModel):
     heading: Optional[List[str]] = None
     incoming_links: Optional[int] = None
     outgoing_links: Optional[int] = None
-    # other fields can be added as needed
 
 
 class _WikidataValue(BaseModel):
@@ -28,48 +27,32 @@ class _WikidataValue(BaseModel):
 
 
 class WikidataQidRef(_WikidataValue):
-    """A QID-valued claim -- the element type of most metadata fields.
+    """A QID-valued claim with its temporal qualifiers and rank.
 
-    Most QID fields list EVERY claim, not just the current one: ``ceo`` carries
-    former officeholders alongside the incumbent. Which entry is current is
-    yours to decide -- ``rank`` marks it when an editor has set one, but is
-    often left "normal" throughout, and a missing ``end_time`` does not imply
-    currency (an announced successor has none either).
-
-    A few fields are list-shaped but store only ONE entry; they are marked
-    ``[one entry]`` on the field below. Do not read a list's length as a count
-    without checking.
+    Most fields list every claim, including former holders. A missing ``end_time`` means
+    current or undated, and ``rank`` is often left "normal", so neither proves currency.
+    Fields marked ``[one entry]`` store one entry: do not read their length as a count.
     """
 
     qid: str
     label: str
-    # Temporal qualifiers, present on time-bounded roles such as ceo,
-    # position_held or member_of. Dating rates vary enormously by property, so
-    # `end_time is None` means "current OR undated".
     start_time: Optional[str] = None
-    end_time: Optional[str] = None
-    # The point-in-time counterpart to the start/end interval -- the only date
-    # a point event carries (an award has a year, not a range).
+    end_time: Optional[str] = None  # None means current or undated
     point_in_time: Optional[str] = None
-    # Wikidata claim rank: "preferred" | "normal".
-    rank: Optional[str] = None
+    rank: Optional[str] = None  # "preferred" | "normal"
 
 
 class WikidataQuantity(_WikidataValue):
-    """A quantity claim, with its unit and attribution qualifiers.
+    """A quantity claim with its unit and attribution qualifiers.
 
-    The unit is not decoration -- revenue in EUR and USD are otherwise silently
-    mixed in one field. ``platform``/``account_id``/``point_in_time`` attribute
-    the value: ``social_media_followers`` carries one claim per account per
-    snapshot, so a bare number cannot be attributed, ordered or summed without
-    double-counting the same account at two dates.
+    Values can mix units, and ``social_media_followers`` has one claim per account per
+    snapshot, so attribute by unit, account and date before summing.
     """
 
     amount: float
     unit_qid: Optional[str] = None
     unit_label: Optional[str] = None
-    # A plain platform name ("X (Twitter)", "YouTube"), not a QID.
-    platform: Optional[str] = None
+    platform: Optional[str] = None  # plain name, not a QID
     account_id: Optional[str] = None
     point_in_time: Optional[str] = None
 
@@ -89,33 +72,20 @@ class WikidataCoordinate(_WikidataValue):
 
 
 class WikidataMetadata(BaseModel):
-    """Wikidata entity metadata.
+    """Typed core plus every Wikidata property the API returns.
 
-    A typed core plus every Wikidata property the API returns. ``extra="allow"``
-    is kept so a newly added property still reaches you (via ``model_extra``)
-    before this SDK is updated to name it.
-
-    Almost every field is absent on any given entity -- a person has no
-    ``capital``, a city no ``date_of_birth`` -- so read defensively and expect
-    ``None``. The trailing comment on each line is the Wikidata property id,
-    for lookup at wikidata.org/wiki/Property:<id>.
+    ``extra="allow"`` so properties served later still arrive on ``model_extra``.
+    Trailing comments are Wikidata property ids.
     """
 
     model_config = ConfigDict(extra="allow")
 
-    # ---- Core: not property-table entries ----------------------------------
-    # {lang: article title} for every Wikipedia the entity links to. Build a URL
-    # with f"https://{lang}.wikipedia.org/wiki/{title}".
-    wikipedia_titles: Optional[Dict[str, str]] = None
-    # Count of ALL sitelinks, including sister projects and languages absent
-    # from wikipedia_titles.
+    # ---- Core ----
+    wikipedia_titles: Optional[Dict[str, str]] = None  # {lang: article title}
     sitelink_count: Optional[int] = None
     alt_labels: Optional[Dict[str, str]] = None
     aliases: Optional[List[str]] = None
-    # Normalized registered domain of official_website, for exact-match lookup
-    # -- scheme/www/trailing-slash variants make the raw URL an unreliable key.
-    official_website_domain: Optional[str] = None
-    # Revision metadata for the source Wikidata item.
+    official_website_domain: Optional[str] = None  # normalized domain of official_website
     lastrevid: Optional[int] = None
     last_modified: Optional[str] = None
     is_class: Optional[bool] = None
@@ -254,17 +224,11 @@ class WikidataMetadata(BaseModel):
     follows: Optional[List[WikidataQidRef]] = None  # P155
     followed_by: Optional[List[WikidataQidRef]] = None  # P156
 
-    # WikidataQidRef -- rival accounts of ONE fact, so only the
-    # best-ranked claim is stored.
+    # WikidataQidRef -- best-ranked claim only
     place_of_birth: Optional[WikidataQidRef] = None  # P19
     place_of_death: Optional[WikidataQidRef] = None  # P20
 
-    # List[WikidataQuantity] -- read unit_qid/unit_label before
-    # comparing, and platform/account_id/point_in_time before summing.
-    # NOTE: the fields marked [one entry] below are list-shaped but
-    # currently store a SINGLE entry -- the shape is held open so
-    # restoring the full history stays non-breaking. Do not read
-    # their length as a count.
+    # List[WikidataQuantity]
     social_media_followers: Optional[List[WikidataQuantity]] = None  # P8687
     number_of_subscribers: Optional[List[WikidataQuantity]] = None  # P3744  [one entry]
     number_of_employees: Optional[List[WikidataQuantity]] = None  # P1128  [one entry]
@@ -297,34 +261,28 @@ class WikidataMetadata(BaseModel):
     budget: Optional[List[WikidataQuantity]] = None  # P2130
     carbon_footprint: Optional[List[WikidataQuantity]] = None  # P5991
 
-    # str -- an ISO-ish time string; rival precisions of ONE date
-    # collapse to the best-ranked claim.
+    # str -- ISO-ish time, best-ranked claim only
     date_of_birth: Optional[str] = None  # P569
     date_of_death: Optional[str] = None  # P570
     dissolved: Optional[str] = None  # P576
     inception: Optional[str] = None  # P571
     date_of_official_opening: Optional[str] = None  # P1619
 
-    # List[str] -- ISO-ish time strings.
-    # NOTE: the fields marked [one entry] below are list-shaped but
-    # currently store a SINGLE entry -- the shape is held open so
-    # restoring the full history stays non-breaking. Do not read
-    # their length as a count.
+    # List[str] -- ISO-ish times
     publication_date: Optional[List[str]] = None  # P577
     launch_date: Optional[List[str]] = None  # P619  [one entry]
     time_of_discovery: Optional[List[str]] = None  # P575
     service_entry: Optional[List[str]] = None  # P729  [one entry]
     service_retirement: Optional[List[str]] = None  # P730  [one entry]
 
-    # List[WikidataMonolingualText] -- language-tagged values.
+    # List[WikidataMonolingualText]
     short_name: Optional[List[WikidataMonolingualText]] = None  # P1813
     nickname: Optional[List[WikidataMonolingualText]] = None  # P1449
     native_label: Optional[List[WikidataMonolingualText]] = None  # P1705
     name_in_native_language: Optional[List[WikidataMonolingualText]] = None  # P1559
     official_name: Optional[List[WikidataMonolingualText]] = None  # P1448
 
-    # List[str] -- ALWAYS a list: an identifier is a join key and
-    # entities legitimately carry two (Alphabet has two SEC CIKs).
+    # List[str] -- external identifiers
     x_twitter_username: Optional[List[str]] = None  # P2002
     facebook_id: Optional[List[str]] = None  # P2013
     instagram_username: Optional[List[str]] = None  # P2003
@@ -370,17 +328,16 @@ class WikidataMetadata(BaseModel):
     swift_bic_code: Optional[List[str]] = None  # P2627
     imdb_id: Optional[List[str]] = None  # P345
 
-    # str -- locale variants collapse to ONE site; the normalized
-    # `official_website_domain` sibling in the core above is the match key.
+    # str
     official_website: Optional[str] = None  # P856
 
-    # List[str] -- Wikimedia Commons file URLs.
+    # List[str] -- Commons file URLs
     image: Optional[List[str]] = None  # P18
 
-    # WikidataCoordinate -- rival measurements of ONE point.
+    # WikidataCoordinate
     coordinates: Optional[WikidataCoordinate] = None  # P625
 
-    # List[str].
+    # List[str]
     ticker_symbol: Optional[List[str]] = None  # P249
     version: Optional[List[str]] = None  # P348
 
@@ -458,9 +415,6 @@ class WikiBatchLinkEntityResponse(BaseSchema):
 
 
 class WikiEntityResponse(BaseSchema):
-    """Direct QID lookup. `entity` is None when the QID is not in the collection;
-    a miss is reported as found=False rather than as an error."""
-
     qid: str
     entity: Optional[WikidataResponseDictItem] = None
     found: bool

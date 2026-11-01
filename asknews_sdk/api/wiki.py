@@ -58,8 +58,8 @@ class WikiAPI(BaseAPI):
         :param include_main_section: If true, the main section of the article is
             prepended to each chunk.
         :type include_main_section: bool
-        :param has_wikidata: Filter results by whether the article has Wikidata.
-            If None, no filtering is applied.
+        :param has_wikidata: Filter by whether the article has Wikidata (None
+            applies no filter).
         :type has_wikidata: Optional[bool]
         :param http_headers: Additional HTTP headers.
         :type http_headers: Optional[Dict]
@@ -121,8 +121,8 @@ class WikiAPI(BaseAPI):
         :param include_main_section: If true, the main section of the article is
             prepended to each chunk.
         :type include_main_section: bool
-        :param has_wikidata: Filter results by whether the article has Wikidata.
-            If None, no filtering is applied.
+        :param has_wikidata: Filter by whether the article has Wikidata (None
+            applies no filter).
         :type has_wikidata: Optional[bool]
         :param http_headers: Additional HTTP headers.
         :type http_headers: Optional[Dict]
@@ -174,8 +174,8 @@ class WikiAPI(BaseAPI):
         :param entity_description: Optional description providing additional context
             to improve entity matching.
         :type entity_description: Optional[str]
-        :param n_candidates: Number of candidate entities to return alongside the
-            linked entity. Does not affect which entity is linked.
+        :param n_candidates: Number of candidates to return alongside the linked
+            entity (does not affect which entity is linked).
         :type n_candidates: int
         :param relevance_threshold: Accept/abstain gate: minimum relevance (0-1) the
             linked entity must have.
@@ -183,8 +183,7 @@ class WikiAPI(BaseAPI):
         :param ambiguity_margin: A different entity with the same name scoring within
             this relative margin (0-1) of the winner marks the result 'ambiguous'.
         :type ambiguity_margin: float
-        :param allow_ambiguous: If true, 'ambiguous' links still return their
-            entity; if false, only confident 'linked' matches are accepted.
+        :param allow_ambiguous: If true, 'ambiguous' links still return their entity.
         :type allow_ambiguous: bool
         :param include_candidates: If true, include the candidate list alongside the
             linked entity.
@@ -232,11 +231,11 @@ class WikiAPI(BaseAPI):
 
         :param entities: List of entity names to link.
         :type entities: List[str]
-        :param entity_types: Optional types of the entities. Must be the same length
-            as entities if provided; individual elements may be None.
+        :param entity_types: Per-entity types, same length as entities, None for
+            unknown.
         :type entity_types: Optional[List[Optional[str]]]
-        :param entity_descriptions: Optional descriptions for the entities. Must be the
-            same length as entities if provided; individual elements may be None.
+        :param entity_descriptions: Per-entity descriptions, same length as entities,
+            None for unknown.
         :type entity_descriptions: Optional[List[Optional[str]]]
         :param relevance_threshold: Accept/abstain gate: minimum relevance (0-1) the
             linked entity must have.
@@ -244,14 +243,13 @@ class WikiAPI(BaseAPI):
         :param ambiguity_margin: A different entity with the same name scoring within
             this relative margin (0-1) of the winner marks the result 'ambiguous'.
         :type ambiguity_margin: float
-        :param allow_ambiguous: If true, 'ambiguous' links still return their
-            entity; if false, only confident 'linked' matches are accepted.
+        :param allow_ambiguous: If true, 'ambiguous' links still return their entity.
         :type allow_ambiguous: bool
         :param include_candidates: If true, include the candidate list alongside the
             linked entity.
         :type include_candidates: bool
-        :param n_candidates: Number of candidate entities to return per entity alongside
-            the linked entity. Does not affect which entity is linked.
+        :param n_candidates: Number of candidates to return per entity alongside the
+            linked entity (does not affect which entity is linked).
         :type n_candidates: int
         :param http_headers: Additional HTTP headers.
         :type http_headers: Optional[Dict]
@@ -292,15 +290,13 @@ class WikiAPI(BaseAPI):
         :type qid: str
         :param http_headers: Additional HTTP headers.
         :type http_headers: Optional[Dict]
-        :return: The entity response. A QID that is not in the collection comes back
-            with found=False rather than raising.
+        :return: The entity response, with found=False for a QID not in the collection.
         :rtype: WikiEntityResponse
         """
         response = self.client.request(
             method="GET",
             endpoint="/v1/wiki/entity/{qid}",
-            # Escaped: QIDs are free-form input and a raw "/" would otherwise be
-            # normalized away into a different endpoint.
+            # A raw "/" would be normalized into a different endpoint.
             params={"qid": quote(qid, safe="")},
             headers=http_headers,
             accept=[(WikiEntityResponse.__content_type__, 1.0)],
@@ -322,9 +318,8 @@ class WikiAPI(BaseAPI):
         :type qids: List[str]
         :param http_headers: Additional HTTP headers.
         :type http_headers: Optional[Dict]
-        :return: The batch entity response. Results are in the order the QIDs were
-            supplied; a QID that is not in the collection comes back with found=False
-            rather than being omitted.
+        :return: The batch entity response, in input order, with found=False for a
+            QID not in the collection.
         :rtype: WikiBatchEntityResponse
         """
         body = WikiBatchEntityRequest(qids=qids)
@@ -382,8 +377,8 @@ class AsyncWikiAPI(BaseAPI):
         :param include_main_section: If true, the main section of the article is
             prepended to each chunk.
         :type include_main_section: bool
-        :param has_wikidata: Filter results by whether the article has Wikidata.
-            If None, no filtering is applied.
+        :param has_wikidata: Filter by whether the article has Wikidata (None
+            applies no filter).
         :type has_wikidata: Optional[bool]
         :param http_headers: Additional HTTP headers.
         :type http_headers: Optional[Dict]
@@ -445,8 +440,8 @@ class AsyncWikiAPI(BaseAPI):
         :param include_main_section: If true, the main section of the article is
             prepended to each chunk.
         :type include_main_section: bool
-        :param has_wikidata: Filter results by whether the article has Wikidata.
-            If None, no filtering is applied.
+        :param has_wikidata: Filter by whether the article has Wikidata (None
+            applies no filter).
         :type has_wikidata: Optional[bool]
         :param http_headers: Additional HTTP headers.
         :type http_headers: Optional[Dict]
@@ -498,8 +493,8 @@ class AsyncWikiAPI(BaseAPI):
         :param entity_description: Optional description providing additional context
             to improve entity matching.
         :type entity_description: Optional[str]
-        :param n_candidates: Number of candidate entities to return alongside the
-            linked entity. Does not affect which entity is linked.
+        :param n_candidates: Number of candidates to return alongside the linked
+            entity (does not affect which entity is linked).
         :type n_candidates: int
         :param relevance_threshold: Accept/abstain gate: minimum relevance (0-1) the
             linked entity must have.
@@ -507,8 +502,7 @@ class AsyncWikiAPI(BaseAPI):
         :param ambiguity_margin: A different entity with the same name scoring within
             this relative margin (0-1) of the winner marks the result 'ambiguous'.
         :type ambiguity_margin: float
-        :param allow_ambiguous: If true, 'ambiguous' links still return their
-            entity; if false, only confident 'linked' matches are accepted.
+        :param allow_ambiguous: If true, 'ambiguous' links still return their entity.
         :type allow_ambiguous: bool
         :param include_candidates: If true, include the candidate list alongside the
             linked entity.
@@ -556,11 +550,11 @@ class AsyncWikiAPI(BaseAPI):
 
         :param entities: List of entity names to link.
         :type entities: List[str]
-        :param entity_types: Optional types of the entities. Must be the same length
-            as entities if provided; individual elements may be None.
+        :param entity_types: Per-entity types, same length as entities, None for
+            unknown.
         :type entity_types: Optional[List[Optional[str]]]
-        :param entity_descriptions: Optional descriptions for the entities. Must be the
-            same length as entities if provided; individual elements may be None.
+        :param entity_descriptions: Per-entity descriptions, same length as entities,
+            None for unknown.
         :type entity_descriptions: Optional[List[Optional[str]]]
         :param relevance_threshold: Accept/abstain gate: minimum relevance (0-1) the
             linked entity must have.
@@ -568,14 +562,13 @@ class AsyncWikiAPI(BaseAPI):
         :param ambiguity_margin: A different entity with the same name scoring within
             this relative margin (0-1) of the winner marks the result 'ambiguous'.
         :type ambiguity_margin: float
-        :param allow_ambiguous: If true, 'ambiguous' links still return their
-            entity; if false, only confident 'linked' matches are accepted.
+        :param allow_ambiguous: If true, 'ambiguous' links still return their entity.
         :type allow_ambiguous: bool
         :param include_candidates: If true, include the candidate list alongside the
             linked entity.
         :type include_candidates: bool
-        :param n_candidates: Number of candidate entities to return per entity alongside
-            the linked entity. Does not affect which entity is linked.
+        :param n_candidates: Number of candidates to return per entity alongside the
+            linked entity (does not affect which entity is linked).
         :type n_candidates: int
         :param http_headers: Additional HTTP headers.
         :type http_headers: Optional[Dict]
@@ -616,15 +609,13 @@ class AsyncWikiAPI(BaseAPI):
         :type qid: str
         :param http_headers: Additional HTTP headers.
         :type http_headers: Optional[Dict]
-        :return: The entity response. A QID that is not in the collection comes back
-            with found=False rather than raising.
+        :return: The entity response, with found=False for a QID not in the collection.
         :rtype: WikiEntityResponse
         """
         response = await self.client.request(
             method="GET",
             endpoint="/v1/wiki/entity/{qid}",
-            # Escaped: QIDs are free-form input and a raw "/" would otherwise be
-            # normalized away into a different endpoint.
+            # A raw "/" would be normalized into a different endpoint.
             params={"qid": quote(qid, safe="")},
             headers=http_headers,
             accept=[(WikiEntityResponse.__content_type__, 1.0)],
@@ -646,9 +637,8 @@ class AsyncWikiAPI(BaseAPI):
         :type qids: List[str]
         :param http_headers: Additional HTTP headers.
         :type http_headers: Optional[Dict]
-        :return: The batch entity response. Results are in the order the QIDs were
-            supplied; a QID that is not in the collection comes back with found=False
-            rather than being omitted.
+        :return: The batch entity response, in input order, with found=False for a
+            QID not in the collection.
         :rtype: WikiBatchEntityResponse
         """
         body = WikiBatchEntityRequest(qids=qids)

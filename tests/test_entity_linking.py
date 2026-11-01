@@ -1,4 +1,4 @@
-"""Tests for `link_entity` / `link_entity_batch`: their DTOs and the requests they send."""
+"""Entity-linking and QID-lookup DTOs and request shapes."""
 import inspect
 from urllib.parse import parse_qs, quote, urlparse
 
@@ -20,7 +20,6 @@ from asknews_sdk.utils import build_url
 
 
 def build_linked_payload(**overrides):
-    """A minimal, valid `linked` entity link payload."""
     payload = {
         "entity": "Apple",
         "entity_type": "organization",
@@ -52,7 +51,6 @@ def test_linked_payload_parses():
 
 
 def test_no_match_has_null_entity():
-    """An abstained link carries a status but no entity."""
     response = WikiLinkEntityResponse.model_validate(
         {
             "entity": "Zzzz Not A Real Entity",
@@ -94,7 +92,6 @@ def test_candidates_omitted_when_not_requested():
 
 
 def test_unknown_wikidata_metadata_fields_are_preserved():
-    """`wikidata_metadata` allows extras so new upstream properties survive the SDK."""
     response = WikiLinkEntityResponse.model_validate(
         build_linked_payload(
             linked_entity={
@@ -110,9 +107,7 @@ def test_unknown_wikidata_metadata_fields_are_preserved():
     )
 
     metadata = response.linked_entity.wikidata_metadata
-    # A declared property parses into its typed shape...
     assert metadata.ceo[0].label == "Tim Cook"
-    # ...while one this SDK does not know about still reaches the caller.
     assert metadata.model_extra == {"some_future_property": 42}
 
 
@@ -147,7 +142,6 @@ def test_batch_request_defaults_match_the_api():
 
 
 def test_batch_request_allows_per_element_none_types():
-    """Types align positionally, and an unknown type for one entity is expressed as None."""
     request = WikiBatchLinkEntityRequest(
         entities=["Apple", "Paris"],
         entity_types=["organization", None],
@@ -170,7 +164,6 @@ def test_batch_request_rejects_empty_entity_names():
 
 
 def test_batch_request_round_trips_to_json_body():
-    """The request is serialized as the POST body, so it must survive a JSON round trip."""
     request = WikiBatchLinkEntityRequest(
         entities=["Apple", "Paris"],
         entity_types=["organization", None],
@@ -193,7 +186,6 @@ def test_batch_request_round_trips_to_json_body():
 @pytest.mark.parametrize("api", [WikiAPI, AsyncWikiAPI])
 @pytest.mark.parametrize("method", ["link_entity", "link_entity_batch"])
 def test_candidate_count_is_named_n_candidates(api, method):
-    """Linking counts candidates, not documents: the API names this `n_candidates`."""
     parameters = inspect.signature(getattr(api, method)).parameters
 
     assert "n_candidates" in parameters
@@ -204,7 +196,6 @@ def test_candidate_count_is_named_n_candidates(api, method):
 @pytest.mark.parametrize("api", [WikiAPI, AsyncWikiAPI])
 @pytest.mark.parametrize("method", ["search_wiki", "search_wiki_batch"])
 def test_search_keeps_n_documents(api, method):
-    """The rename was scoped to entity linking; wiki search still counts documents."""
     parameters = inspect.signature(getattr(api, method)).parameters
 
     assert "n_documents" in parameters
@@ -214,17 +205,13 @@ def test_search_keeps_n_documents(api, method):
 @pytest.mark.parametrize("api", [WikiAPI, AsyncWikiAPI])
 @pytest.mark.parametrize("method", ["search_wiki", "search_wiki_batch"])
 def test_search_does_not_return_entity_documents(api, method):
-    """Wiki search returns article chunks only; entities come from the link and
-    QID methods, so there is no toggle for including them here."""
     parameters = inspect.signature(getattr(api, method)).parameters
 
     assert "include_entities" not in parameters
-    # The surviving Wikidata-adjacent filter is unaffected by the removal.
     assert "has_wikidata" in parameters
 
 
 def test_search_response_holds_only_article_documents():
-    """Search can no longer return entity documents, so a QID payload must not validate."""
     response = WikiSearchResponse.model_validate(
         {
             "documents": [
@@ -249,7 +236,6 @@ def test_search_response_holds_only_article_documents():
 
 
 def test_link_entity_sends_n_candidates_on_the_query_string():
-    """`build_url` drops None and stringifies, so assert on the URL the API receives."""
     url = build_url(
         base_url="https://api.asknews.dev",
         endpoint="/v1/wiki/link-entity",
@@ -264,7 +250,7 @@ def test_link_entity_sends_n_candidates_on_the_query_string():
     parsed = parse_qs(urlparse(url).query)
     assert parsed["n_candidates"] == ["3"]
     assert "n_documents" not in parsed
-    # Unset optional filters must not be sent, or they would override server defaults.
+    # Unset filters must not be sent, or they would override server defaults.
     assert "entity_type" not in parsed
 
 
@@ -285,7 +271,6 @@ def test_entity_response_parses_a_hit():
 
 
 def test_entity_response_reports_a_miss_without_erroring():
-    """A QID that is not in the collection is a found=False result, not an error."""
     response = WikiEntityResponse.model_validate({"qid": "Q_missing", "found": False})
 
     assert response.found is False
@@ -319,8 +304,6 @@ def test_qid_lookup_methods_exist(api, method):
 
 
 def test_qid_is_escaped_into_the_path():
-    """`build_url` interpolates raw and then normalizes, so a '/' in a QID would
-    otherwise silently retarget the request at a different endpoint."""
     safe = build_url(
         base_url="https://api.asknews.dev",
         endpoint="/v1/wiki/entity/{qid}",
@@ -333,7 +316,6 @@ def test_qid_is_escaped_into_the_path():
     )
 
     assert urlparse(safe).path == "/v1/wiki/entity/Q1%2F..%2Fadmin"
-    # Demonstrates why the escaping is required.
     assert urlparse(unsafe).path == "/v1/wiki/entity/admin"
 
 
@@ -343,13 +325,6 @@ def test_qid_is_escaped_into_the_path():
 @pytest.mark.parametrize(
     "field,value",
     [
-        # The shapes the API sends today: lists of dicts, with the key set
-        # varying by property.
-        #
-        # A QID-valued property lists EVERY claim, not just the current one.
-        # Both entries here are rank "normal" — Wikidata does not reliably mark
-        # the current one — and the second carries no end_time qualifier at all,
-        # so the key is simply absent rather than null.
         (
             "ceo",
             [
@@ -368,27 +343,15 @@ def test_qid_is_escaped_into_the_path():
                 },
             ],
         ),
-        # A "single-best-value" property: rival accounts of ONE fact, so the API
-        # sends the best-ranked claim alone rather than a list.
         ("place_of_birth", {"qid": "Q60", "label": "New York City"}),
-        # Times are plain ISO-ish strings.
         ("date_of_birth", "+1955-02-24T00:00:00Z"),
-        # External identifiers are ALWAYS lists -- an identifier is a join key,
-        # and entities legitimately carry two.
         ("gnd_id", ["118637347"]),
         ("official_name", [{"text": "Apple Inc.", "language": "en"}]),
         ("social_media_followers", [{"amount": 5000000, "platform": "x_twitter"}]),
-        # Absent when the entity has no such claim.
         ("ceo", None),
     ],
 )
 def test_metadata_accepts_property_shapes(field, value):
-    """Property-derived fields parse the shapes the API actually sends.
-
-    These fields are typed, so the parsed value is a model (or list of models)
-    rather than the raw dict — compare via model_dump(exclude_none=True), which
-    also pins that absent qualifiers stay absent rather than becoming nulls.
-    """
     metadata = WikidataMetadata(**{field: value})
     parsed = getattr(metadata, field)
 
@@ -403,11 +366,6 @@ def test_metadata_accepts_property_shapes(field, value):
 
 
 def test_metadata_passes_through_undeclared_fields():
-    """Wikidata exposes far more properties than this model declares.
-
-    Undeclared ones must still reach the caller, otherwise a newly served
-    property would be silently dropped until the SDK caught up.
-    """
     metadata = WikidataMetadata(some_future_property=[{"qid": "Q1"}])
 
     assert metadata.model_dump(exclude_none=True) == {
@@ -416,15 +374,9 @@ def test_metadata_passes_through_undeclared_fields():
 
 
 def test_metadata_uses_the_served_field_names():
-    """A declared field whose name is not the served one never populates.
-
-    It is an invisible failure: it does not raise, it just reads as None
-    forever. These singular/plural pairs are the easy ones to get wrong.
-    """
     declared = set(WikidataMetadata.model_fields)
 
     assert {"occupations", "employers", "positions_held"}.isdisjoint(declared)
     assert {"occupation", "employer", "position_held"} <= declared
-    # `wikipedia_titles` carries every language, not just en.
     assert "wikipedia_url" not in declared
     assert "wikipedia_titles" in declared
