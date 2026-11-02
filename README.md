@@ -42,7 +42,7 @@ research = ask.chat.get_deep_news(
 print(research.choices[0].message.content)
 ```
 
-The API doesn't stop there, checkout the full set of recipes in the [Cookbook](cookbook/recipes/index.md) showing off a wide range of endpoints:
+The API doesn't stop there, checkout the full set of recipes in the [Cookbook](cookbook/markdown/index.md) showing off a wide range of endpoints:
 
 - /deepnews, a deep research agent that can explore the new knowledge graph, X, Reddit, Google, Wikipedia and more to build forecasts, reports, analytics, and anything else your system may need.
 - /websearch, search the web and get back an LLM distillation of all the relevant web pages
