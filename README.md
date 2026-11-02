@@ -9,13 +9,6 @@ Python SDK for the AskNews API.
 
 Supported Python versions: **3.10–3.14**.
 
-### Next release: Python support changes
-
-Python 3.8 and 3.9 are no longer supported; upgrade to Python 3.10 or newer
-before upgrading the SDK. Python 3.13 and 3.14 are now included in the test matrix.
-This is a breaking change for users on older Python versions; a **minor version
-bump** is recommended for the next release.
-
 ## Installation
 
 ```bash
@@ -49,16 +42,14 @@ research = ask.chat.get_deep_news(
 print(research.choices[0].message.content)
 ```
 
-The API doesn't stop there, explore a wide range of endpoints:
+The API doesn't stop there, checkout the full set of recipes in the [Cookbook](cookbook/recipes/index.md) showing off a wide range of endpoints:
 
-- /stories, high level event tracking and state of the art article clustering
-- /forecasts, industry leading forecasting on any real-time event
-- /analytics, time-series data on finance and politics
 - /deepnews, a deep research agent that can explore the new knowledge graph, X, Reddit, Google, Wikipedia and more to build forecasts, reports, analytics, and anything else your system may need.
-- /graph, build any news knowledge graph imaginable from the largest news graph on the planet
 - /websearch, search the web and get back an LLM distillation of all the relevant web pages
+- /wikipedia, high fidelity search on the Wikipedia corpus (open-sourced, https://huggingface.co/datasets/EmergentMethods/en_qdrant_wikipedia)
+- /stories, high level event tracking and state of the art article clustering
 
-Find full details at the [AskNews API documentation](https://docs.asknews.app).
+Find full docs at the [AskNews API documentation](https://docs.asknews.app).
 
 ## Support
 
