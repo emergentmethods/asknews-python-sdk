@@ -195,6 +195,7 @@ async def test_async_news_api_search_news(
                     "relevance": 0.97,
                     "description": "English mathematician and writer",
                     "source_mention": "Lovelace",
+                    "source_mentions": ["Lovelace", "Ada Lovelace"],
                 }
             ],
             "Organization": [{"title": "Analytical Engine", "qid": "Q332676", "relevance": 0.6}],

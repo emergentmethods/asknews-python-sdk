@@ -75,6 +75,9 @@ class WikidataEntity(BaseModel):
     description: Annotated[Optional[str], Field(None, title="Description")]
     # Original GLiNER/graph surface form before Wikidata disambiguation.
     source_mention: Annotated[Optional[str], Field(None, title="Source Mention")]
+    # Every distinct surface form in the article that linked to this entity,
+    # source_mention first.
+    source_mentions: Annotated[Optional[List[str]], Field(None, title="Source Mentions")]
 
 
 class Author(BaseModel):
