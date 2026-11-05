@@ -1,3 +1,9 @@
+## 0.15.2 (2026-11-05)
+
+### Fix
+
+- Add every source mention to Wikidata entities
+
 ## 0.15.1 (2026-11-05)
 
 ### Fix
