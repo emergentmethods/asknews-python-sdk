@@ -1,3 +1,5 @@
+from importlib.metadata import version
+
 import pytest
 import respx
 from httpx import Request, Response
@@ -7,6 +9,10 @@ from asknews_sdk.client import USER_AGENT, APIClient, AsyncAPIClient
 from asknews_sdk.errors import APIError
 from asknews_sdk.response import APIResponse, AsyncAPIResponse
 from tests.conftest import BASE_URL
+
+
+def test_user_agent_reports_the_installed_version():
+    assert USER_AGENT == f"asknews-sdk-python/{version('asknews')}"
 
 
 def test_build_api_request(sync_api_client: APIClient):
