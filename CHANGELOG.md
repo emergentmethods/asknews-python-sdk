@@ -1,3 +1,9 @@
+## 0.15.1 (2026-11-05)
+
+### Fix
+
+- Report the installed SDK version in the User-Agent
+
 ## 0.15.0 (2026-10-31)
 
 ### Fix
