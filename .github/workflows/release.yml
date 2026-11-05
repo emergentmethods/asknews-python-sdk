@@ -51,7 +51,7 @@ jobs:
           uv cache prune --ci
           echo "$PWD/.venv/bin" >> $GITHUB_PATH
       - name: Install task
-        uses: arduino/setup-task@v2
+        uses: arduino/setup-task@v3
         with:
           version: 3.x
           repo-token: ${{ secrets.GITHUB_TOKEN }}
