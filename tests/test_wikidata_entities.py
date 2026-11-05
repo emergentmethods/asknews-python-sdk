@@ -44,6 +44,7 @@ POPULATED_WIKIDATA_ENTITIES = {
             "relevance": 0.97,
             "description": "English mathematician and writer",
             "source_mention": "Lovelace",
+            "source_mentions": ["Lovelace", "Ada Lovelace", "Countess of Lovelace"],
         },
         {
             "title": "Charles Babbage",
@@ -51,6 +52,7 @@ POPULATED_WIKIDATA_ENTITIES = {
             "relevance": 0.81,
             "description": "English mathematician and inventor",
             "source_mention": "Babbage",
+            "source_mentions": ["Babbage"],
         },
     ],
     "Organization": [
@@ -60,6 +62,7 @@ POPULATED_WIKIDATA_ENTITIES = {
             "relevance": 0.65,
             "description": "mechanical general-purpose computer",
             "source_mention": "the Engine",
+            "source_mentions": ["the Engine"],
         }
     ],
 }
@@ -104,9 +107,10 @@ def test_populated_mapping_with_multiple_groups_and_entities():
     assert ada.relevance == pytest.approx(0.97)
     assert ada.description == "English mathematician and writer"
     assert ada.source_mention == "Lovelace"
+    assert ada.source_mentions == ["Lovelace", "Ada Lovelace", "Countess of Lovelace"]
 
 
-def test_optional_description_and_source_mention_may_be_omitted():
+def test_optional_description_and_source_mentions_may_be_omitted():
     response = SearchResponse.model_validate(
         build_search_payload(
             wikidata_entities={"Person": [{"title": "Ada Lovelace", "qid": "Q7259", "relevance": 1.0}]}
@@ -116,6 +120,7 @@ def test_optional_description_and_source_mention_may_be_omitted():
     entity = response.as_dicts[0].wikidata_entities["Person"][0]
     assert entity.description is None
     assert entity.source_mention is None
+    assert entity.source_mentions is None
 
 
 def test_empty_entity_group_list_is_preserved():
