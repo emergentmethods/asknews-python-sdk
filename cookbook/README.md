@@ -19,9 +19,9 @@ PyCharm, or convert it to a notebook with `jupytext --to ipynb`.
 
 | # | Recipe | Covers |
 |---|---|---|
-| 00 | Setup and core concepts | Client, which endpoint to use, filter-then-rank model, time windows, `kw` vs `nl`, return types, caching |
-| 01 | Getting real-time news | Live index, `pub_date` vs `crawl_date`, newest-first, polling |
-| 02 | Searching archive news | `historical=True`, exact windows, point-in-time context for backtests |
+| 00 | Setup and core concepts | Client, which endpoint to use, filter-then-rank model, time windows, `kw` vs `nl`, result order, return types, caching, plan limits |
+| 01 | Getting real-time news | The last 48 hours, `pub_date` vs `crawl_date`, sorting by date, polling |
+| 02 | Searching archive news | Searching back to 2023 by window, exact windows, point-in-time context for backtests |
 | 03 | Paginating | `offset` loops, caps, dedupe, windowed bulk pulls |
 | 04 | Building LLM context | `as_string` vs custom context from `as_dicts`, citations, graphs, geo |
 | 05 | Using Wikipedia | `search_wiki` parameters, background + news in one prompt |

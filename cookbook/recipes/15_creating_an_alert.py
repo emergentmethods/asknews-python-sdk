@@ -61,7 +61,6 @@ from asknews_sdk.dto.alert import (
 
 ask = AskNewsSDK(
     api_key=os.environ["ASKNEWS_API_KEY"],
-    scopes=["chat", "news"],
 )
 
 # %% [markdown]

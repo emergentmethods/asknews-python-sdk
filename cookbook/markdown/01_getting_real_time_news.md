@@ -1,18 +1,19 @@
 # Getting real-time news
 
-The default `search_news` call searches the live index (the last ~48
-hours), which is what you want for "what's happening right now".
+The default `search_news` call covers the last 24 hours, which is what you
+want for "what's happening right now".
 
 Best practices:
 
-- Keep `historical=False` (the default) for anything inside the last 48
-  hours. It is faster than an archive search.
+- Keep the window inside the last 48 hours (`hours_back=48` or less).
+  That costs 1 credit instead of 5.
 - Set `hours_back` explicitly. The default is 24.
 - Use `time_filter="pub_date"` when the *publication* time matters (e.g.
   "only stories published in the last 6 hours"). Use the default
   `crawl_date` when polling for "new since my last call".
-- Use `sort_by="pub_date"` when you want the newest first instead of the
-  most relevant first.
+- Use `sort_by="pub_date"` to arrange the results newest first. It sorts
+  the best matches by date rather than fetching the newest articles, so
+  pair it with a short `hours_back`.
 
 ```python
 import os
@@ -23,7 +24,6 @@ from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK(
     api_key=os.environ["ASKNEWS_API_KEY"],
-    scopes=["news"],
 )
 ```
 
@@ -36,16 +36,15 @@ response = ask.news.search_news(
     time_filter="pub_date",
     n_articles=10,
     return_type="string",
-    premium=True,
 )
 print(response.as_string)
 ```
 
-## Newest first, restricted to high-authority outlets
+## Sorted by date, restricted to high-authority outlets
 
-`page_rank` is an upper bound on a domain's popularity rank: lower is more
-prominent. `page_rank=100000` keeps the top ~100k domains and drops the
-long tail of low-authority sites. `diversify_sources=True` stops one outlet
+`page_rank` is an upper bound on a domain's rank: lower is more
+prominent, and `page_rank=100000` or lower targets top sources and drops
+the long tail of low-authority sites. `diversify_sources=True` stops one outlet
 from dominating the results.
 
 ```python
@@ -58,27 +57,26 @@ response = ask.news.search_news(
     diversify_sources=True,
     n_articles=10,
     return_type="dicts",
-    premium=True,
 )
 for a in response.as_dicts:
     print(f"{a.pub_date:%H:%M} | {a.source_id} | {a.title}")
 ```
 
-## Everything new in a category, no query
+## Browsing a category, no query
 
-`query` is optional. With no query you get the latest articles that pass
-your filters.
+`query` is optional. With no query you get a page of articles from the
+window that pass your filters, sorted by date within the page. It is not
+necessarily the newest articles in the window, so keep the window short.
 
 ```python
 response = ask.news.search_news(
     categories=["Technology"],
     languages=["en"],
     hours_back=1,
-    n_articles=25,
+    n_articles=10,
     return_type="dicts",
-    premium=True,
 )
-print(len(response.as_dicts), "technology articles in the last hour")
+print(len(response.as_dicts), "technology articles from the last hour")
 ```
 
 ## Polling for new articles
@@ -86,7 +84,8 @@ print(len(response.as_dicts), "technology articles in the last hour")
 For a lightweight poller, track the last time you checked and use
 `start_timestamp` with the default `time_filter="crawl_date"`, so you pick
 up anything AskNews ingested since then even if the publisher back-dated
-it. Deduplicate on `article_id`.
+it. Deduplicate on `article_id`. If more articles than one page can arrive
+between polls, paginate with `offset` (see [03 Paginating](03_paginating.md)).
 
 ```python
 seen: set = set()
@@ -100,9 +99,8 @@ for _ in range(3):
         start_timestamp=last_checked,
         end_timestamp=now,
         time_filter="crawl_date",
-        n_articles=50,
+        n_articles=10,
         return_type="dicts",
-        premium=True,
     )
     for a in response.as_dicts:
         if a.article_id not in seen:

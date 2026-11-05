@@ -60,7 +60,8 @@
 # | `time_filter` default | `"crawl_date"` | `"pub_date"` |
 # | `string_guarantee_op` default | `"OR"` | `"AND"` |
 # | Exact time window | `start_timestamp` / `end_timestamp` (unix seconds) | `start_datetime` / `end_datetime` (ISO 8601) |
-# | Archive access | `historical=True` | No flag. Archive is searched automatically. Windows over 160 days must be split into several calls. |
+# | Archive access | Chosen from the window: a start more than 48 hours ago, or an end with no start | Same |
+# | Longest window | 160 days per call | 160 days per call |
 # | `return_type` | `"string"`, `"dicts"`, `"both"` | `"string"`, `"dicts"` |
 #
 # | SDK method | MCP tool | Argument difference |

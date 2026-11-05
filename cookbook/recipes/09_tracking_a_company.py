@@ -36,7 +36,6 @@ from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK(
     api_key=os.environ["ASKNEWS_API_KEY"],
-    scopes=["news", "chat"],
 )
 
 # %% [markdown]
@@ -60,7 +59,6 @@ response = ask.news.search_news(
     page_rank=100000,
     languages=["en"],
     return_type="both",
-    premium=True,
 )
 print(response.as_string)
 
@@ -77,7 +75,6 @@ response = ask.news.search_news(
     time_filter="pub_date",
     n_articles=10,
     return_type="dicts",
-    premium=True,
 )
 
 # %% [markdown]
@@ -93,11 +90,9 @@ response = ask.news.search_news(
     string_guarantee_op="OR",
     query="Databricks acquisition, acquires startup, deal terms, purchase price",
     hours_back=720,
-    historical=True,
     time_filter="pub_date",
-    n_articles=20,
+    n_articles=10,
     return_type="dicts",
-    premium=True,
 )
 
 # %% [markdown]
@@ -114,7 +109,6 @@ response = ask.news.search_news(
     query="Apple Inc. iPhone, App Store, antitrust, Tim Cook, earnings",
     hours_back=24,
     n_articles=10,
-    premium=True,
 )
 
 # %% [markdown]

@@ -14,6 +14,10 @@ Create an API key at https://my.asknews.app and export it:
 export ASKNEWS_API_KEY="..."
 ```
 
+An API key carries the scopes it was created with, so the client needs no
+`scopes` argument. `scopes` applies only to OAuth client credentials
+(`client_id` and `client_secret`).
+
 ```python
 import os
 
@@ -22,7 +26,6 @@ from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK(
     api_key=os.environ["ASKNEWS_API_KEY"],
-    scopes=["news", "chat", "stories", "analytics"],
 )
 ```
 
@@ -32,7 +35,7 @@ Every method below is awaitable on it:
 ```python
 from asknews_sdk import AsyncAskNewsSDK
 
-async with AsyncAskNewsSDK(api_key=..., scopes=[...]) as ask:
+async with AsyncAskNewsSDK(api_key=...) as ask:
     response = await ask.news.search_news(query="...")
 ```
 
@@ -67,13 +70,24 @@ Most bad results come from putting everything into `query` and no hard
 filters. When you know the company, person, or keyword that *must* appear,
 guarantee it, then use `query` to describe what you care about.
 
-## Time: `hours_back`, `historical`, and timestamps
+## Time: `hours_back`, timestamps, and `strategy`
 
 - `hours_back` (default `24`) is the simplest window, relative to now.
-- `start_timestamp` / `end_timestamp` (unix seconds) give an exact window.
-- `historical=False` (default) searches the **live index: the most recent
-  ~48 hours**. Anything older needs `historical=True`. See
+- `start_timestamp` / `end_timestamp` (unix seconds) give an exact window
+  and take precedence over `hours_back`. One request can span at most 160
+  days.
+- **One search covers every date.** Coverage goes back to 2023 and the
+  window alone sets what is searched. The `historical` parameter is
+  deprecated and has no effect, so leave it out. A window that starts within the last 48 hours costs 1 credit.
+  One that starts further back costs 5: a `start_timestamp` more than 48
+  hours ago, `hours_back` above 48, an `end_timestamp` on its own, or
+  `strategy="news knowledge"`. See
   [02 Searching archive news](02_searching_archive_news.md).
+- For a past window, pass both timestamps. An `end_timestamp` without a
+  `start_timestamp` looks 160 days back from it.
+- `strategy="latest news"` searches the last 48 hours and
+  `strategy="news knowledge"` the last 150 days; both set `method="kw"`
+  and replace the window you pass.
 - `time_filter="crawl_date"` (default) filters on when AskNews ingested
   the article. `time_filter="pub_date"` filters on the publisher's date.
   Use `pub_date` when "it happened in the last 24 hours" matters, e.g. for
@@ -82,11 +96,21 @@ guarantee it, then use `query` to describe what you care about.
 
 ## `method`: `kw` vs `nl`
 
-- `method="kw"` (default) leans on keyword matching. Best when the query is
+- `method="kw"` (the default) leans on keyword matching. Best when the query is
   a list of names, tickers, and terms.
 - `method="nl"` leans on semantic meaning. Best when the query is a
   sentence or a paragraph, e.g. a forecasting question.
-- `method="both"` blends the two.
+- `method="both"` blends the two. It cannot be paginated.
+
+## Result order
+
+Results are ranked by relevance. `sort_by="pub_date"` sorts the page a
+search returned by date: you still get the best matches, arranged newest
+first, not the newest matches. Shorten the window when recency matters.
+
+A search with no `query` returns a page of articles from the window that
+pass your filters, sorted by date within that page. It is not necessarily
+the newest articles in the window.
 
 ## `return_type`: feeding an LLM vs feeding code
 
@@ -97,10 +121,16 @@ guarantee it, then use `query` to describe what you care about.
   `entities`, `source_id`, `page_rank`, `sentiment`, ...).
 - `"both"`: both of the above.
 
-## `premium=True`
+## Plan limits
 
-Includes premium publisher content in the results. The examples in this
-cookbook set it wherever source quality matters.
+- `n_articles`: Pay as you go, Pro and Spelunker accept up to 10 per
+  request, the default; more returns a 400 error. Analyst and Enterprise
+  return up to 30, and a larger value is reduced to 30 without an error.
+- `domain_url` needs Analyst or Enterprise.
+- `return_graphs` and `return_geo` need Spelunker, Analyst, Enterprise, or
+  wallet access.
+- DeepNews: the `"x"` source needs Spelunker or above, and `"reddit"`
+  Analyst or above.
 
 ## Caching repeated queries
 
@@ -116,7 +146,6 @@ response = ask.news.search_news(
     hours_back=24,
     n_articles=5,
     return_type="both",
-    premium=True,
     try_cache="1h",
 )
 

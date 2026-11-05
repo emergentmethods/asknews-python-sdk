@@ -23,7 +23,6 @@ from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK(
     api_key=os.environ["ASKNEWS_API_KEY"],
-    scopes=["news"],
 )
 ```
 
@@ -40,7 +39,6 @@ response = ask.news.search_news(
     return_type="string",
     doc_start_delimiter="<article>",
     doc_end_delimiter="</article>",
-    premium=True,
 )
 
 prompt = f"""Answer using only the articles below. Cite articles by their citation key.
@@ -53,7 +51,8 @@ Question: Where do EU-US trade negotiations stand right now?"""
 ## Option 2: build your own context from dicts
 
 `return_graphs=True` adds an entity relationship graph per article and
-`return_geo=True` adds coordinates for extracted locations. Only request
+`return_geo=True` adds coordinates for extracted locations. Both need
+Spelunker, Analyst, Enterprise, or wallet access. Only request
 them when your prompt uses them; they add tokens.
 
 ```python
@@ -64,7 +63,6 @@ response = ask.news.search_news(
     return_type="dicts",
     return_graphs=True,
     return_geo=True,
-    premium=True,
 )
 
 

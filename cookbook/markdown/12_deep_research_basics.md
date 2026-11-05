@@ -13,7 +13,7 @@ The pieces you control:
 | `messages` | The task. Chat format; the last user message is the request. |
 | `sources` | Which tools the agent may use (see below). Default `["asknews"]`. |
 | `model` | The LLM driving the agent. |
-| `engine` | `"v2.0"` is the current engine; `"v1.5"` is the previous one (and the one alerts use). |
+| `engine` | `"v2.0"` is the current engine; `"v1.5"` is the previous one (and the one alerts use). The SDK defaults to `"v1"`, so set it explicitly. |
 | `search_depth`, `max_depth` | How much research to do. See [13 Deep research depth](13_deep_research_depth.md). |
 | `filter_params` | Defaults applied to the agent's AskNews searches (e.g. `hours_back`, `languages`). |
 | `stream` | Stream the agent's thinking, tool calls, text, and sources as they happen. |
@@ -28,10 +28,10 @@ Sources:
 |---|---|
 | `"asknews"` | News search (the `search_news` filters, incl. entity/string guarantees) |
 | `"google"` | Live web search |
-| `"x"` | X (Twitter) advanced search |
+| `"x"` | X (Twitter) advanced search. Needs Spelunker or above |
 | `"wiki"` | Wikipedia |
 | `"podcasts"` | Podcast search |
-| `"reddit"` | Reddit threads |
+| `"reddit"` | Reddit threads. Needs Analyst or above |
 | `"graph"` | News knowledge graph |
 | `"charts"` | Chart generation from news data |
 | `"full_text_discovery"` | Full article text |
@@ -55,7 +55,6 @@ from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK(
     api_key=os.environ["ASKNEWS_API_KEY"],
-    scopes=["chat", "news"],
 )
 ```
 
@@ -300,7 +299,7 @@ from asknews_sdk import AsyncAskNewsSDK
 from asknews_sdk.dto.deepnews import CreateDeepNewsResponseStreamSourceBatch
 
 async def main():
-    async with AsyncAskNewsSDK(api_key=..., scopes=["chat"]) as ask:
+    async with AsyncAskNewsSDK(api_key=...) as ask:
         stream = await ask.chat.get_deep_news(
             messages=[{"role": "user", "content": question}],
             sources=["asknews", "google"],
@@ -355,7 +354,7 @@ import asyncio
 from asknews_sdk import AsyncAskNewsSDK
 
 async def main():
-    async with AsyncAskNewsSDK(api_key=..., scopes=["chat"]) as ask:
+    async with AsyncAskNewsSDK(api_key=...) as ask:
         questions = ["...", "...", "..."]
         results = await asyncio.gather(*[
             ask.chat.get_deep_news(

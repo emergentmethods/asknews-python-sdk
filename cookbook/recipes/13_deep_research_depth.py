@@ -81,7 +81,6 @@ from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK(
     api_key=os.environ["ASKNEWS_API_KEY"],
-    scopes=["chat", "news"],
 )
 
 # %% [markdown]
@@ -149,10 +148,10 @@ response = ask.chat.get_deep_news(
 # %% [markdown]
 # ## Backtesting with a knowledge cutoff
 #
-# `cutoff_datetime` tells every tool to ignore information after a point in
-# time. Also cap the news searches with `filter_params["end_timestamp"]`
-# so the two agree. This lets you evaluate research or forecasts as of a
-# past date without leakage.
+# `cutoff_datetime` tells every tool to ignore information after a point
+# in time. Also cap the news searches with
+# `filter_params["end_timestamp"]` so the two agree. This lets you
+# evaluate research or forecasts as of a past date without leakage.
 
 # %%
 cutoff = datetime(2026, 4, 15, 14, 0, tzinfo=timezone.utc)
@@ -165,5 +164,5 @@ response = ask.chat.get_deep_news(
     search_depth=3,
     max_depth=6,
     cutoff_datetime=cutoff,
-    filter_params={"end_timestamp": int(cutoff.timestamp()), "historical": True},
+    filter_params={"end_timestamp": int(cutoff.timestamp())},
 )

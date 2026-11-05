@@ -8,7 +8,7 @@ Podcast episodes are indexed alongside news and are searchable with
 - `"none"`: exclude podcasts (articles only).
 
 All the usual filters (`entity_guarantee`, `string_guarantee`,
-time windows, `historical`) apply to podcasts too.
+and time windows) apply to podcasts too.
 
 Podcasts are where opinions, interviews, and long-form commentary live.
 Reach for them when the question is "what are people saying about X" more
@@ -22,7 +22,6 @@ from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK(
     api_key=os.environ["ASKNEWS_API_KEY"],
-    scopes=["news", "chat"],
 )
 ```
 
@@ -33,7 +32,6 @@ response = ask.news.search_news(
     query="opinions on the war with Iran, commentary, debate",
     podcasts="only",
     hours_back=168,
-    historical=True,
     n_articles=10,
     return_type="dicts",
 )
@@ -52,7 +50,6 @@ response = ask.news.search_news(
     entity_guarantee=["Person:Dario Amodei"],
     podcasts="only",
     hours_back=720,
-    historical=True,
     n_articles=10,
     return_type="string",
 )
@@ -70,7 +67,6 @@ response = ask.news.search_news(
     podcasts="none",
     hours_back=24,
     n_articles=10,
-    premium=True,
 )
 ```
 

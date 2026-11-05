@@ -27,7 +27,6 @@ from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK(
     api_key=os.environ["ASKNEWS_API_KEY"],
-    scopes=["news"],
 )
 ```
 
@@ -76,10 +75,8 @@ news = ask.news.search_news(
     query=f"{subject} contract funding drones defense AI",
     entity_guarantee=[f"Organization:{subject}"],
     hours_back=168,
-    historical=True,
     n_articles=10,
     return_type="string",
-    premium=True,
 )
 
 background_text = "\n\n".join(

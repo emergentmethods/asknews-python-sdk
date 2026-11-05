@@ -9,7 +9,7 @@ combine filters. The building blocks:
 | `entity_guarantee` with `Product:` / `Organization:` / `Location:` / `Event:` | Extracted entities that must appear |
 | `reverse_string_guarantee` / `reverse_entity_guarantee` | Removing known noise |
 | `categories` | Coarse topic restriction (`Business`, `Technology`, `Finance`, ...) |
-| `domain_url` / `bad_domain_url` | Trade press only, or excluding sites |
+| `domain_url` / `bad_domain_url` | Trade press only, or excluding sites. `domain_url` needs Analyst or Enterprise |
 | `languages`, `countries`, `continents` | Market / geography |
 | `sentiment` | Only negative (or positive) coverage |
 | `page_rank` | Drop low-authority sites |
@@ -33,7 +33,6 @@ from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK(
     api_key=os.environ["ASKNEWS_API_KEY"],
-    scopes=["news"],
 )
 ```
 
@@ -46,10 +45,8 @@ response = ask.news.search_news(
     entity_guarantee=["Organization:Apple"],
     query="Apple Vision Pro sales, reviews, price, shipments, developer adoption",
     hours_back=168,
-    historical=True,
-    n_articles=20,
+    n_articles=10,
     return_type="dicts",
-    premium=True,
 )
 ```
 
@@ -65,11 +62,9 @@ response = ask.news.search_news(
     sentiment="negative",
     reporting_voice=["Objective", "Analytical"],
     hours_back=72,
-    historical=True,
     time_filter="pub_date",
-    n_articles=20,
+    n_articles=10,
     return_type="dicts",
-    premium=True,
 )
 ```
 
@@ -92,11 +87,9 @@ response = ask.news.search_news(
     query="meal kit, recipe box, meal delivery kit, cook-at-home kit, food subscription",
     languages=["en", "es", "pt"],
     hours_back=720,
-    historical=True,
     time_filter="pub_date",
-    n_articles=50,
+    n_articles=10,
     return_type="dicts",
-    premium=True,
 )
 ```
 
@@ -118,9 +111,8 @@ response = ask.news.search_news(
     languages=["en", "fr", "es", "de"],
     hours_back=24,
     time_filter="pub_date",
-    n_articles=25,
+    n_articles=10,
     return_type="both",
-    premium=True,
 )
 ```
 
@@ -131,8 +123,7 @@ response = ask.news.search_news(
     query="semiconductor fab capacity, wafer starts, foundry pricing, advanced packaging",
     domain_url=["eetimes.com", "semiengineering.com", "digitimes.com", "anandtech.com"],
     hours_back=168,
-    historical=True,
-    n_articles=20,
+    n_articles=10,
     return_type="dicts",
 )
 ```
@@ -152,9 +143,8 @@ response = ask.news.search_news(
     hours_back=48,
     time_filter="pub_date",
     method="kw",
-    n_articles=50,
+    n_articles=10,
     return_type="dicts",
-    premium=True,
 )
 ```
 

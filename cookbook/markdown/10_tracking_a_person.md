@@ -25,7 +25,6 @@ from asknews_sdk import AskNewsSDK
 
 ask = AskNewsSDK(
     api_key=os.environ["ASKNEWS_API_KEY"],
-    scopes=["news", "chat"],
 )
 ```
 
@@ -46,7 +45,6 @@ response = ask.news.search_news(
     time_filter="pub_date",
     n_articles=10,
     return_type="both",
-    premium=True,
 )
 print(response.as_string)
 ```
@@ -62,10 +60,8 @@ response = ask.news.search_news(
     entity_guarantee_op="AND",
     query="Daniel Ek Helsing chairman defense AI investment",
     hours_back=720,
-    historical=True,
     n_articles=10,
     return_type="dicts",
-    premium=True,
 )
 ```
 
@@ -75,7 +71,6 @@ response = ask.news.search_news(
 response = ask.news.search_news(
     authors=["Kaitlan Collins"],
     hours_back=168,
-    historical=True,
     n_articles=10,
     return_type="dicts",
 )
@@ -103,7 +98,6 @@ for name, description, handle in watchlist:
         time_filter="pub_date",
         n_articles=5,
         return_type="string",
-        premium=True,
     )
     posts = ask.chat.live_web_search(
         queries=[f"(from:{handle} OR @{handle}) min_faves:20"],
