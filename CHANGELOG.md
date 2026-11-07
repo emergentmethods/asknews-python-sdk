@@ -1,3 +1,14 @@
+## 0.16.0 (2026-11-07)
+
+### Feat
+
+- Add wiki entity linking and QID lookup methods
+
+### Fix
+
+- Match entity linking defaults and response shape to the API
+- Declare and type every Wikidata property in the wiki DTOs
+
 ## 0.15.3 (2026-11-05)
 
 ### Fix
