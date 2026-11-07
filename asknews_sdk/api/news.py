@@ -166,9 +166,8 @@ class NewsAPI(BaseAPI[APIClient]):
             (like a classic news api). Can be 'string' or 'dicts', or 'both', defaults
             to "dicts".
         :type return_type: Literal["string", "dicts", "both"]
-        :param historical: Search on archive of historical news. Defaults to False,
-            meaning that the search will only look through the most recent news
-            (48 hours)
+        :param historical: Deprecated, has no effect. The time window alone sets
+            what is searched.
         :type historical: bool
         :param method: Method to use for searching. Both `kw` and `nl`
             support natural language queries. `kw` tries to match keywords,
