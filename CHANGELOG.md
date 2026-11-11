@@ -1,3 +1,10 @@
+## 0.16.1 (2026-11-11)
+
+### Fix
+
+- Name the per-tool stream tags in the DeepNews engine description
+- Default the DeepNews engine to v1.5 and describe the engines accurately
+
 ## 0.16.0 (2026-11-07)
 
 ### Feat
