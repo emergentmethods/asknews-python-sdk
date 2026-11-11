@@ -260,7 +260,8 @@ class CreateDeepNewsRequest(BaseSchema):
             title=(
                 "Which engine to use for the DeepNews response. All engines run the same "
                 "research agent and differ only in how a stream carries thinking and tool use: "
-                "'v1.5' streams them as inline tags (<think> </think>, <tool_a> </tool_a>), "
+                "'v1.5' streams them as inline tags, <think> </think> for thinking and one tag "
+                "per tool named for the tool (for example <asknews_search> </asknews_search>), "
                 "'v2.0' as typed content_block_start, content_block_delta and "
                 "content_block_stop events in Anthropic's streaming style. 'v1' is deprecated "
                 "and behaves like 'v1.5'."
