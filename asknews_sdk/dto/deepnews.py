@@ -258,12 +258,15 @@ class CreateDeepNewsRequest(BaseSchema):
         Optional[Literal["v1", "v1.5", "v2.0"]],
         Field(
             title=(
-                "Which engine to use for the DeepNews response. 'v1' is the original engine, while "
-                "'v1.5' is an improved engine with better performance and capabilities. "
-                "Check API reference for more details on the differences between the engines."
+                "Which engine to use for the DeepNews response. All engines run the same "
+                "research agent and differ only in how a stream carries thinking and tool use: "
+                "'v1.5' streams them as inline tags (<think> </think>, <tool_a> </tool_a>), "
+                "'v2.0' as typed content_block_start, content_block_delta and "
+                "content_block_stop events in Anthropic's streaming style. 'v1' is deprecated "
+                "and behaves like 'v1.5'."
             )
         ),
-    ] = "v1"
+    ] = "v1.5"
     max_parallel_tool_calls: Annotated[
         Optional[int],
         Field(
