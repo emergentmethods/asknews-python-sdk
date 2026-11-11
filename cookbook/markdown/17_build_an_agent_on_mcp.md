@@ -20,8 +20,9 @@ same tools in production. They apply to any framework or model.
    and X call. A prompt instruction is a request. An interceptor is a
    guarantee.
 3. **Retry rate limits in the client.** A rate-limited tool call comes back
-   as a tool error with a "retry after N s" hint. Retry it with backoff
-   instead of letting the model see the error and give up or improvise.
+   as a tool error with code 429000 (rate limit) or 429001 (concurrency
+   limit). Retry it with backoff instead of letting the model see the
+   error and give up or improvise.
 4. **Tell the model the current date** (or the backtest cutoff) in the
    user message. Otherwise "latest" means "latest in my training data".
 5. **Teach the filters in the system prompt.** The biggest quality jump
@@ -155,13 +156,20 @@ class EnforceConstraints:
 
 ## 3. Retry rate limits with an interceptor
 
+A rate-limited call returns a tool error whose text contains `429000`
+(rate limit) or `429001` (concurrency limit). The interceptor retries
+those with exponential backoff and returns every other error unchanged.
+If the text carries a "Retry after Ns" hint, it waits at least that long.
+
 ```python
-RETRY_AFTER = re.compile(r"retry.after\s+(\d+(?:\.\d+)?)\s*s", re.IGNORECASE)
+RATE_LIMIT_CODES = re.compile(r"\b42900[01]\b")
+RETRY_AFTER = re.compile(r"retry after\s+(\d+(?:\.\d+)?)\s*s", re.IGNORECASE)
 
 
 class RetryOnRateLimit:
-    def __init__(self, max_retries: int = 5, max_delay: float = 60.0):
+    def __init__(self, max_retries: int = 5, base_delay: float = 1.0, max_delay: float = 60.0):
         self.max_retries = max_retries
+        self.base_delay = base_delay
         self.max_delay = max_delay
 
     async def __call__(self, request, handler):
@@ -170,10 +178,12 @@ class RetryOnRateLimit:
             if not getattr(result, "isError", False):
                 return result
             text = " ".join(getattr(c, "text", "") for c in result.content)
-            match = RETRY_AFTER.search(text)
-            if not match or attempt == self.max_retries:
+            if not RATE_LIMIT_CODES.search(text) or attempt == self.max_retries:
                 return result
-            await asyncio.sleep(min(float(match.group(1)) * 2**attempt, self.max_delay))
+            delay = self.base_delay * 2**attempt
+            if match := RETRY_AFTER.search(text):
+                delay = max(delay, float(match.group(1)))
+            await asyncio.sleep(min(delay, self.max_delay))
         return result
 ```
 

@@ -28,7 +28,7 @@ The pieces you control:
 | `messages` | The task. Chat format; the last user message is the request. |
 | `sources` | Which tools the agent may use (see below). Default `["asknews"]`. |
 | `model` | The LLM driving the agent. |
-| `engine` | `"v2.0"` is the current engine; `"v1.5"` is the previous one (and the one alerts use). The SDK defaults to `"v1"`, so set it explicitly. |
+| `engine` | How a stream carries thinking and tool use; every engine runs the same research agent. `"v2.0"` sends typed events and is the one to use for new work. `"v1.5"` (the default) sends inline tags such as `<think>`. `"v1"` is deprecated and behaves like `"v1.5"`. |
 | `search_depth`, `max_depth` | How much research to do. See [13 Set deep research depth](13_set_deep_research_depth.md). |
 | `filter_params` | Defaults applied to the agent's AskNews searches (e.g. `hours_back`, `languages`). |
 | `stream` | Stream the agent's thinking, tool calls, text, and sources as they happen. |

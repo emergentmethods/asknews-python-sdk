@@ -48,7 +48,7 @@
 #   concatenated.
 # - **Test with `run_alert`** before you wait for the schedule, and read
 #   `list_alert_logs` to see what happened.
-# - Alert reports use DeepNews `engine="v1.5"`.
+# - Alert reports run on DeepNews with `engine="v1.5"`, the default.
 
 # %%
 import os
