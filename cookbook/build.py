@@ -81,6 +81,13 @@ def title_of(markdown: str) -> str:
     return ""
 
 
+def use_when_of(markdown: str) -> str:
+    for paragraph in markdown.split("\n\n"):
+        if paragraph.startswith("**Use this when**"):
+            return " ".join(paragraph.split())
+    return ""
+
+
 def main() -> None:
     OUT.mkdir(exist_ok=True)
     index = [
@@ -94,7 +101,9 @@ def main() -> None:
         markdown = render(recipe.read_text())
         target = OUT / f"{recipe.stem}.md"
         target.write_text(markdown)
-        index.append(f"- [{title_of(markdown)}]({target.name})")
+        entry = f"- [{title_of(markdown)}]({target.name})"
+        use_when = use_when_of(markdown)
+        index.append(f"{entry}: {use_when}" if use_when else entry)
         print(f"wrote {target.relative_to(ROOT)}")
     (OUT / "index.md").write_text("\n".join(index) + "\n")
     print(f"wrote {(OUT / 'index.md').relative_to(ROOT)}")
