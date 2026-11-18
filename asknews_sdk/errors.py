@@ -1,4 +1,6 @@
-from typing import Dict, Optional, Union
+from collections.abc import Mapping
+from http import HTTPStatus
+from typing import Any, Dict, Optional, Union
 
 from asknews_sdk.response import APIResponse, AsyncAPIResponse
 
@@ -102,8 +104,33 @@ ErrorMap = {
 
 
 def raise_from_response(response: Union[APIResponse, AsyncAPIResponse]) -> None:
-    json: Dict = response.content
-    code = json.get("code", json.get("status_code", 500) * 1000)
-    detail = json.get("detail")
+    content = response.content
+    code = response.status_code * 1000
+    detail: Any
+    try:
+        detail = HTTPStatus(response.status_code).phrase
+    except ValueError:
+        detail = "HTTP request failed"
+
+    if isinstance(content, Mapping):
+        application_code = content.get("code")
+        # Application errors use a six-digit HTTP-status prefix + subcode.
+        # Do not coerce strings, floats, booleans or container values.
+        if type(application_code) is int and 400000 <= application_code < 600000:
+            code = application_code
+
+        structured_detail = content.get("detail")
+        if isinstance(structured_detail, str) and structured_detail:
+            # Keep structured messages useful without allowing unbounded or
+            # control-character-filled text into exception messages/logs.
+            detail = "".join(
+                char if char.isprintable() else " " for char in structured_detail[:1024]
+            )
+        elif code == 422000 and isinstance(structured_detail, (dict, list)):
+            # Preserve the existing machine-readable validation error contract.
+            detail = structured_detail
+
+    # Never echo arbitrary proxy bodies (including HTML) into the error detail.
+    # The original body, HTTP status and headers remain available on response.
 
     raise ErrorMap.get(code, APIError)(response, detail, code)

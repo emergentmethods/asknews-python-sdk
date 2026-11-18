@@ -4,6 +4,7 @@ import codecs
 from typing import Any, AsyncIterator, Dict, Generic, Iterator, TypeVar
 
 from httpx import Request, Response
+from orjson import JSONDecodeError
 
 from asknews_sdk.types import (
     AsyncResponseBody,
@@ -41,9 +42,18 @@ class BaseAPIResponse(Generic[TResponseBody]):
         if self.content_type == "application/octet-stream":
             return self.body
         elif self.content_type == "application/json" and self.body and isinstance(self.body, bytes):
-            return deserialize(self.body)
+            try:
+                return deserialize(self.body)
+            except JSONDecodeError:
+                if self.status_code < 300:
+                    raise
+                # Error bodies may be malformed or mislabeled by a proxy.
+                # Preserve them without hiding the original HTTP failure.
+                return self.body
         elif self.content_type == "text/plain" and isinstance(self.body, bytes):
-            return self.body.decode("utf-8")
+            return self.body.decode(
+                "utf-8", errors="replace" if self.status_code >= 300 else "strict"
+            )
         else:
             return self.body
 
