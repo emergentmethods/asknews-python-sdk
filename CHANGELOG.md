@@ -1,3 +1,9 @@
+## 0.16.2 (2026-11-18)
+
+### Fix
+
+- Default DeepNews to Claude Sonnet 5.5
+
 ## 0.16.1 (2026-11-11)
 
 ### Fix
