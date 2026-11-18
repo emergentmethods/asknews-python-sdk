@@ -37,7 +37,7 @@ def test_readme_usage_example_runs_with_mocked_responses(response_mock, capsys):
         assert payload["sources"] == ["asknews", "google", "wiki"]
         assert payload["engine"] == "v1.5"
         assert payload["stream"] is False
-        assert payload["model"] == "claude-sonnet-4-6"
+        assert payload["model"] == "claude-sonnet-5-5"
     finally:
         if "ask" in namespace:
             namespace["ask"].close()
