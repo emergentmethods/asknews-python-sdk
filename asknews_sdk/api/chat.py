@@ -584,7 +584,7 @@ class ChatAPI(BaseAPI[APIClient]):
     def get_deep_news(
         self,
         messages: List[Dict[str, str]],
-        model: DeepNewsModel = "claude-sonnet-4-6",
+        model: DeepNewsModel = "claude-sonnet-5-5",
         stream: Literal[False] = False,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -622,7 +622,7 @@ class ChatAPI(BaseAPI[APIClient]):
     def get_deep_news(
         self,
         messages: List[Dict[str, str]],
-        model: DeepNewsModel = "claude-sonnet-4-6",
+        model: DeepNewsModel = "claude-sonnet-5-5",
         stream: Literal[True] = True,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -660,7 +660,7 @@ class ChatAPI(BaseAPI[APIClient]):
     def get_deep_news(
         self,
         messages: List[Dict[str, str]],
-        model: DeepNewsModel = "claude-sonnet-4-6",
+        model: DeepNewsModel = "claude-sonnet-5-5",
         stream: Literal[True] = True,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -697,7 +697,7 @@ class ChatAPI(BaseAPI[APIClient]):
     def get_deep_news(
         self,
         messages: List[Dict[str, str]],
-        model: DeepNewsModel = "claude-sonnet-4-6",
+        model: DeepNewsModel = "claude-sonnet-5-5",
         stream: bool = False,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -1354,7 +1354,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
     async def get_deep_news(
         self,
         messages: List[Dict[str, str]],
-        model: DeepNewsModel = "claude-sonnet-4-6",
+        model: DeepNewsModel = "claude-sonnet-5-5",
         stream: Literal[False] = False,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -1392,7 +1392,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
     async def get_deep_news(
         self,
         messages: List[Dict[str, str]],
-        model: DeepNewsModel = "claude-sonnet-4-6",
+        model: DeepNewsModel = "claude-sonnet-5-5",
         stream: Literal[True] = True,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -1430,7 +1430,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
     async def get_deep_news(
         self,
         messages: List[Dict[str, str]],
-        model: DeepNewsModel = "claude-sonnet-4-6",
+        model: DeepNewsModel = "claude-sonnet-5-5",
         stream: Literal[True] = True,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,
@@ -1467,7 +1467,7 @@ class AsyncChatAPI(BaseAPI[AsyncAPIClient]):
     async def get_deep_news(
         self,
         messages: List[Dict[str, str]],
-        model: DeepNewsModel = "claude-sonnet-4-6",
+        model: DeepNewsModel = "claude-sonnet-5-5",
         stream: bool = False,
         inline_citations: Literal["markdown_link", "numbered", "none"] = "markdown_link",
         append_references: bool = True,

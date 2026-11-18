@@ -26,6 +26,7 @@ from asknews_sdk.dto.deepnews import (
     CreateDeepNewsResponseStreamSourceBatchWebEntry,
     CreateDeepNewsResponseStreamV2,
 )
+from tests.api.test_chat import MockCreateDeepNewsResponse
 
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "research_canvas"
@@ -246,3 +247,71 @@ def test_article_cluster_metrics_are_optional_and_nullable():
         {**source, "centroid_distance": None, "cluster_probability": 0.5}
     )
     assert explicit.centroid_distance is None and explicit.cluster_probability == 0.5
+
+
+@pytest.mark.parametrize("stream", [False, True])
+@pytest.mark.parametrize("model", [None, "claude-sonnet-4-6", "claude-opus-5-5"])
+def test_sync_deepnews_model_defaults_and_overrides(
+    sync_chat_api: ChatAPI, response_mock: MockRouter, stream: bool, model
+):
+    if stream:
+        route = response_mock.post("/v1/chat/deepnews").respond(
+            stream=_sse("serial_v2_stream.jsonl"),
+            headers={"content-type": CreateDeepNewsResponseStreamChunkV2.__content_type__},
+        )
+    else:
+        mock_response = MockCreateDeepNewsResponse.build()
+        route = response_mock.post("/v1/chat/deepnews").respond(
+            content=mock_response.model_dump_json()
+        )
+
+    model_kwargs = {} if model is None else {"model": model}
+    response = sync_chat_api.get_deep_news(
+        messages=MESSAGES, stream=stream, engine="v2.0", **model_kwargs
+    )
+    if stream:
+        assert len(list(response)) == len(_chunks("serial_v2_stream.jsonl"))
+    else:
+        assert response.model_dump(mode="json") == mock_response.model_dump(mode="json")
+
+    payload = json.loads(route.calls.last.request.content)
+    assert payload["model"] == ("claude-sonnet-5-5" if model is None else model)
+    assert payload["stream"] is stream
+    assert payload["engine"] == "v2.0"
+
+
+@pytest.mark.parametrize("stream", [False, True])
+@pytest.mark.parametrize("model", [None, "claude-sonnet-4-6", "claude-opus-5-5"])
+async def test_async_deepnews_model_defaults_and_overrides(
+    async_chat_api: AsyncChatAPI, response_mock: MockRouter, stream: bool, model
+):
+    if stream:
+        route = response_mock.post("/v1/chat/deepnews").respond(
+            stream=_async_sse("serial_v2_stream.jsonl"),
+            headers={"content-type": CreateDeepNewsResponseStreamChunkV2.__content_type__},
+        )
+    else:
+        mock_response = MockCreateDeepNewsResponse.build()
+        route = response_mock.post("/v1/chat/deepnews").respond(
+            content=mock_response.model_dump_json()
+        )
+
+    model_kwargs = {} if model is None else {"model": model}
+    response = await async_chat_api.get_deep_news(
+        messages=MESSAGES, stream=stream, engine="v2.0", **model_kwargs
+    )
+    if stream:
+        assert len([chunk async for chunk in response]) == len(_chunks("serial_v2_stream.jsonl"))
+    else:
+        assert response.model_dump(mode="json") == mock_response.model_dump(mode="json")
+
+    payload = json.loads(route.calls.last.request.content)
+    assert payload["model"] == ("claude-sonnet-5-5" if model is None else model)
+    assert payload["stream"] is stream
+    assert payload["engine"] == "v2.0"
+
+
+def test_deepnews_request_dto_keeps_nullable_model_default():
+    assert CreateDeepNewsRequest(messages=MESSAGES).model_dump(mode="json")["model"] is None
+    explicit = CreateDeepNewsRequest(messages=MESSAGES, model=None).model_dump(mode="json")
+    assert explicit["model"] is None
